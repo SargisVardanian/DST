@@ -9,12 +9,9 @@
 __pycache__/
 *.py[cod]
 
-# Модели, логи, результаты
-**/model.pth
-**/results/
-**/*.csv
-**/*.png
-
-# DST–файлы, дампы правил
-**/*.dsb
+# data, модели, логи, результаты
+*.pth
 *.pkl
+*.csv
+*.png
+*.dsb
