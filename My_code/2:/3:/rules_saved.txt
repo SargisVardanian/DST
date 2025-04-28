@@ -1,0 +1,270 @@
+Rule 1: mean radius < 14.0976
+  mass = [0.00643045 0.31644094 0.67712855], sum=1.0000
+
+Rule 2: mean radius ~ 14.0976 ± 1.7529
+  mass = [0.1947965  0.07404786 0.73115563], sum=1.0000
+
+Rule 3: mean radius > 14.0976
+  mass = [0.29354846 0.00311118 0.7033404 ], sum=1.0000
+
+Rule 4: mean texture < 19.2653
+  mass = [0.         0.3429768  0.65702313], sum=1.0000
+
+Rule 5: mean texture ~ 19.2653 ± 2.1823
+  mass = [0.02442987 0.27351898 0.7020511 ], sum=1.0000
+
+Rule 6: mean texture > 19.2653
+  mass = [0.31237084 0.         0.68762916], sum=1.0000
+
+Rule 7: mean perimeter < 91.7699
+  mass = [0.00958954 0.3254918  0.66491866], sum=1.0000
+
+Rule 8: mean perimeter ~ 91.7699 ± 12.1106
+  mass = [0.20096752 0.06890438 0.73012805], sum=1.0000
+
+Rule 9: mean perimeter > 91.7699
+  mass = [0.3038227  0.00240023 0.693777  ], sum=1.0000
+
+Rule 10: mean area < 651.9758
+  mass = [0.         0.3204707  0.67952937], sum=1.0000
+
+Rule 11: mean area ~ 651.9758 ± 174.8358
+  mass = [0.21901762 0.07042143 0.7105609 ], sum=1.0000
+
+Rule 12: mean area > 651.9758
+  mass = [0.33254474 0.         0.6674552 ], sum=1.0000
+
+Rule 13: mean smoothness < 0.0963
+  mass = [0.01112607 0.28023946 0.7086345 ], sum=1.0000
+
+Rule 14: mean smoothness ~ 0.0963 ± 0.0068
+  mass = [0.02265857 0.25973076 0.7176108 ], sum=1.0000
+
+Rule 15: mean smoothness > 0.0963
+  mass = [0.2738272  0.03350641 0.69266635], sum=1.0000
+
+Rule 16: mean compactness < 0.1040
+  mass = [0.04575759 0.24317554 0.71106684], sum=1.0000
+
+Rule 17: mean compactness ~ 0.1040 ± 0.0265
+  mass = [0.23192085 0.04526912 0.72281   ], sum=1.0000
+
+Rule 18: mean compactness > 0.1040
+  mass = [0.17142953 0.09675463 0.7318159 ], sum=1.0000
+
+Rule 19: mean concavity < 0.0889
+  mass = [1.5947223e-04 3.2378542e-01 6.7605513e-01], sum=1.0000
+
+Rule 20: mean concavity ~ 0.0889 ± 0.0403
+  mass = [0.19961613 0.07292734 0.72745657], sum=1.0000
+
+Rule 21: mean concavity > 0.0889
+  mass = [0.2759838  0.01943099 0.7045852 ], sum=1.0000
+
+Rule 22: mean concave points < 0.0487
+  mass = [9.089708e-05 3.455649e-01 6.543442e-01], sum=1.0000
+
+Rule 23: mean concave points ~ 0.0487 ± 0.0196
+  mass = [0.19737323 0.07224853 0.7303782 ], sum=1.0000
+
+Rule 24: mean concave points > 0.0487
+  mass = [0.3423167  0.         0.65768325], sum=1.0000
+
+Rule 25: mean symmetry < 0.1807
+  mass = [0.02647336 0.25814682 0.7153798 ], sum=1.0000
+
+Rule 26: mean symmetry ~ 0.1807 ± 0.0139
+  mass = [2.3497641e-04 2.9150605e-01 7.0825905e-01], sum=1.0000
+
+Rule 27: mean symmetry > 0.1807
+  mass = [0.16247825 0.10489751 0.73262423], sum=1.0000
+
+Rule 28: mean fractal dimension < 0.0628
+  mass = [0.06229261 0.20935068 0.7283567 ], sum=1.0000
+
+Rule 29: mean fractal dimension ~ 0.0628 ± 0.0035
+  mass = [2.8625131e-05 3.1865656e-01 6.8131483e-01], sum=1.0000
+
+Rule 30: mean fractal dimension > 0.0628
+  mass = [0.11036526 0.1559106  0.7337242 ], sum=1.0000
+
+Rule 31: radius error < 0.4051
+  mass = [0.00154446 0.31261373 0.6858418 ], sum=1.0000
+
+Rule 32: radius error ~ 0.4051 ± 0.1426
+  mass = [0.23460704 0.03572738 0.72966564], sum=1.0000
+
+Rule 33: radius error > 0.4051
+  mass = [0.26352662 0.03401066 0.70246273], sum=1.0000
+
+Rule 34: texture error < 1.2197
+  mass = [0.02656657 0.25862214 0.7148112 ], sum=1.0000
+
+Rule 35: texture error ~ 1.2197 ± 0.2817
+  mass = [0.28199196 0.         0.718008  ], sum=1.0000
+
+Rule 36: texture error > 1.2197
+  mass = [0.156078   0.11273879 0.73118323], sum=1.0000
+
+Rule 37: perimeter error < 2.8668
+  mass = [0.01232171 0.30009487 0.6875833 ], sum=1.0000
+
+Rule 38: perimeter error ~ 2.8668 ± 1.0438
+  mass = [0.21733658 0.05432247 0.7283409 ], sum=1.0000
+
+Rule 39: perimeter error > 2.8668
+  mass = [0.21334124 0.07287472 0.713784  ], sum=1.0000
+
+Rule 40: area error < 40.4976
+  mass = [0.00067751 0.32862246 0.6707    ], sum=1.0000
+
+Rule 41: area error ~ 40.4976 ± 23.5082
+  mass = [0.23056622 0.0392874  0.7301463 ], sum=1.0000
+
+Rule 42: area error > 40.4976
+  mass = [0.38240558 0.00128074 0.61631376], sum=1.0000
+
+Rule 43: smoothness error < 0.0071
+  mass = [0.02695706 0.25766864 0.71537435], sum=1.0000
+
+Rule 44: smoothness error ~ 0.0071 ± 0.0015
+  mass = [0.25720584 0.01475194 0.72804224], sum=1.0000
+
+Rule 45: smoothness error > 0.0071
+  mass = [0.16073963 0.10954881 0.72971153], sum=1.0000
+
+Rule 46: compactness error < 0.0254
+  mass = [0.06055292 0.2354059  0.7040412 ], sum=1.0000
+
+Rule 47: compactness error ~ 0.0254 ± 0.0090
+  mass = [0.2343273  0.05699669 0.708676  ], sum=1.0000
+
+Rule 48: compactness error > 0.0254
+  mass = [0.1166874  0.15167516 0.7316375 ], sum=1.0000
+
+Rule 49: concavity error < 0.0322
+  mass = [0.04836686 0.28559053 0.6660426 ], sum=1.0000
+
+Rule 50: concavity error ~ 0.0322 ± 0.0156
+  mass = [0.27015167 0.00998808 0.7198602 ], sum=1.0000
+
+Rule 51: concavity error > 0.0322
+  mass = [0.15928468 0.12938404 0.7113313 ], sum=1.0000
+
+Rule 52: concave points error < 0.0117
+  mass = [0.065376   0.21206586 0.7225582 ], sum=1.0000
+
+Rule 53: concave points error ~ 0.0117 ± 0.0031
+  mass = [0.2500062  0.02172285 0.728271  ], sum=1.0000
+
+Rule 54: concave points error > 0.0117
+  mass = [0.16455069 0.10885176 0.72659755], sum=1.0000
+
+Rule 55: symmetry error < 0.0207
+  mass = [0.28156644 0.         0.71843356], sum=1.0000
+
+Rule 56: symmetry error ~ 0.0207 ± 0.0043
+  mass = [0.2038959  0.06461409 0.73149   ], sum=1.0000
+
+Rule 57: symmetry error > 0.0207
+  mass = [0.12148975 0.1486389  0.7298713 ], sum=1.0000
+
+Rule 58: fractal dimension error < 0.0038
+  mass = [0.0389979  0.24826092 0.71274114], sum=1.0000
+
+Rule 59: fractal dimension error ~ 0.0038 ± 0.0014
+  mass = [0.25794697 0.01444042 0.7276126 ], sum=1.0000
+
+Rule 60: fractal dimension error > 0.0038
+  mass = [0.05223277 0.2336834  0.7140838 ], sum=1.0000
+
+Rule 61: worst radius < 16.2273
+  mass = [0.         0.35921657 0.6407834 ], sum=1.0000
+
+Rule 62: worst radius ~ 16.2273 ± 2.4105
+  mass = [0.18769829 0.082923   0.72937864], sum=1.0000
+
+Rule 63: worst radius > 16.2273
+  mass = [0.36720908 0.         0.6327909 ], sum=1.0000
+
+Rule 64: worst texture < 25.6360
+  mass = [0.         0.37830174 0.6216983 ], sum=1.0000
+
+Rule 65: worst texture ~ 25.6360 ± 3.0948
+  mass = [0.02218823 0.27575842 0.7020533 ], sum=1.0000
+
+Rule 66: worst texture > 25.6360
+  mass = [0.34788257 0.         0.65211743], sum=1.0000
+
+Rule 67: worst perimeter < 106.9746
+  mass = [0.         0.35258138 0.6474187 ], sum=1.0000
+
+Rule 68: worst perimeter ~ 106.9746 ± 16.7966
+  mass = [0.18828292 0.07958792 0.73212916], sum=1.0000
+
+Rule 69: worst perimeter > 106.9746
+  mass = [0.3389119 0.        0.6610881], sum=1.0000
+
+Rule 70: worst area < 876.5545
+  mass = [0.         0.37068373 0.6293162 ], sum=1.0000
+
+Rule 71: worst area ~ 876.5545 ± 284.0406
+  mass = [0.233916   0.06139961 0.70468444], sum=1.0000
+
+Rule 72: worst area > 876.5545
+  mass = [0.48048383 0.         0.51951617], sum=1.0000
+
+Rule 73: worst smoothness < 0.1323
+  mass = [0.         0.31612813 0.6838719 ], sum=1.0000
+
+Rule 74: worst smoothness ~ 0.1323 ± 0.0114
+  mass = [0.23780972 0.03313264 0.72905767], sum=1.0000
+
+Rule 75: worst smoothness > 0.1323
+  mass = [0.27951166 0.00555943 0.7149289 ], sum=1.0000
+
+Rule 76: worst compactness < 0.2528
+  mass = [0.03436351 0.3009942  0.66464233], sum=1.0000
+
+Rule 77: worst compactness ~ 0.2528 ± 0.0782
+  mass = [0.20437658 0.06469108 0.73093235], sum=1.0000
+
+Rule 78: worst compactness > 0.2528
+  mass = [0.23005253 0.09057503 0.6793725 ], sum=1.0000
+
+Rule 79: worst concavity < 0.2730
+  mass = [1.3263524e-04 3.4423643e-01 6.5563095e-01], sum=1.0000
+
+Rule 80: worst concavity ~ 0.2730 ± 0.1055
+  mass = [0.20331924 0.06619725 0.7304836 ], sum=1.0000
+
+Rule 81: worst concavity > 0.2730
+  mass = [0.2741341  0.00089833 0.7249676 ], sum=1.0000
+
+Rule 82: worst concave points < 0.1140
+  mass = [0.00066991 0.35597765 0.64335245], sum=1.0000
+
+Rule 83: worst concave points ~ 0.1140 ± 0.0332
+  mass = [0.15433227 0.11211993 0.73354775], sum=1.0000
+
+Rule 84: worst concave points > 0.1140
+  mass = [3.2483506e-01 1.0356307e-05 6.7515457e-01], sum=1.0000
+
+Rule 85: worst symmetry < 0.2898
+  mass = [2.5583804e-04 3.1389618e-01 6.8584806e-01], sum=1.0000
+
+Rule 86: worst symmetry ~ 0.2898 ± 0.0315
+  mass = [0.00071096 0.29606995 0.70321906], sum=1.0000
+
+Rule 87: worst symmetry > 0.2898
+  mass = [0.29054007 0.         0.70945996], sum=1.0000
+
+Rule 88: worst fractal dimension < 0.0839
+  mass = [0.0070478  0.2862552  0.70669687], sum=1.0000
+
+Rule 89: worst fractal dimension ~ 0.0839 ± 0.0090
+  mass = [0.         0.31628132 0.68371874], sum=1.0000
+
+Rule 90: worst fractal dimension > 0.0839
+  mass = [0.14331557 0.12498848 0.7316959 ], sum=1.0000
+

@@ -1,0 +1,135 @@
+Rule 1: clump_thickness < 0.0078
+  mass = [0.         0.56207997 0.4379201 ], sum=1.0000
+
+Rule 2: clump_thickness ~ 0.0078 ± 0.5035
+  mass = [0.16895771 0.14517725 0.68586504], sum=1.0000
+
+Rule 3: clump_thickness > 0.0078
+  mass = [0.4395869  0.0156925  0.54472065], sum=1.0000
+
+Rule 4: clump_thickness between -0.7474 and -0.2439
+  mass = [0.05415462 0.52527624 0.42056906], sum=1.0000
+
+Rule 5: clump_thickness between 0.2596 and 0.7631
+  mass = [0.03478958 0.0709895  0.8942209 ], sum=1.0000
+
+Rule 6: size_uniformity < 0.0023
+  mass = [0.         0.5626228  0.43737715], sum=1.0000
+
+Rule 7: size_uniformity ~ 0.0023 ± 0.5021
+  mass = [0.00601989 0.32357833 0.6704018 ], sum=1.0000
+
+Rule 8: size_uniformity > 0.0023
+  mass = [0.629704   0.05927008 0.31102595], sum=1.0000
+
+Rule 9: size_uniformity between -0.7508 and -0.2487
+  mass = [0.         0.48210055 0.51789945], sum=1.0000
+
+Rule 10: size_uniformity between 0.2534 and 0.7555
+  mass = [0.37546316 0.04004627 0.58449054], sum=1.0000
+
+Rule 11: shape_uniformity < 0.0114
+  mass = [2.4661422e-04 3.8087022e-01 6.1888325e-01], sum=1.0000
+
+Rule 12: shape_uniformity ~ 0.0114 ± 0.5055
+  mass = [0.00924928 0.3541244  0.63662636], sum=1.0000
+
+Rule 13: shape_uniformity > 0.0114
+  mass = [0.53762233 0.05657777 0.4057999 ], sum=1.0000
+
+Rule 14: shape_uniformity between -0.7469 and -0.2414
+  mass = [0.04255661 0.34305084 0.6143925 ], sum=1.0000
+
+Rule 15: shape_uniformity between 0.2641 and 0.7697
+  mass = [0.4104995  0.08091471 0.5085858 ], sum=1.0000
+
+Rule 16: marginal_adhesion < -0.0055
+  mass = [0.05400071 0.3380584  0.6079409 ], sum=1.0000
+
+Rule 17: marginal_adhesion ~ -0.0055 ± 0.4968
+  mass = [0.03985727 0.22701621 0.7331265 ], sum=1.0000
+
+Rule 18: marginal_adhesion > -0.0055
+  mass = [0.7317381  0.00740165 0.26086032], sum=1.0000
+
+Rule 19: marginal_adhesion between -0.7507 and -0.2539
+  mass = [0.07481147 0.34443748 0.580751  ], sum=1.0000
+
+Rule 20: marginal_adhesion between 0.2429 and 0.7397
+  mass = [0.13818721 0.12252109 0.73929167], sum=1.0000
+
+Rule 21: epithelial_size < -0.0013
+  mass = [0.00450739 0.37311858 0.62237406], sum=1.0000
+
+Rule 22: epithelial_size ~ -0.0013 ± 0.4954
+  mass = [0.69131935 0.0239031  0.28477755], sum=1.0000
+
+Rule 23: epithelial_size > -0.0013
+  mass = [0.18422475 0.1244916  0.6912836 ], sum=1.0000
+
+Rule 24: epithelial_size between -0.7444 and -0.2490
+  mass = [0.00931761 0.5067867  0.48389563], sum=1.0000
+
+Rule 25: epithelial_size between 0.2463 and 0.7417
+  mass = [0.20622566 0.17084172 0.6229327 ], sum=1.0000
+
+Rule 26: bare_nucleoli < 0.0056
+  mass = [0.1567449  0.24329317 0.5999619 ], sum=1.0000
+
+Rule 27: bare_nucleoli ~ 0.0056 ± 0.5014
+  mass = [0.25915682 0.1316396  0.6092036 ], sum=1.0000
+
+Rule 28: bare_nucleoli > 0.0056
+  mass = [0.87610257 0.02995038 0.09394708], sum=1.0000
+
+Rule 29: bare_nucleoli between -0.7465 and -0.2451
+  mass = [0.00084404 0.43995503 0.5592009 ], sum=1.0000
+
+Rule 30: bare_nucleoli between 0.2563 and 0.7577
+  mass = [0.         0.14086848 0.8591315 ], sum=1.0000
+
+Rule 31: bland_chromatin < 0.0058
+  mass = [0.         0.5150214  0.48497862], sum=1.0000
+
+Rule 32: bland_chromatin ~ 0.0058 ± 0.4994
+  mass = [0.04039741 0.21815428 0.7414483 ], sum=1.0000
+
+Rule 33: bland_chromatin > 0.0058
+  mass = [0.         0.26377004 0.73622996], sum=1.0000
+
+Rule 34: bland_chromatin between -0.7433 and -0.2439
+  mass = [0.50315213 0.15038899 0.34645894], sum=1.0000
+
+Rule 35: bland_chromatin between 0.2555 and 0.7549
+  mass = [0.4303909 0.169083  0.4005261], sum=1.0000
+
+Rule 36: normal_nucleoli < 0.0107
+  mass = [0.07402809 0.42059767 0.50537425], sum=1.0000
+
+Rule 37: normal_nucleoli ~ 0.0107 ± 0.5046
+  mass = [0.00365707 0.38376614 0.61257684], sum=1.0000
+
+Rule 38: normal_nucleoli > 0.0107
+  mass = [0.75012684 0.         0.2498731 ], sum=1.0000
+
+Rule 39: normal_nucleoli between -0.7463 and -0.2416
+  mass = [0.0900448  0.38455367 0.5254015 ], sum=1.0000
+
+Rule 40: normal_nucleoli between 0.2630 and 0.7676
+  mass = [0.00428475 0.13811862 0.85759664], sum=1.0000
+
+Rule 41: mitoses < 0.0081
+  mass = [0.07301795 0.33971435 0.58726776], sum=1.0000
+
+Rule 42: mitoses ~ 0.0081 ± 0.5083
+  mass = [0.04510155 0.37357965 0.58131886], sum=1.0000
+
+Rule 43: mitoses > 0.0081
+  mass = [0.60272366 0.         0.3972764 ], sum=1.0000
+
+Rule 44: mitoses between -0.7543 and -0.2460
+  mass = [0.06645773 0.36678344 0.5667589 ], sum=1.0000
+
+Rule 45: mitoses between 0.2623 and 0.7705
+  mass = [0.05 0.05 0.9 ], sum=1.0000
+

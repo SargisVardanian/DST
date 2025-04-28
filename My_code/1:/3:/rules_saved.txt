@@ -1,0 +1,81 @@
+Rule 1: clump_thickness < 0.0078
+  mass = [0.12112986 0.36005953 0.51881063], sum=1.0000
+
+Rule 2: clump_thickness ~ 0.0078 ± 0.5035
+  mass = [0.08380431 0.31407958 0.60211605], sum=1.0000
+
+Rule 3: clump_thickness > 0.0078
+  mass = [0.8478217  0.04395998 0.10821834], sum=1.0000
+
+Rule 4: size_uniformity < 0.0023
+  mass = [0.         0.68633187 0.31366813], sum=1.0000
+
+Rule 5: size_uniformity ~ 0.0023 ± 0.5021
+  mass = [0.01386058 0.15376276 0.8323767 ], sum=1.0000
+
+Rule 6: size_uniformity > 0.0023
+  mass = [0.         0.10876983 0.89123017], sum=1.0000
+
+Rule 7: shape_uniformity < 0.0114
+  mass = [0.         0.95021075 0.04978925], sum=1.0000
+
+Rule 8: shape_uniformity ~ 0.0114 ± 0.5055
+  mass = [0.1979804  0.16359091 0.6384286 ], sum=1.0000
+
+Rule 9: shape_uniformity > 0.0114
+  mass = [0.         0.02367556 0.97632456], sum=1.0000
+
+Rule 10: marginal_adhesion < -0.0055
+  mass = [0.09070359 0.4954998  0.41379672], sum=1.0000
+
+Rule 11: marginal_adhesion ~ -0.0055 ± 0.4968
+  mass = [0.20556879 0.05549237 0.7389389 ], sum=1.0000
+
+Rule 12: marginal_adhesion > -0.0055
+  mass = [0.7907781  0.09090823 0.11831379], sum=1.0000
+
+Rule 13: epithelial_size < -0.0013
+  mass = [0.         0.5617707  0.43822932], sum=1.0000
+
+Rule 14: epithelial_size ~ -0.0013 ± 0.4954
+  mass = [0.79347664 0.06906849 0.13745493], sum=1.0000
+
+Rule 15: epithelial_size > -0.0013
+  mass = [0.0000000e+00 1.9237399e-05 9.9998075e-01], sum=1.0000
+
+Rule 16: bare_nucleoli < 0.0056
+  mass = [0.0813303  0.6295476  0.28912216], sum=1.0000
+
+Rule 17: bare_nucleoli ~ 0.0056 ± 0.5014
+  mass = [0.11294019 0.2449762  0.6420835 ], sum=1.0000
+
+Rule 18: bare_nucleoli > 0.0056
+  mass = [0.5760368 0.01762   0.406343 ], sum=1.0000
+
+Rule 19: bland_chromatin < 0.0058
+  mass = [0.        0.5130493 0.4869507], sum=1.0000
+
+Rule 20: bland_chromatin ~ 0.0058 ± 0.4994
+  mass = [0.2686836  0.10668588 0.6246304 ], sum=1.0000
+
+Rule 21: bland_chromatin > 0.0058
+  mass = [0.000000e+00 5.107522e-04 9.994893e-01], sum=1.0000
+
+Rule 22: normal_nucleoli < 0.0107
+  mass = [0.00081009 0.48309612 0.5160938 ], sum=1.0000
+
+Rule 23: normal_nucleoli ~ 0.0107 ± 0.5046
+  mass = [0.2922008  0.02605329 0.68174595], sum=1.0000
+
+Rule 24: normal_nucleoli > 0.0107
+  mass = [0.8576046  0.04904252 0.09335282], sum=1.0000
+
+Rule 25: mitoses < 0.0081
+  mass = [0.09359747 0.49688697 0.40951562], sum=1.0000
+
+Rule 26: mitoses ~ 0.0081 ± 0.5083
+  mass = [0.18428591 0.42275682 0.3929573 ], sum=1.0000
+
+Rule 27: mitoses > 0.0081
+  mass = [0.         0.38481066 0.6151893 ], sum=1.0000
+

@@ -1,0 +1,10 @@
+DST RULES FILE
+Rule 1: Class 0: free sulfur dioxide < 36.0000 | Weights: 0.393, 0.000, 0.607
+Rule 2: Class 0: total sulfur dioxide < 107.0000 | Weights: 0.420, 0.000, 0.580
+Rule 3: Class 0: total sulfur dioxide == 107.0000 | Weights: 0.542, 0.000, 0.458
+Rule 4: Class 0: volatile acidity == 0.1150 | Weights: 0.090, 0.101, 0.809
+Rule 5: Class 1: free sulfur dioxide > 12.0000 | Weights: 0.000, 0.380, 0.620
+Rule 6: Class 1: total sulfur dioxide > 117.0000 | Weights: 0.000, 0.599, 0.401
+Rule 7: Class 1: volatile acidity == 0.2350 | Weights: 0.000, 0.532, 0.468
+Rule 8: Class 1: total sulfur dioxide == 117.0000 | Weights: 0.000, 0.451, 0.549
+Rule 9: Class 1: total sulfur dioxide == 116.0000 | Weights: 0.000, 0.622, 0.378

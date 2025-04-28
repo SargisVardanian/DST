@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Модели, логи, результаты
+**/model.pth
+**/results/
+**/*.csv
+**/*.png
+
+# DST–файлы, дампы правил
+**/*.dsb
+*.pkl

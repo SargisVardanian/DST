@@ -1,0 +1,43 @@
+DST RULES FILE
+Rule 1: Class 0: total sulfur dioxide < 110.0000 AND free sulfur dioxide < 36.0000 | Weights: 0.528, 0.000, 0.472
+Rule 2: Class 0: total sulfur dioxide < 113.0000 AND citric acid > 0.2800 AND sulphates > 0.3700 AND free sulfur dioxide > 36.0000 | Weights: 0.557, 0.000, 0.443
+Rule 3: Class 0: total sulfur dioxide < 113.0000 AND free sulfur dioxide < 23.0000 AND pH > 3.0200 | Weights: 0.431, 0.000, 0.569
+Rule 4: Class 0: total sulfur dioxide < 113.0000 AND chlorides < 0.0300 AND citric acid > 0.3000 | Weights: 0.328, 0.000, 0.672
+Rule 5: Class 0: total sulfur dioxide < 110.0000 AND citric acid < 0.2800 | Weights: 0.494, 0.000, 0.506
+Rule 6: Class 0: total sulfur dioxide < 113.0000 AND density == 0.9896 AND quality == 6.0000 | Weights: 0.303, 0.000, 0.697
+Rule 7: Class 0: fixed acidity == 6.2000 AND density == 0.9914 AND volatile acidity == 0.2300 | Weights: 0.536, 0.000, 0.464
+Rule 8: Class 0: total sulfur dioxide == 91.0000 | Weights: 0.334, 0.000, 0.666
+Rule 9: Class 0: total sulfur dioxide < 114.0000 AND residual sugar < 1.4000 AND sulphates < 0.3800 | Weights: 0.379, 0.000, 0.621
+Rule 10: Class 0: total sulfur dioxide < 114.0000 AND free sulfur dioxide == 36.0000 | Weights: 0.474, 0.000, 0.526
+Rule 11: Class 0: free sulfur dioxide == 6.0000 AND density == 0.9955 | Weights: 0.411, 0.000, 0.589
+Rule 12: Class 0: total sulfur dioxide == 90.0000 | Weights: 0.450, 0.000, 0.550
+Rule 13: Class 0: pH == 3.2900 AND fixed acidity == 7.6000 | Weights: 0.382, 0.000, 0.618
+Rule 14: Class 0: total sulfur dioxide < 113.0000 AND chlorides == 0.0340 | Weights: 0.436, 0.000, 0.564
+Rule 15: Class 0: total sulfur dioxide < 113.0000 AND fixed acidity == 7.5000 | Weights: 0.310, 0.000, 0.690
+Rule 16: Class 0: fixed acidity == 6.8000 AND citric acid == 0.6200 | Weights: 0.531, 0.000, 0.469
+Rule 17: Class 0: residual sugar == 8.8000 AND fixed acidity == 6.8000 | Weights: 0.406, 0.000, 0.594
+Rule 18: Class 0: total sulfur dioxide < 111.0000 AND chlorides < 0.0350 | Weights: 0.305, 0.000, 0.695
+Rule 19: Class 0: total sulfur dioxide < 111.0000 AND fixed acidity == 5.8000 | Weights: 0.422, 0.000, 0.578
+Rule 20: Class 0: free sulfur dioxide == 16.0000 AND volatile acidity == 0.1700 | Weights: 0.632, 0.000, 0.368
+Rule 21: Class 0: pH == 3.0700 AND fixed acidity == 7.4000 | Weights: 0.434, 0.000, 0.566
+Rule 22: Class 0: volatile acidity == 0.6550 | Weights: 0.280, 0.000, 0.720
+Rule 23: Class 0: free sulfur dioxide == 6.0000 | Weights: 0.315, 0.000, 0.685
+Rule 24: Class 1: total sulfur dioxide > 112.0000 AND free sulfur dioxide > 12.0000 | Weights: 0.000, 0.416, 0.584
+Rule 25: Class 1: total sulfur dioxide > 108.0000 AND free sulfur dioxide > 25.0000 | Weights: 0.000, 0.511, 0.489
+Rule 26: Class 1: total sulfur dioxide > 111.0000 AND free sulfur dioxide < 12.0000 | Weights: 0.000, 0.393, 0.607
+Rule 27: Class 1: total sulfur dioxide > 108.0000 AND sulphates < 0.5100 AND residual sugar < 8.5000 | Weights: 0.000, 0.531, 0.469
+Rule 28: Class 1: total sulfur dioxide == 108.0000 AND fixed acidity == 6.4000 | Weights: 0.000, 0.433, 0.567
+Rule 29: Class 1: total sulfur dioxide > 108.0000 AND fixed acidity == 6.4000 | Weights: 0.000, 0.302, 0.698
+Rule 30: Class 1: residual sugar == 8.5000 | Weights: 0.000, 0.469, 0.531
+Rule 31: Class 1: free sulfur dioxide == 55.0000 | Weights: 0.000, 0.494, 0.506
+Rule 32: Class 1: total sulfur dioxide > 108.0000 AND free sulfur dioxide == 12.0000 | Weights: 0.000, 0.492, 0.508
+Rule 33: Class 1: total sulfur dioxide == 112.0000 | Weights: 0.138, 0.053, 0.809
+Rule 34: Class 1: free sulfur dioxide == 41.0000 AND fixed acidity == 6.8000 | Weights: 0.000, 0.365, 0.635
+Rule 35: Class 1: residual sugar == 12.5000 | Weights: 0.000, 0.356, 0.644
+Rule 36: Class 1: residual sugar == 7.4000 | Weights: 0.000, 0.441, 0.559
+Rule 37: Class 1: fixed acidity == 4.8000 | Weights: 0.173, 0.021, 0.806
+Rule 38: Class 1: chlorides == 0.0370 AND fixed acidity == 5.9000 | Weights: 0.117, 0.070, 0.813
+Rule 39: Class 1: total sulfur dioxide == 106.0000 AND volatile acidity == 0.3700 | Weights: 0.000, 0.558, 0.442
+Rule 40: Class 1: chlorides == 0.1560 | Weights: 0.000, 0.412, 0.588
+Rule 41: Class 1: total sulfur dioxide == 108.0000 AND fixed acidity == 6.8000 | Weights: 0.000, 0.560, 0.440
+Rule 42: Class 1: volatile acidity == 0.1700 AND fixed acidity == 6.3000 | Weights: 0.000, 0.503, 0.497

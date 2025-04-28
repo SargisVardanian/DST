@@ -1,0 +1,192 @@
+Rule 1: fixed acidity < 7.2241
+  mass = [0.02115899 0.2665299  0.71231115], sum=1.0000
+
+Rule 2: fixed acidity ~ 7.2241 ± 0.6526
+  mass = [0.01895535 0.34029728 0.64074737], sum=1.0000
+
+Rule 3: fixed acidity > 7.2241
+  mass = [0.13964733 0.03760328 0.8227494 ], sum=1.0000
+
+Rule 4: fixed acidity between 6.2452 and 6.8978
+  mass = [0.03809033 0.29324853 0.6686611 ], sum=1.0000
+
+Rule 5: fixed acidity between 7.5504 and 8.2030
+  mass = [0.0044735 0.3445743 0.6509522], sum=1.0000
+
+Rule 6: volatile acidity < 0.3408
+  mass = [0.03613511 0.2571095  0.70675546], sum=1.0000
+
+Rule 7: volatile acidity ~ 0.3408 ± 0.0829
+  mass = [0.01655424 0.3343393  0.64910644], sum=1.0000
+
+Rule 8: volatile acidity > 0.3408
+  mass = [0.2611052  0.09992597 0.6389688 ], sum=1.0000
+
+Rule 9: volatile acidity between 0.2164 and 0.2994
+  mass = [0.043771   0.28242978 0.6737992 ], sum=1.0000
+
+Rule 10: volatile acidity between 0.3823 and 0.4652
+  mass = [0.04664946 0.2852929  0.6680576 ], sum=1.0000
+
+Rule 11: citric acid < 0.3189
+  mass = [0.42855182 0.01683953 0.55460864], sum=1.0000
+
+Rule 12: citric acid ~ 0.3189 ± 0.0727
+  mass = [0.10408289 0.18606114 0.709856  ], sum=1.0000
+
+Rule 13: citric acid > 0.3189
+  mass = [0.21221553 0.0736687  0.7141158 ], sum=1.0000
+
+Rule 14: citric acid between 0.2098 and 0.2825
+  mass = [0.03601356 0.24418257 0.71980387], sum=1.0000
+
+Rule 15: citric acid between 0.3552 and 0.4280
+  mass = [0.14120953 0.21928471 0.6395058 ], sum=1.0000
+
+Rule 16: residual sugar < 5.4470
+  mass = [0.5011415  0.0386699  0.46018866], sum=1.0000
+
+Rule 17: residual sugar ~ 5.4470 ± 2.3814
+  mass = [0.08835847 0.23887278 0.6727688 ], sum=1.0000
+
+Rule 18: residual sugar > 5.4470
+  mass = [0.01109918 0.52980006 0.4591008 ], sum=1.0000
+
+Rule 19: residual sugar between 1.8749 and 4.2563
+  mass = [0.3131685  0.0959786  0.59085286], sum=1.0000
+
+Rule 20: residual sugar between 6.6377 and 9.0191
+  mass = [0.01240579 0.11766401 0.86993015], sum=1.0000
+
+Rule 21: chlorides < 0.0561
+  mass = [0.02601611 0.31084526 0.6631386 ], sum=1.0000
+
+Rule 22: chlorides ~ 0.0561 ± 0.0173
+  mass = [0.0084813  0.5313747  0.46014398], sum=1.0000
+
+Rule 23: chlorides > 0.0561
+  mass = [0.5280376  0.05055489 0.42140746], sum=1.0000
+
+Rule 24: chlorides between 0.0300 and 0.0474
+  mass = [0.09640722 0.24466872 0.65892404], sum=1.0000
+
+Rule 25: chlorides between 0.0647 and 0.0821
+  mass = [0.6070253  0.03508498 0.35788968], sum=1.0000
+
+Rule 26: free sulfur dioxide < 30.4760
+  mass = [0.7504179  0.04876533 0.20081681], sum=1.0000
+
+Rule 27: free sulfur dioxide ~ 30.4760 ± 8.9187
+  mass = [0.04039571 0.5211999  0.4384044 ], sum=1.0000
+
+Rule 28: free sulfur dioxide > 30.4760
+  mass = [0.         0.7750563  0.22494373], sum=1.0000
+
+Rule 29: free sulfur dioxide between 17.0980 and 26.0166
+  mass = [0.08229069 0.21721278 0.7004965 ], sum=1.0000
+
+Rule 30: free sulfur dioxide between 34.9353 and 43.8540
+  mass = [0.13254948 0.23555021 0.6319003 ], sum=1.0000
+
+Rule 31: total sulfur dioxide < 115.4454
+  mass = [0.3086987  0.3006284  0.39067286], sum=1.0000
+
+Rule 32: total sulfur dioxide ~ 115.4454 ± 28.3136
+  mass = [0.01409041 0.31330898 0.6726006 ], sum=1.0000
+
+Rule 33: total sulfur dioxide > 115.4454
+  mass = [0. 0. 1.], sum=1.0000
+
+Rule 34: total sulfur dioxide between 72.9750 and 101.2886
+  mass = [0.04066866 0.05340204 0.90592927], sum=1.0000
+
+Rule 35: total sulfur dioxide between 129.6022 and 157.9158
+  mass = [0.3483393  0.0337104  0.61795026], sum=1.0000
+
+Rule 36: density < 0.9947
+  mass = [0.14631303 0.17981577 0.67387116], sum=1.0000
+
+Rule 37: density ~ 0.9947 ± 0.0015
+  mass = [0.07766084 0.18522935 0.7371098 ], sum=1.0000
+
+Rule 38: density > 0.9947
+  mass = [0.20455489 0.10929454 0.6861506 ], sum=1.0000
+
+Rule 39: density between 0.9925 and 0.9940
+  mass = [0.10746048 0.11790852 0.774631  ], sum=1.0000
+
+Rule 40: density between 0.9955 and 0.9970
+  mass = [0.3484929 0.        0.6515071], sum=1.0000
+
+Rule 41: pH < 3.2192
+  mass = [0.12578271 0.13617311 0.73804426], sum=1.0000
+
+Rule 42: pH ~ 3.2192 ± 0.0807
+  mass = [0.15739956 0.1778521  0.6647484 ], sum=1.0000
+
+Rule 43: pH > 3.2192
+  mass = [0.32726184 0.11448438 0.5582538 ], sum=1.0000
+
+Rule 44: pH between 3.0981 and 3.1788
+  mass = [0.11225244 0.17736422 0.71038336], sum=1.0000
+
+Rule 45: pH between 3.2595 and 3.3402
+  mass = [0.37570155 0.06371278 0.5605857 ], sum=1.0000
+
+Rule 46: sulphates < 0.5314
+  mass = [0.06861687 0.32754418 0.603839  ], sum=1.0000
+
+Rule 47: sulphates ~ 0.5314 ± 0.0736
+  mass = [0.0946532  0.23863621 0.66671056], sum=1.0000
+
+Rule 48: sulphates > 0.5314
+  mass = [0.22554474 0.08966531 0.68478996], sum=1.0000
+
+Rule 49: sulphates between 0.4209 and 0.4946
+  mass = [0.09867671 0.5050872  0.39623606], sum=1.0000
+
+Rule 50: sulphates between 0.5682 and 0.6418
+  mass = [0.1041545  0.22106765 0.6747779 ], sum=1.0000
+
+Rule 51: alcohol < 10.4856
+  mass = [0.01537864 0.23224002 0.7523813 ], sum=1.0000
+
+Rule 52: alcohol ~ 10.4856 ± 0.5941
+  mass = [0.07862335 0.24471982 0.6766568 ], sum=1.0000
+
+Rule 53: alcohol > 10.4856
+  mass = [0.40231082 0.01141771 0.58627146], sum=1.0000
+
+Rule 54: alcohol between 9.5945 and 10.1886
+  mass = [0.11092364 0.1565568  0.73251957], sum=1.0000
+
+Rule 55: alcohol between 10.7827 and 11.3768
+  mass = [0.17482658 0.1011476  0.72402585], sum=1.0000
+
+Rule 56: quality == 3.0
+  mass = [0.33338436 0.00948664 0.657129  ], sum=1.0000
+
+Rule 57: quality == 4.0
+  mass = [0.07591689 0.05329696 0.87078613], sum=1.0000
+
+Rule 58: quality == 5.0
+  mass = [0.11029869 0.31790257 0.57179874], sum=1.0000
+
+Rule 59: quality == 6.0
+  mass = [0.2539055  0.03812297 0.7079716 ], sum=1.0000
+
+Rule 60: quality == 7.0
+  mass = [0.29910833 0.05790499 0.6429867 ], sum=1.0000
+
+Rule 61: quality == 8.0
+  mass = [0.01942943 0.40863198 0.5719386 ], sum=1.0000
+
+Rule 62: quality == 9.0
+  mass = [0.01462733 0.0847054  0.90066725], sum=1.0000
+
+Rule 63: good == 0.0
+  mass = [0.0613098  0.21987493 0.7188152 ], sum=1.0000
+
+Rule 64: good == 1.0
+  mass = [0.07428671 0.19043711 0.7352761 ], sum=1.0000
+
