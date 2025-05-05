@@ -67,9 +67,7 @@ Classical **RIPPER** loop \[Cohen 1995]:
 | `algo` value | Gain expression                                                                                                                                                                 |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `"ripper"`   | same as above                                                                                                                                                                   |
-| `"foil"`     | <img 
-                  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-                   src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="FOIL gain"/> |
+| `"foil"`     | <img  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"  src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="FOIL gain"/> |
 
 where *p* = #positive samples covered, *t* = total covered.
 
