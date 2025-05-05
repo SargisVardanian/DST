@@ -129,16 +129,16 @@ Treat every $\mathbf m^{(i)}$ as a learnable tensor and minimise **cross‑entro
 
 ## 5 · Rule quality & pruning
 
-After optimisation each rule $R_i$ has:
+After optimisation each rule \(R_i\) has:
 
-| Metric      | Expression                                                                                                                                                                        |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Uncertainty | <img src="https://latex.codecogs.com/svg.image?u_i=m_{\mathrm{unc}}^{(i)}" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>                                        |
-| Top‑2 ratio | <img src="https://latex.codecogs.com/svg.image?r_i=\dfrac{\max_j\,m_j^{(i)}}{\text{2nd-largest }m^{(i)}+10^{-3}}" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/> |
+| Metric      | Expression                                                                                                                                                                                                                                                                                                                                                      |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Uncertainty** | <img src="https://latex.codecogs.com/svg.image?u_i%3Dm_%5Cmathrm%7Bunc%7D%5E%7B%28i%29%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="uncertainty" /> |
+| **Top‑2 ratio** | <img src="https://latex.codecogs.com/svg.image?r_i%3D%5Cfrac%7B%5Cmax_j%20m_j%5E%7B%28i%29%7D%7D%7B2nd-largest%20m%5E%7B%28i%29%7D%2B10%5E%7B-3%7D%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="top-2 ratio" /> |
 
-Scale $r_i\to r'_i\in[0,1]$ (min‑max) and compute usefulness
+Scale \(r_i\to r'_i\in[0,1]\) (min‑max) and compute usefulness:
 
-<img src="https://latex.codecogs.com/svg.image?H_i=\frac{2(1-u_i)\,r'_i}{(1-u_i)+r'_i}" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>
+<img src="https://latex.codecogs.com/svg.image?H_i%3D%5Cfrac%7B2%281-u_i%29r%27_i%7D%7B%281-u_i%29%2Br%27_i%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="usefulness score" />
 
 Coverage $c_i=|\{x:R_i(x)\}|$.
 
