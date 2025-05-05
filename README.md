@@ -1,182 +1,176 @@
-# DST – Rule–Based Classification with RIPPER / FOIL + Dempster‑Shafer Theory  
+````markdown
+# DST – Rule‑Based Classification with RIPPER / FOIL + Dempster‑Shafer Theory  
 
 <p align="center">
-  <img src="Common_code/benchmark_dataset6.png" width="600">
+  <img src="Common_code/benchmark_dataset6.png" width="650">
 </p>
 
-> • Automatic rule induction (RIPPER / FOIL)  
-> • Dempster‑Shafer evidence aggregation & mass optimisation  
-> • Post‑pruning that keeps the model tiny without hurting accuracy  
+> • **Automatic rule induction** (RIPPER / FOIL)  
+> • **Dempster‑Shafer** evidence aggregation & mass optimisation  
+> • **Post‑pruning** that keeps the model tiny without hurting accuracy  
 
 ---
 
-## 1. Quick start  
+## 1. Quick start  
 
 ```bash
 git clone https://github.com/SargisVardanian/DST.git
 cd DST
-python test_Ripper_DST.py          # full benchmark pipeline
+python test_Ripper_DST.py        # full benchmark pipeline
+````
 
-test_Ripper_DST.py will:
+`test_Ripper_DST.py` will
 
-learn rules with RIPPER and FOIL,
-convert them to Dempster‑Shafer rules,
-optimise masses via gradient descent, optionally prune,
-save everything to portable .dsb files and plot metrics.
+1. learn rules with **RIPPER** and **FOIL**;
+2. convert them to Dempster‑Shafer rules;
+3. optimise masses via gradient descent, optionally prune;
+4. save everything to portable `.dsb` files and plot the metrics you saw above.
 
-2. Project layout
+---
 
-core.py                   # helper maths (mass initialisation, commonalities, etc.)
+\## 2. Project layout
+
+```
+core.py                   # helper maths (mass init, commonality, …)
 utils.py                  # misc helpers (IO, formatting, …)
-DSRule.py                 # light wrapper around a Python predicate + caption
-DSRipper.py               # incremental RIPPER/FOIL rule inducer
+DSRule.py                 # tiny wrapper: predicate + caption
+DSRipper.py               # incremental RIPPER/FOIL inducer
 DSModel.py                # single‑class DST model
 DSModelMultiQ.py          # multi‑class DST model
 DSClassifier.py           # sklearn‑style wrapper (binary)
 DSClassifierMultiQ.py     # sklearn‑style wrapper (multi‑class)
-Datasets_loader.py        # six binary toy + real datasets used in benchmarks
-test_Ripper_DST.py        # end‑to‑end experiment script + plots
+Datasets_loader.py        # six toy + real binary datasets
+test_Ripper_DST.py        # end‑to‑end experiment script
+```
 
+---
 
-3. Rule induction with DSRipper
+\## 3. Rule induction with **DSRipper**
 
-3.1 Algorithm in a nutshell
-We follow the classical RIPPER loop 
-C
-o
-h
-e
-n
-1995
-Cohen1995:
+\### 3.1 Algorithm in a nutshell
 
-Grow: add literals that maximise information‑gain
-<img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" src="https://latex.codecogs.com/svg.image?\mathrm{Gain}(r)=p_{\text{new}}\Bigl(\log_2\frac{p_{\text{new}}}{p_{\text{new}}+n_{\text{new}}}-\log_2\frac{p_{\text{old}}}{p_{\text{old}}+n_{\text{old}}}\Bigr)" alt="RIPPER gain formula" />
-Prune the rule with Reduced‑Error pruning on a held‑out portion.
-Delete covered positives from the training set and repeat until no positives remain.
-DSRipper supports two modes:
+We follow the classical *RIPPER* loop (Cohen 1995):
 
-algo="ripper" – standard RIPPER gain as above.
-algo="foil" – FOIL‑style gain
-<img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" alt="FOIL gain formula" />
+1. **Grow** – add literals that maximise information‑gain
 
-where 
-p
-p is the number of positives covered, 
-t
-t the total examples covered.
-We run induction incrementally in mini‑batches so that large datasets (e.g. 6 k wine samples) fit in memory.
+   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+     src="https://latex.codecogs.com/svg.image?\mathrm{Gain}(r)%20=%20p_{\text{new}}\!\left(\log_2\frac{p_{\text{new}}}{p_{\text{new}}+n_{\text{new}}}-\log_2\frac{p_{\text{old}}}{p_{\text{old}}+n_{\text{old}}}\right)" />
 
-3.2 Output
-For each target class c we get a list of simple dict‑rules, e.g.:
+2. **Prune** the rule with reduced‑error pruning on a held‑out slice.
 
+3. **Delete** covered positives; repeat until no positives remain.
+
+`DSRipper` supports two modes
+
+| `algo`      | Gain formula                                                                                                                                                     |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"ripper"`  | classic gain above                                                                                                                                               |
+| `"foil"`    | <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p(\log_2 t'-\log_2 t)" /> |
+
+We run induction **incrementally in mini‑batches** – lets 6 k‑row Wine dataset fit into RAM.
+
+\### 3.2 Output
+
+For each class *𝑐* we get a list of dict‑rules, e.g.
+
+```python
 {'free sulfur dioxide': ('<', 36),
  'total sulfur dioxide': ('>=', 110)}
-These are converted to DSRule objects:
+```
 
-lam  = lambda x, op='<', thr=36: x[idx] < thr    # compiled predicate
-rule = DSRule(ld=lam, caption="Class 1: free SO₂ < 36 & total SO₂ ≥ 110")
-At this stage each rule only knows coverage 
-∣{x:rule(x)}∣. All other quality metrics come later via DST.
+Then we build `DSRule` objects:
 
-## 4. Dempster–Shafer model
+```python
+lam  = lambda x, thr=36: x[idx] < thr          # compiled predicate
+rule = DSRule(ld=lam,
+              caption="Class 1: free SO₂ < 36 & total SO₂ ≥ 110")
+```
 
-### 4.1 Mass Assignment (MAF)
-
-Each rule \(R_i\) carries a mass vector
-
-<img
-  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-  src="https://latex.codecogs.com/svg.image?m^{(i)}%20%3D%20%28m_1^{(i)}%2C%20\ldots%2C%20m_K^{(i)}%2C%20m_{\mathrm{unc}}^{(i)}%29%2C%20\sum_{j=1}^K%20m_j^{(i)}%20%2B%20m_{\mathrm{unc}}^{(i)}%20%3D%201"
-  alt="mass vector" />
-
-We initialise them biased to uncertainty (e.g. \(m_{\mathrm{unc}}=0.8\)) or via a smarter clustering‑based method (see DSGD++).
-
-### 4.2 Combination ⇢ Commonality space
-
-For sample **x**, let \(\mathcal R(x)=\{\,i:R_i(x)=\mathrm{True}\}\). Then:
-
-Convert masses to commonalities
-
-<img
-  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-  src="https://latex.codecogs.com/svg.image?q_k^{(i)}%20%3D%20m_k^{(i)}%20%2B%20m_{\mathrm{unc}}^{(i)}%2C%20%5Cquad%20\forall\,k=1\ldots K"
-  alt="commonalities" />
-
-Combine by pointwise product
-
-<img
-  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-  src="https://latex.codecogs.com/svg.image?q_k(x)%20%3D%20\prod_{i\in\mathcal{R}(x)}%20q_k^{(i)}"
-  alt="combination" />
-
-Renormalise back to masses
-
-<img
-  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-  src="https://latex.codecogs.com/svg.image?\hat{m}_k(x)%20%3D%20\frac{q_k(x)}{\sum_{\ell=1}^Kq_\ell(x)}%2C%20\quad%20\hat{m}_{\mathrm{unc}}(x)=0"
-  alt="normalisation" />
-
-**Prediction** = \(\displaystyle\arg\max_k\hat{m}_k(x)\).
-
-### 4.3 Mass optimisation (DST‑GD)
-
-Treat each \(\mathbf m^{(i)}\) as a learnable parameter tensor and minimise cross‑entropy (or MSE) on the training set via Adam. Constraints (\(m\ge0\), sum to 1) are enforced in `DSModel*.normalize()`.
+At this point rule only knows **coverage** |{x : rule(x)}|; quality metrics come later from DST.
 
 ---
 
-## 5. Rule quality and pruning
+\## 4. Dempster–Shafer model
 
-After optimisation each rule \(R_i\) has:
+\### 4.1 Mass assignment (MAF)
 
-- **uncertainty**  
-  <img
-    style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-    src="https://latex.codecogs.com/svg.image?u_i%20%3D%20m_{\mathrm{unc}}^{(i)}"
-    alt="uncertainty" />
+Each rule *R*<sub>i</sub> carries a mass vector
 
-- **top‑2 ratio**  
-  <img
-    style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-    src="https://latex.codecogs.com/svg.image?r_i%20%3D%20\frac{\max_j\,m_j^{(i)}}{\text{2nd-largest }m^{(i)}%20%2B%2010^{-3}}"
-    alt="top-2 ratio" />
+<img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+  src="https://latex.codecogs.com/svg.image?\mathbf{m}^{(i)}=(m_1^{(i)},\dots,m_K^{(i)},\,m_{\mathrm{unc}}^{(i)}),\quad\sum_{j=1}^K m_j^{(i)}+m_{\mathrm{unc}}^{(i)}=1" />
 
-We min‑max normalise \(r_i\to r'_i\in[0,1]\) and compute a harmonic “usefulness” score:
+We initialise them **biased to uncertainty** (e.g. *m*<sub>unc</sub>=0.8) or by a smarter clustering‑based scheme (DSGD++).
 
-<img
-  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-  src="https://latex.codecogs.com/svg.image?H_i%20%3D%20\frac{2(1-u_i)\,r'_i}{(1-u_i)+r'_i}"
-  alt="usefulness score" />
+\### 4.2 Combination → commonality space
 
-Re‑compute coverage \(c_i=|\{x:R_i(x)\}|\).  Drop rule \(R_i\) if **all three** hold:
+For a sample **x** denote $\mathcal R(x)=\{i:R_i(x)=\text{True}\}$.
 
-- \(u_i > 0.7\)  
-- \(H_i < 0.4\)  
-- \(c_i < 10\)  
+1. **Mass → commonality**
 
-Wine example: rules ↘ **42 → 33** same F1.
+   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+     src="https://latex.codecogs.com/svg.image?q_k^{(i)}=m_k^{(i)}+m_{\mathrm{unc}}^{(i)},\quad k=1..K" />
 
-## 6. Benchmarks
+2. **Combine** by point‑wise product
 
-| Variant    | Acc.   | F1     | Prec.  | Rec.   |
-|------------|--------|--------|--------|--------|
-| **R_raw**      | 0.786  | 0.766  | 1.000  | 0.621  |
-| **R_DST**      | 0.983  | 0.988  | 1.000  | 0.970  |
-| **R_pruned**   | 0.983  | 0.985  | 1.000  | 0.970  |
-| **F_raw**      | 0.982  | 0.984  | 0.992  | 0.975  |
-| **F_DST**      | 0.989  | 0.990  | 0.992  | 0.989  |
-| **F_pruned**   | 0.989  | 0.991  | 0.986  | 0.995  |
+   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+     src="https://latex.codecogs.com/svg.image?q_k(x)=\prod_{i\in\mathcal{R}(x)}q_k^{(i)}" />
 
-> *DST weighting lifts plain RIPPER from mediocre to SOTA.*  
-> *Pruning shrinks the model by ≈ 20 % with no loss in performance.*
+3. **Back to masses**
+
+   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+     src="https://latex.codecogs.com/svg.image?\hat{m}_k(x)=\frac{q_k(x)}{\sum_{\ell=1}^K q_\ell(x)},\quad\hat{m}_{\mathrm{unc}}(x)=0" />
+
+Prediction = $\arg\max_k\hat m_k(x)$.
+
+\### 4.3 Mass optimisation (DST‑GD)
+
+Treat every $\mathbf m^{(i)}$ as a learnable tensor; minimise cross‑entropy (or MSE) with Adam.
+`DSModel*.normalize()` enforces $m\ge0$ and $\sum=1$.
 
 ---
 
-## 7. Citing & further reading
+\## 5. Rule quality & pruning
 
-- G. Shafer — *A Mathematical Theory of Evidence* (Princeton, 1976)  
-- W. Cohen — *Fast Effective Rule Induction* (ICML, 1995)  
-- R. Quinlan — *FOIL: A Midterm Report* (ICML tutorial, 1990)  
-- S. Peñafiel et al. — *Applying Dempster–Shafer Theory for Developing a Flexible, Accurate and Interpretable Classifier* (ESWA, 2020)  
+After optimisation each rule *R*<sub>i</sub> has
 
+* uncertainty   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" src="https://latex.codecogs.com/svg.image?u_i=m_{\mathrm{unc}}^{(i)}" />
+* top‑2 ratio   <img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" src="https://latex.codecogs.com/svg.image?r_i=\frac{\max_j m_j^{(i)}}{\text{2nd‑largest }m^{(i)}+10^{-3}}" />
+
+Scale $r_i\rightarrow r'_i\in[0,1]$; usefulness
+
+<img style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+  src="https://latex.codecogs.com/svg.image?H_i=\frac{2(1-u_i)r'_i}{(1-u_i)+r'_i}" />
+
+Coverage $c_i=|\{x:R_i(x)\}|$. We **drop** a rule when
+
+* $u_i>0.7$ **and**
+* $H_i<0.4$ **and**
+* $c_i<10$
+
+Wine‑quality dataset: rules 42 → 33, identical F1.
+
+---
+
+\## 6. Benchmarks
+
+| Variant       |  Acc. |    F1 | Prec. |  Rec. |
+| ------------- | ----: | ----: | ----: | ----: |
+| **R\_raw**    | 0.786 | 0.766 | 1.000 | 0.621 |
+| **R\_DST**    | 0.983 | 0.988 | 1.000 | 0.970 |
+| **R\_pruned** | 0.983 | 0.985 | 1.000 | 0.970 |
+| **F\_raw**    | 0.982 | 0.984 | 0.992 | 0.975 |
+| **F\_DST**    | 0.989 | 0.990 | 0.992 | 0.989 |
+| **F\_pruned** | 0.989 | 0.991 | 0.986 | 0.995 |
+
+> **DST weighting** lifts plain RIPPER from mediocre to SOTA.
+> **Pruning** cuts model size by ≈ 20 % with *no* accuracy loss.
+
+---
+
+\## 7. Citing & further reading
+
+* G. Shafer — *A Mathematical Theory of Evidence* (1976)
+* W. Cohen — *Fast Effective Rule Induction* (ICML 1995)
+* R. Quinlan — *FOIL: A Midterm Report* (1990)
+* S. Peñafiel et al. — *Applying DST for an Interpretable Classifier* (ESWA 2020)
 
