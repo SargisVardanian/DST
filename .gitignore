@@ -15,3 +15,8 @@ __pycache__/
 *.csv
 *.png
 *.dsb
+
+# разрешить конкретные результаты
+!Common_code/benchmark_dataset6.csv
+!Common_code/benchmark_dataset6.png
+
