@@ -8,6 +8,9 @@ from Common_code.Datasets_loader    import load_dataset
 from Common_code.DSClassifierMultiQ import DSClassifierMultiQ
 from Common_code.core               import rules_to_dsb
 
+import seaborn as sns
+sns.set_context("paper", font_scale=1.2)
+sns.set_style("whitegrid")
 
 def metrics(y_true, y_pred):
     return OrderedDict([
@@ -112,25 +115,34 @@ if __name__ == "__main__":
 
     # ------------ save & plot ----------------------------------------
     df = pd.DataFrame(results).T
-    df.to_csv(f"benchmark_dataset{DATASET_ID}.csv")
+    csv_path = f"benchmark_dataset{DATASET_ID}.csv"
+    png_path = f"benchmark_dataset{DATASET_ID}.png"
+    df.to_csv(csv_path, float_format="%.4f")
 
-    y_min = df.min().min()
-    pad   = 0.02
-    ax = df.plot(kind="bar",
-                 figsize=(9, 4),
-                 ylim=(max(0, y_min-pad), 1.0+pad),
-                 rot=30)
+    def plot_metrics(df: pd.DataFrame, fname: str, pad=0.01):
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(6.4, 4))
 
-    # передаём df.round(3) вторым позиционным аргументом
-    tbl = pd.plotting.table(ax,               # ① axes
-                            df.round(3),      # ② data  (теперь аргумент на месте!)
-                            loc='bottom',
-                            cellLoc='center')
+        y_min = df.min().min() - pad
+        df.reset_index().melt(id_vars="index") \
+          .rename(columns={"index": "System",
+                           "variable": "Metric",
+                           "value": "Score"}) \
+          .pipe((sns.barplot, "data"),
+                x="System", y="Score", hue="Metric",
+                palette="Set2", ax=ax)
 
-    tbl.auto_set_font_size(False)
-    tbl.set_fontsize(8)
-    tbl.scale(1, 1.3)
+        ax.set_ylim(max(0, y_min), 1.0 + pad)
+        ax.set_ylabel("Score")
+        ax.set_xlabel("")
+        ax.legend(frameon=False, loc="upper center",
+                  bbox_to_anchor=(0.5, 1.15), ncol=len(df.columns))
 
-    plt.subplots_adjust(left=0.05, bottom=0.25)
-    ax.figure.tight_layout()
-    ax.figure.savefig(f"benchmark_dataset{DATASET_ID}.png", dpi=150)
+        sns.despine(fig, left=True)
+        fig.tight_layout()
+        fig.savefig(fname, dpi=300, bbox_inches="tight")
+        plt.close()
+
+
+    plot_metrics(df, png_path)
+    print(f"\nSaved table → {csv_path}\nSaved figure → {png_path}")
