@@ -110,9 +110,9 @@ For sample **x** let $\mathcal R(x)=\{i:R_i(x)\}$.
 
 | Step              | Formula                                                                                                                                                                                            |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Commonalities** | <img src="https://latex.codecogs.com/svg.image? q_k^{(i)}=m_k^{(i)}+m_{\mathrm{unc}}^{(i)},\;\forall k" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>                                         |
-| **Product rule**  | <img src="https://latex.codecogs.com/svg.image? q_k(x)=\prod_{i\in\mathcal{R}(x)}q_k^{(i)}" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>                                         |
-| **Normalise**     | <img src="https://latex.codecogs.com/svg.image? \hat{m}_k(x)=\frac{q_k(x)}{\sum_{\ell=1}^Kq_\ell(x)},\;\hat{m}_{\mathrm{unc}}(x)=0" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/> |
+| **Commonalities** | <img src="https://latex.codecogs.com/svg.image?q_k^{(i)}=m_k^{(i)}+m_{\mathrm{unc}}^{(i)},\;\forall k" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>  |                                   |
+| **Product rule**  | <img src="https://latex.codecogs.com/svg.image?q_k(x)=\prod_{i\in\mathcal{R}(x)}q_k^{(i)}" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/>                                         |
+| **Normalise**     | <img src="https://latex.codecogs.com/svg.image?\hat{m}_k(x)=\frac{q_k(x)}{\sum_{\ell=1}^Kq_\ell(x)},\;\hat{m}_{\mathrm{unc}}(x)=0" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;"/> |
 
 Prediction = $\arg\max_k\hat{m}_k(x)$.
 
