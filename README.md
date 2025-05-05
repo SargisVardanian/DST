@@ -1,9 +1,3 @@
-Thought for a few seconds
-
-
-Below is a **drop‑in README.md**.
-Simply copy‑paste the whole block (including the opening/closing \`\`\`markdown) into `README.md`, commit & push – GitHub will render the maths as SVG images via LaTeX Codecogs.
-
 
 # DST – Rule‑Based Classification with RIPPER / FOIL + Dempster‑Shafer Theory
 
@@ -11,7 +5,7 @@ Simply copy‑paste the whole block (including the opening/closing \`\`\`markdow
   <img src="Common_code/benchmark_dataset6.png" width="600">
 </p>
 
-> • Automatic rule induction (RIPPER / FOIL)  
+> • Automatic rule induction (RIPPER / FOIL)  
 > • Dempster‑Shafer evidence aggregation & mass optimisation  
 > • Post‑pruning that keeps the model tiny without hurting accuracy  
 
@@ -19,21 +13,23 @@ Simply copy‑paste the whole block (including the opening/closing \`\`\`markdow
 
 ## 1 · Quick start
 
+
 git clone https://github.com/SargisVardanian/DST.git
 cd DST
-python test_Ripper_DST.py          # full benchmark pipeline
+python test_Ripper_DST.py    # full benchmark pipeline
 
-`test_Ripper_DST.py` will
+`test_Ripper_DST.py` will:
 
 1. learn rules with **RIPPER** and **FOIL**;
 2. convert them to Dempster‑Shafer rules;
 3. optimise masses via gradient descent, optionally prune;
-4. save everything as portable `.dsb` files and dump the plots / CSV metrics.
+4. save everything as portable `.dsb` files and dump the plots / CSV metrics.
 
 ---
 
 ## 2 · Project layout
 
+```
 core.py                   # helper maths (mass initialisation, commonalities, …)
 utils.py                  # misc helpers (I/O, plotting, …)
 DSRule.py                 # light wrapper around a Python predicate + caption
@@ -44,38 +40,41 @@ DSClassifier.py           # sklearn‑style wrapper (binary)
 DSClassifierMultiQ.py     # sklearn‑style wrapper (multi‑class)
 Datasets_loader.py        # 6 toy+real binary datasets used in benchmarks
 test_Ripper_DST.py        # end‑to‑end experiment / plotting script
-
+```
 
 ---
+## 3 · Rule induction with **DSRipper**
 
-## 3 · Rule induction with **DSRipper**
+### 3.1 Algorithm in a nutshell
 
-\### 3.1 Algorithm in a nutshell
+Classical **RIPPER** loop \[Cohen 1995\]:
 
-Classical **RIPPER** loop \[Cohen 1995]:
-
-1. **Grow**: add a literal that maximises information‑gain
-
-   <img src="https://latex.codecogs.com/svg.image?\mathrm{Gain}(r)=p_{\text{new}}\Bigl(\log_2\frac{p_{\text{new}}}{p_{\text{new}}+n_{\text{new}}}-\log_2\frac{p_{\text{old}}}{p_{\text{old}}+n_{\text{old}}}\Bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="RIPPER gain"/>
+1. **Grow**: add a literal that maximises information‑gain  
+   ```math
+   \mathrm{Gain}(r)
+   = p_{\mathrm{new}}
+     \Bigl(
+       \log_{2}\!\frac{p_{\mathrm{new}}}{p_{\mathrm{new}} + n_{\mathrm{new}}}
+       \;-\;
+       \log_{2}\!\frac{p_{\mathrm{old}}}{p_{\mathrm{old}} + n_{\mathrm{old}}}
+     \Bigr)
 
 2. **Prune** the rule by reduced‑error pruning on a held‑out split.
 
-3. **Delete** positives covered by the rule & repeat.
+3. **Delete** positives covered by the rule & repeat until no positives remain.
 
 `DSRipper` supports two modes:
 
-| `algo` value | Gain expression                                                                                                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `"ripper"`   | same as above                                                                                                                                                                   |
-| `"foil"`     | <img  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"  src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="FOIL gain"/> |
+| `algo` value | Gain expression                                                                                                      |
+| -----------: | :------------------------------------------------------------------------------------------------------------------- |
+|   `"ripper"` | same as above                                                                                                        |
+|     `"foil"` | $\mathrm{FOILGain} = p \,\bigl(\log_2 t' - \log_2 t\bigr),$ where \$p\$ = #positives covered, \$t\$ = total covered. |
 
-where *p* = #positive samples covered, *t* = total covered.
+Induction runs **incrementally in mini‑batches**, so large datasets (e.g. 6 k wine rows) fit in memory.
 
-The implementation processes the dataset **incrementally in mini‑batches**, so \~6 k wine rows fit into laptop RAM.
+### 3.2 Output
 
-\### 3.2 Output
-
-For each class *c* we get a Python `dict` description, e.g.
+For each class \$c\$ we get a Python `dict`, e.g.:
 
 
 {'free sulfur dioxide': ('<', 36),
@@ -83,79 +82,86 @@ For each class *c* we get a Python `dict` description, e.g.
 
 Converted to a `DSRule`:
 
-
+```python
 lam  = lambda x, op='<', thr=36: x[idx] < thr
-rule = DSRule(ld=lam,
-              caption="Class 1: free SO₂ < 36 & total SO₂ ≥ 110")
+rule = DSRule(
+    ld=lam,
+    caption="Class 1: free SO₂ < 36 & total SO₂ ≥ 110"
+)
+```
 
-At this stage a rule knows only **coverage** |{x : rule(x)}| – all other quality metrics are learned later by DST.
+At this stage each rule knows only **coverage** \$|{x : R(x)}|\$. All other quality metrics come later via DST.
 
 ---
 
 ## 4 · Dempster‑Shafer model
 
-\### 4.1 Mass Assignment (MAF)
+### 4.1 Mass Assignment (MAF)
 
-Each rule $R_i$ carries a mass vector
+Each rule \$R\_i\$ carries a mass vector
 
-<img
-    style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
-    src="https://latex.codecogs.com/svg.image?m^{(i)}=(m_1^{(i)},\dots,m_K^{(i)},m_{\mathrm{unc}}^{(i)}),\;\sum_{j=1}^Km_j^{(i)}+m_{\mathrm{unc}}^{(i)}=1" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="mass vector"/>
+```math
+\mathbf m^{(i)} = 
+\bigl(m_1^{(i)},\,\dots,\,m_K^{(i)},\,m_{\mathrm{unc}}^{(i)}\bigr),
+\quad
+\sum_{j=1}^K m_j^{(i)} + m_{\mathrm{unc}}^{(i)} = 1.
+```
 
-Initialisation: either “uniform + 0.8 uncertainty” or smarter clustering (see **DSGD++**).
+Initialisation: either “uniform + 0.8 uncertainty” or smarter clustering‑based (see **DSGD++**).
 
-\### 4.2 Combination → Commonality space
+### 4.2 Combination → Commonality space
 
-For sample **x** let $\mathcal R(x)=\{i:R_i(x)\}$.
+For sample \$\mathbf x\$ let
 
-| Step              | Formula                                                                                                                                                                                                                                                                                                                                                                      |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Commonalities** | <img src="https://latex.codecogs.com/svg.image?q_k%5E%7B%28i%29%7D%3Dm_k%5E%7B%28i%29%7D%2Bm_%5Cmathrm%7Bunc%7D%5E%7B%28i%29%7D%2C%20%5Cforall%20k" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="commonalities" />                                                                                                    |
-| **Product rule**  | <img src="https://latex.codecogs.com/svg.image?q_k%28x%29%3D%5Cprod_%7Bi%5Cin%5Cmathcal%7BR%7D%28x%29%7Dq_k%5E%7B%28i%29%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="combination" />                                                                                                                                             |
-| **Normalise**     | <img src="https://latex.codecogs.com/svg.image?%5Chat%7Bm%7D_k%28x%29%3D%5Cfrac%7Bq_k%28x%29%7D%7B%5Csum_%7B%5Cell=1%7D%5EKq_%5Cell%28x%29%7D%2C%20%5Chat%7Bm%7D_%5Cmathrm%7Bunc%7D%28x%29%3D0" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="normalisation" />                                                                                                    |
+```math
+\mathcal R(\mathbf x) = \{\,i \mid R_i(\mathbf x) = \mathrm{True}\}.
+```
 
+| Step             | Formula                                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Commonalities**| $$q_k^{(i)} = m_k^{(i)} + m_{\mathrm{unc}}^{(i)}, \quad \forall\,k=1,\dots,K$$                                                                                     |
+| **Product rule** | $$q_k(\mathbf{x}) = \prod_{\,i\in\mathcal{R}(\mathbf{x})} q_k^{(i)}$$                                                                                              |
+| **Normalise**    | $$\displaystyle \hat m_k(\mathbf{x}) = \frac{q_k(\mathbf{x})}{\sum_{\ell=1}^K q_\ell(\mathbf{x})}, \quad \hat m_{\mathrm{unc}}(\mathbf{x}) = 0$$                 |                                                                                    |
+```math
+Prediction = \arg\max\_k \hat m\_k(\mathbf x).
+```
+### 4.3 Mass optimisation (DST‑GD)
 
-
-
-
-Prediction = $\arg\max_k\hat{m}_k(x)$.
-
-\### 4.3 Mass optimisation (DST‑GD)
-
-Treat every $\mathbf m^{(i)}$ as a learnable tensor and minimise **cross‑entropy** (or MSE) with Adam.
-`DSModel*.normalize()` enforces $m\ge0$ and ∑=1.
+Treat every \$\mathbf m^{(i)}\$ as a learnable tensor and minimise cross‑entropy (or MSE) with Adam.
+Constraints (\$m\ge0\$, sum to 1) are enforced in `DSModel*.normalize()`.
 
 ---
 
 ## 5 · Rule quality & pruning
 
-After optimisation each rule \(R_i\) has:
+After optimisation each rule \$R\_i\$ has:
 
-| Metric      | Expression                                                                                                                                                                                                                                                                                                                                                      |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Uncertainty** | <img src="https://latex.codecogs.com/svg.image?u_i%3Dm_%5Cmathrm%7Bunc%7D%5E%7B%28i%29%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="uncertainty" /> |
-| **Top‑2 ratio** | <img src="https://latex.codecogs.com/svg.image?r_i%3D%5Cfrac%7B%5Cmax_j%20m_j%5E%7B%28i%29%7D%7D%7B2nd-largest%20m%5E%7B%28i%29%7D%2B10%5E%7B-3%7D%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="top-2 ratio" /> |
+| Metric          | Expression                                                                  |
+| :-------------- | :-------------------------------------------------------------------------- |
+| **Uncertainty** | \$u\_i = m\_{\mathrm{unc}}^{(i)}\$                                          |
+| **Top‑2 ratio** | \$r\_i = \dfrac{\max\_j,m\_j^{(i)}}{\text{2nd-largest }m^{(i)} + 10^{-3}}\$ |
 
-Scale \(r_i\to r'_i\in[0,1]\) (min‑max) and compute usefulness:
+Min‑max normalise \$r\_i \to r'\_i \in \[0,1]\$ and compute **usefulness**:
 
-<img src="https://latex.codecogs.com/svg.image?H_i%3D%5Cfrac%7B2%281-u_i%29r%27_i%7D%7B%281-u_i%29%2Br%27_i%7D" style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;" alt="usefulness score" />
+$$
+H_i = \frac{2\,(1 - u_i)\,r'_i}{(1 - u_i) + r'_i}.
+$$
 
-Coverage $c_i=|\{x:R_i(x)\}|$.
+Re‑compute coverage \$c\_i = |{,\mathbf x : R\_i(\mathbf x)}|\$.
+**Drop** rule \$R\_i\$ if **all** hold:
 
-**Drop** $R_i$ if simultaneously
+* \$u\_i > 0.7\$
+* \$H\_i < 0.4\$
+* \$c\_i < 10\$
 
-* $u_i>0.7$
-* $H_i<0.4$
-* $c_i<10$
-
-*Wine* dataset → rules **42 → 33** with identical F1.
+*Wine* dataset: rules ↓ **42 → 33** with identical F1.
 
 ---
 
 ## 6 · Benchmarks
 
-| Variant       | Acc.  | F1    | Prec. | Rec.  |
-| ------------- | ----- | ----- | ----- | ----- |
+| Variant       |  Acc. |   F1  | Prec. |  Rec. |
+| :------------ | :---: | :---: | :---: | :---: |
 | **R\_raw**    | 0.786 | 0.766 | 1.000 | 0.621 |
 | **R\_DST**    | 0.983 | 0.988 | 1.000 | 0.970 |
 | **R\_pruned** | 0.983 | 0.985 | 1.000 | 0.970 |
@@ -164,18 +170,13 @@ Coverage $c_i=|\{x:R_i(x)\}|$.
 | **F\_pruned** | 0.989 | 0.991 | 0.986 | 0.995 |
 
 > **DST weighting** lifts plain RIPPER from mediocre to *SOTA*.
-> **Pruning** shrinks the model by ≈ 20 % with zero loss in performance.
+> **Pruning** shrinks the model by ≈ 20 % with no loss in performance.
 
 ---
 
 ## 7 · Citing & further reading
 
-* G. Shafer — *A Mathematical Theory of Evidence* (Princeton U Press, 1976)
-* W. Cohen — *Fast Effective Rule Induction* (ICML 1995)
-* R. Quinlan — *FOIL: A Midterm Report* (ICML tutorial 1990)
-* S. Peñafiel et al. — *Applying Dempster‑Shafer Theory for Developing a Flexible, Accurate and Interpretable Classifier* (ESWA 2020)
-
----
-
-## 8 · Licence
-
+* G. Shafer — *A Mathematical Theory of Evidence* (Princeton U Press, 1976)
+* W. Cohen — *Fast Effective Rule Induction* (ICML, 1995)
+* R. Quinlan — *FOIL: A Midterm Report* (ICML tutorial, 1990)
+* S. Peñafiel et al. — *Applying Dempster‑Shafer Theory for Developing a Flexible, Accurate and Interpretable Classifier* (ESWA, 2020)
