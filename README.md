@@ -67,7 +67,9 @@ Classical **RIPPER** loop \[Cohen 1995]:
 | `algo` value | Gain expression                                                                                                                                                                 |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `"ripper"`   | same as above                                                                                                                                                                   |
-| `"foil"`     | <img src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="FOIL gain"/> |
+| `"foil"`     | <img 
+                  style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+                   src="https://latex.codecogs.com/svg.image?\mathrm{FOILGain}=p\bigl(\log_2t'-\log_2t\bigr)" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="FOIL gain"/> |
 
 where *p* = #positive samples covered, *t* = total covered.
 
@@ -98,7 +100,9 @@ At this stage a rule knows only **coverage** |{x : rule(x)}| – all other qua
 
 Each rule $R_i$ carries a mass vector
 
-<img src="https://latex.codecogs.com/svg.image?m^{(i)}=(m_1^{(i)},\dots,m_K^{(i)},m_{\mathrm{unc}}^{(i)}),\;\sum_{j=1}^Km_j^{(i)}+m_{\mathrm{unc}}^{(i)}=1" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="mass vector"/>
+<img
+    style="background-color:#f7f7f7; padding:4px 8px; border-radius:4px;"
+    src="https://latex.codecogs.com/svg.image?m^{(i)}=(m_1^{(i)},\dots,m_K^{(i)},m_{\mathrm{unc}}^{(i)}),\;\sum_{j=1}^Km_j^{(i)}+m_{\mathrm{unc}}^{(i)}=1" style="background:#f7f7f7;padding:4px 8px;border-radius:4px;" alt="mass vector"/>
 
 Initialisation: either “uniform + 0.8 uncertainty” or smarter clustering (see **DSGD++**).
 
