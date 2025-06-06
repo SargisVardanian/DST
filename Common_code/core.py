@@ -230,22 +230,25 @@ def dempster_rule_kt(m1, m2, normalize=False):
 
     return mf
 
-def rules_to_dsb(rules, weights, filename):
+
+def rules_to_dsb(rules, masses, filepath):
     """
-    Конвертирует список правил и соответствующих весов в формат DST и сохраняет в файл.
-    Формат строки: "Rule i: <описание правила> | Weights: w1, w2, ..., w_{k}, unc"
-    :param rules: Список DSRule объектов.
-    :param weights: Список тензоров весов, соответствующих правилам.
-    :param filename: Имя выходного файла с расширением .dsb.
+    Saves rules to a .dsb file with their frequency and usability.
     """
-    with open(filename, "w") as f:
-        f.write("DST RULES FILE\n")
-        for i, (rule, weight) in enumerate(zip(rules, weights)):
-            # Переводим веса в numpy, округляем до 3 знаков после запятой
-            weight_values = weight.detach().cpu().numpy()
-            weight_str = ", ".join([f"{w:.3f}" for w in weight_values])
-            f.write(f"Rule {i+1}: {rule.caption} | Weights: {weight_str}\n")
-    print(f"Правила успешно сохранены в DST формате в файл: {filename}")
+    total_instances = 0
+    # If any rule has usability set, assume all do and use that. Otherwise, compute total from freq.
+    for rule in rules:
+        total_instances += rule.freq
+    # total_instances might sum overlaps, so instead use known dataset size if available.
+    # Here, we'll trust rule.usability if present.
+    with open(filepath, 'w') as f:
+        for i, (rule, mass) in enumerate(zip(rules, masses), start=1):
+            mass_vals = ", ".join(f"{v:.3f}" for v in mass.detach().cpu().numpy())
+            if hasattr(rule, "usability"):
+                f.write(f"Rule {i}: {rule.caption} | freq={rule.freq} | usability={rule.usability:.1f}% | masses=[{mass_vals}]\n")
+            else:
+                # Fallback: no usability attribute, just save frequency
+                f.write(f"Rule {i}: {rule.caption} | freq={rule.freq} | masses=[{mass_vals}]\n")
 
 def filter_duplicate_rules(rules):
     """

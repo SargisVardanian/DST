@@ -1,22 +1,23 @@
+# -----------------------------------
+# Игнорировать «все» CSV-файлы
+# (нужно, чтобы в репозиторий не попали ни root/[…].csv, ни Common_code/results/[…].csv)
+*.csv
+
+# Игнорировать DSB и PKL (они лежат глубоко в Common_code/dsb_rules/ и Common_code/pkl_rules/)
+*.dsb
+*.pkl
+*.pth
+
+# Игнорировать Python-байткод, IDE, macOS остатки
+# -----------------------------------
 # macOS
 .DS_Store
+My_code/results/
 
-# IDE
+# IDE (PyCharm, IntelliJ и т. п.)
 .idea/
 *.iml
 
 # Python bytecode
 __pycache__/
 *.py[cod]
-
-# data, модели, логи, результаты
-*.pth
-*.pkl
-*.png
-*.dsb
-
-
-
-# Игнорировать все dsb и pkl
-*.dsb
-*.pkl

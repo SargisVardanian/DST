@@ -6,39 +6,30 @@ from scipy.stats import norm
 from itertools import count
 import dill, os
 
-# --- project-local helpers ----------------------------------------------------
+# --- проектно-локальные вспомогательные методы -------------------------------
 from Common_code.DSRule import DSRule
 from Common_code.core import create_random_maf_k
 from Common_code.utils import is_categorical
-from Common_code.DSRipper import DSRipper  # <-- new
+from Common_code.DSRipper import DSRipper    # <<< ИЗМЕНЕНИЕ: используем обновлённый DSRipper
 from Common_code.core import filter_duplicate_rules  # optional
-
-
 # -----------------------------------------------------------------------------
-
 
 class DSModelMultiQ(nn.Module):
     """
-    Torch implementation of a Dempster–Shafer multi-class classifier whose
-    knowledge base consists of *human-readable rules*.
-    Now additionally supports rule induction via RIPPER / FOIL.
+    Torch-имплементация Dempster–Shafer классификатора,
+    основа – human-readable rules (RIPPER/FOIL).
     """
 
-    # ------------------------------------------------------------------ #
-    #                               INIT                                 #
-    # ------------------------------------------------------------------ #
     def __init__(self, k,
                  precompute_rules: bool = False,
                  device: str = "cpu",
                  force_precompute: bool = False,
                  use_foil: bool = False):
         """
-        Parameters
-        ----------
         k : int
             Number of classes.
-        use_foil : bool, optional
-            If True – FOIL is used for rule generation, otherwise RIPPER.
+        use_foil : bool
+            Если True – FOIL, иначе RIPPER.
         """
         super().__init__()
         self.k = k
@@ -46,34 +37,30 @@ class DSModelMultiQ(nn.Module):
         self.device = torch.device(device)
         self.force_precompute = force_precompute
 
-        # original containers
+        # контейнеры для масс и функций правил
         self._params, self.preds = [], []
         self.n = 0
         self.rmap = {}
         self.active_rules = []
         self._all_rules = None
 
-        # NEW – internal rule generator (RIPPER or FOIL)
+        # <<< ИЗМЕНЕНИЕ: инстанцируем DSRipper с новыми параметрами по умолчанию
         algo = "foil" if use_foil else "ripper"
-        self.generator = DSRipper(d=64, ratio=2 / 3.0, k=2,
-                                  min_gain=1., eq_tol=1e-3,
-                                  max_unique_cat=10,
-                                  algo=algo)
+        self.generator = DSRipper(
+            algo=algo
+        )
 
-        # dummy scalar avoids div-by-zero in fallback path
+        # dummy-параметр, чтобы избежать деления на 0
         self.dummy = nn.Parameter(torch.tensor(1.0))
 
+
     # ------------------------------------------------------------------ #
-    #                         ORIGINAL  METHODS                          #
-    #         (unchanged – cut for brevity except where annotated)       #
+    #                         ОРИГИНАЛЬНЫЕ МЕТОДЫ                        #
     # ------------------------------------------------------------------ #
     def add_rule(self, pred, m_sing=None, m_uncert=None):
         """
-        Adds a rule to the model. If no masses are provided, random masses will be used.
-        :param pred: DSRule or lambda or callable, used as the predicate of the rule
-        :param m_sing: [optional] masses for singletons
-        :param m_uncert: [optional] mass for uncertainty
-        :return:
+        Добавляем правило. Если массы не заданы, генерируем случайные.
+        :param pred: DSRule или лямбда-функция (predicate).
         """
         self.preds.append(pred)
         self.n += 1
@@ -83,25 +70,21 @@ class DSModelMultiQ(nn.Module):
             masses = m_sing + [m_uncert]
         m = torch.tensor(masses, requires_grad=True, dtype=torch.float)
         self._params.append(m)
-        # self.masses = torch.cat((self.masses, m.view(1, self.k + 1)))
-        # print(m.grad)
-        # self.masses.retain_grad()
 
     def forward(self, X):
         """
-        Defines the computation performed at every call. Applying Dempster Rule for combining.
-        :param X: Set of inputs
-        :return: Set of prediction for each input in one hot encoding format
+        :param X: тензор с shape=(batch, k+1),
+                  в первом столбце – индекс sample, далее – признаки.
+        :return: вероятностное распределение (one-hot).
         """
         ms = torch.stack(self._params).to(self.device)
         if self.force_precompute:
-            # transform to commonalities before selecting the rules that apply
+            # комбинаторика commonalities → выбор всех правил сразу
             qs = ms[:, :-1] + \
                  ms[:, -1].view(-1, 1) * torch.ones_like(ms[:, :-1])
             qt = qs.repeat(len(X), 1, 1)
             vectors, indices = X[:, 1:], X[:, 0].long()
             sel = self._select_all_rules(vectors, indices)
-            # replace rules that don't apply with ones
             qt[sel] = 1
             temp_res = qt.prod(1)
             res = torch.where(temp_res <= 1e-16, temp_res.add(1e-16), temp_res)
@@ -111,20 +94,11 @@ class DSModelMultiQ(nn.Module):
             for i in range(len(X)):
                 sel = self._select_rules(X[i, 1:], int(X[i, 0].item()))
                 if len(sel) == 0:
-                    # raise RuntimeError("No rule especified for input No %d" % i)
-                    # print("Warning: No rule especified for input No %d" % i)
                     out[i] = torch.ones(self.k, device=self.device) / self.k
                 else:
                     mt = torch.index_select(ms, 0, torch.LongTensor(sel).to(self.device))
-                    qt = mt[:, :-1] + \
-                         mt[:, -1].view(-1, 1) * torch.ones_like(mt[:, :-1])
+                    qt = mt[:, :-1] + mt[:, -1].view(-1, 1) * torch.ones_like(mt[:, :-1])
                     res = qt.prod(0)
-                    # if torch.isnan(res).any():
-                    #     print(self._params)
-                    #     print(mt)
-                    #     print(qt)
-                    #     print(res)
-                    #     raise RuntimeError("NaN found in computation")
                     if res.sum().item() <= 1e-16:
                         res = res + 1e-16
                         out[i] = res / res.sum()
@@ -138,10 +112,8 @@ class DSModelMultiQ(nn.Module):
 
     def _select_all_rules(self, X, indices):
         """
-        This works based on the assumption that indices will be
-        provided in order. Otherwise, the function may return uninitialized
-        values.
-        :return a bool tensor with shape (len(X), num_rules) with Trues for the rules that don't apply
+        Возвращает булевый тензор shape=(len(X), n_rules),
+        True там, где правило НЕ срабатывает (для precompute).
         """
         if self._all_rules is None:
             self._all_rules = torch.zeros(0, self.n, dtype=torch.bool).to(self.device)
@@ -154,30 +126,22 @@ class DSModelMultiQ(nn.Module):
             padding = (0, 0, 0, desired_len - len_all_rules)
             self._all_rules = pad(self._all_rules, padding)
         sel = torch.zeros(len(X), self.n, dtype=torch.bool).to(self.device)
-        X = X.cpu().data.numpy()
-        for i, sample, index in zip(count(), X, indices):
+        X_np = X.cpu().data.numpy()
+        for i, sample, index in zip(count(), X_np, indices):
             for j in range(self.n):
                 sel[i, j] = not bool(self.preds[j](sample))
             self._all_rules[index] = sel[i]
         return sel
 
     def normalize(self):
-        """
-        Normalize all masses in order to keep constraints of DS
-        """
+        """Нормализация масс (чтобы суммировались в 1)."""
         with torch.no_grad():
             for t in self._params:
                 t.clamp_(0., 1.)
-                # if t.sum().item() <= 1e-16:
-                #     print(t)
-                #     raise RuntimeError("Zero vector found")
                 if t.sum().item() < 1:
-                    # print("AAAA")
                     t[-1].add_(1 - t.sum())
                 else:
                     t.div_(t.sum())
-        # self.masses.clamp_(0., 1.)
-        # self.masses.div_(self.masses.sum(1).view(-1,1))
 
     def check_nan(self, tag=""):
         for p in self._params:
@@ -190,14 +154,17 @@ class DSModelMultiQ(nn.Module):
                 raise RuntimeError("NaN grad mass found at %s" % tag)
 
     def _select_rules(self, x, index=None):
+        """
+        Возвращает список индексов правил, срабатывающих на x.
+        """
         if self.precompute_rules and index in self.rmap:
             return self.rmap[index]
-        x = x.cpu().data.numpy()
+        x_np = x.cpu().data.numpy()
         sel = []
         for i in range(self.n):
             if len(self.active_rules) > 0 and i not in self.active_rules:
                 continue
-            if self.preds[i](x):
+            if self.preds[i](x_np):
                 sel.append(i)
         if self.precompute_rules and index is not None:
             self.rmap[index] = sel
@@ -208,25 +175,21 @@ class DSModelMultiQ(nn.Module):
 
     def extra_repr(self):
         """
-        Shows the rules and their mass values
-        :return: A string cointaing the information about rules
+        Строит текстовое представление: какие правила, с какими массами.
         """
-        builder = "DS Classifier using %d rules\n" % self.n
+        builder = f"DS Classifier using {self.n} rules\n"
         for i in range(self.n):
             ps = str(self.preds[i])
             ms = self._params[i]
-            builder += "\nRule %d: %s\n\t" % (i + 1, ps)
+            builder += f"\nRule {i+1}: {ps}\n\t"
             for j in range(len(ms) - 1):
-                builder += "C%d: %.3f\t" % (j + 1, ms[j])
-            builder += "Unc: %.3f\n" % ms[self.k]
+                builder += f"C{j+1}: {ms[j]:.3f}\t"
+            builder += f"Unc: {ms[self.k]:.3f}\n"
         return builder[:-1]
 
     def find_most_important_rules(self, classes=None, threshold=0.2):
         """
-        Shows the most contributive rules for the classes specified
-        :param classes: Array of classes, by default shows all clases
-        :param threshold: score minimum value considered to be contributive
-        :return: A list containing the information about most important rules
+        Возвращает словарь {class: [(score, idx, ps, sqrt(score), masses), ...]}.
         """
         if classes is None:
             classes = [i for i in range(self.k)]
@@ -242,28 +205,164 @@ class DSModelMultiQ(nn.Module):
                     if score >= threshold * threshold:
                         ps = str(self.preds[i])
                         found.append((score, i, ps, np.sqrt(score), ms))
-
                 found.sort(reverse=True)
                 rules[cls] = found
-
         return rules
 
     def print_most_important_rules(self, classes=None, threshold=0.2):
         rules = self.find_most_important_rules(classes, threshold)
-
         if classes is None:
             classes = [i for i in range(self.k)]
-
         builder = ""
-        for i in range(len(classes)):
-            rs = rules[classes[i]]
-            builder += "\n\nMost important rules for class %s" % classes[i]
+        for i_cls in range(len(classes)):
+            rs = rules[classes[i_cls]]
+            builder += f"\n\nMost important rules for class {classes[i_cls]}"
             for r in rs:
-                builder += "\n\n\t[%.3f] R%d: %s\n\t\t" % (r[3], r[1], r[2])
+                builder += f"\n\n\t[{r[3]:.3f}] R{r[1]}: {r[2]}\n\t\t"
                 masses = r[4]
                 for j in range(len(masses)):
-                    builder += "\t%s: %.3f" % (str(classes[j])[:3] if j < len(classes) else "Unc", masses[j])
+                    builder += f"\t{str(classes[j])[:3] if j < len(classes) else 'Unc'}: {masses[j]:.3f}"
         print(builder)
+
+
+    # ==========================  П Р И В А Т Н Ы Е  ========================== #
+
+    def _make_lambda(self, rule_obj, cols, tol):
+        """
+        Строит λ-функцию (predicate) для одного правила (или списка клауз OR).
+        rule_obj: dict (AND-клауза) или list[dict] (OR из нескольких клауз).
+        """
+        clauses = [rule_obj] if isinstance(rule_obj, dict) else rule_obj
+
+        def _ok(value, op, thr):
+            if value is None:  # nan / пропуск
+                return False
+            if op in ("=", "=="):
+                return abs(value - thr) <= tol
+            if op == ">":
+                return value >  thr + tol
+            if op == ">=":
+                return value >= thr - tol
+            if op == "<":
+                return value <  thr - tol
+            if op == "<=":
+                return value <= thr + tol
+            return False
+
+        def f(x):
+            for cl in clauses:  # OR
+                good = True
+                for attr, (op, thr) in cl.items():  # AND
+                    v = x[cols.index(attr)]
+                    if not _ok(v, op, thr):
+                        good = False
+                        break
+                if good:
+                    return True
+            return False
+
+        return f
+
+
+    # ------------------------------------------------------------------ #
+    #                    ADDITIONAL RULE-GENERATOR: RIPPER                 #
+    # ------------------------------------------------------------------ #
+    def generate_ripper_rules(self, X, y, column_names, batch_size=1000):
+        """
+        1) Зовём self.generator.fit(...) и собираем упорядоченный список (label, Rule).
+        2) Пропускаем «пустые» дефолтные правила ({} → TRUE).
+        3) Конвертируем каждую клауза Rule → DSRule (лямбда + текст).
+        """
+        # обучаем DSRipper (он сгенерирует self.generator._ordered_rules)
+        self.generator.fit(X, y, feature_names=list(column_names), batch_size=batch_size)
+
+        ds_rules = []
+        cols = list(column_names)
+        tol  = self.generator.eq_tol
+
+        # идём по упорядоченному списку правил
+        for cls, cond in self.generator._ordered_rules:
+            # <<< ИЗМЕНЕНИЕ: пропускаем «пустое» правило (дефолт)
+            if isinstance(cond, dict) and not cond:
+                continue
+
+            # 1) строим лямбда-функцию
+            lam = self._make_lambda(cond, cols, tol)
+
+            # 2) строим текстовое описание
+            if isinstance(cond, dict):
+                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cond.items())]
+            else:  # OR из нескольких клауз
+                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cl.items())
+                               for cl in cond]
+            desc = " OR ".join(f"({s})" for s in clause_strs)
+
+            # 3) вычисляем coverage и usability
+            cov  = sum(1 for row in X if lam(row))
+            usab = cov / len(X) * 100
+
+            ds_rules.append(
+                DSRule(lam,
+                       caption=f"Class {cls}: {desc} | freq={cov} | usability={usab:.1f}%")
+            )
+
+        return ds_rules
+
+
+    # ------------------------------------------------------------------ #
+    #                           FOIL  (аналогично)                        #
+    # ------------------------------------------------------------------ #
+    def generate_foil_rules(self, X, y, column_names, batch_size=1000):
+        self.generator.fit(X, y, feature_names=list(column_names), batch_size=batch_size)
+
+        ds_rules = []
+        cols = list(column_names)
+        tol  = self.generator.eq_tol
+
+        for cls, cond in self.generator._ordered_rules:
+            # <<< ИЗМЕНЕНИЕ: пропускаем «пустое» правило (дефолт)
+            if isinstance(cond, dict) and not cond:
+                continue
+
+            lam = self._make_lambda(cond, cols, tol)
+
+            if isinstance(cond, dict):
+                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cond.items())]
+            else:
+                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cl.items())
+                               for cl in cond]
+            desc = " OR ".join(f"({s})" for s in clause_strs)
+
+            cov  = sum(1 for row in X if lam(row))
+            usab = cov / len(X) * 100
+
+            ds_rules.append(
+                DSRule(lam,
+                       caption=f"Class {cls}: {desc} | freq={cov} | usability={usab:.1f}%")
+            )
+        return ds_rules
+
+    def sort_rules_by_quality(self, X_body):
+        """Грубая сортировка правил по (coverage↑, top2-ratio↑, uncertainty↓)."""
+        if not self.preds:      return
+        covs = [sum(p(row) for row in X_body) for p in self.preds]
+        ratios = []
+        uncs   = []
+        for m in self._params:
+            masses = m[:-1].detach().cpu().numpy()
+            unc    = m[-1].item();  uncs.append(unc)
+            top2   = np.partition(masses, -2)[-2:]
+            ratios.append(top2[-1]/(top2[-2]+1e-9) if len(top2)==2 else 0)
+
+        # последний -- всегда дефолт (пустое условие) – не трогаем
+        idx = list(range(len(self.preds)-1))
+        idx.sort(key=lambda i: (covs[i], ratios[i], -uncs[i]), reverse=True)
+        idx.append(len(self.preds)-1)          # default stays last
+
+        self.preds  = [self.preds[i]  for i in idx]
+        self._params= [self._params[i] for i in idx]
+
+
 
     def generate_statistic_single_rules(self, X, breaks=2, column_names=None, generated_columns=None):
         """
@@ -353,10 +452,10 @@ class DSModelMultiQ(nn.Module):
                 mj = mean[j]
                 self.add_rule(DSRule(lambda x, i=i, j=j, mi=mi, mj=mj: (x[i] - mi) * (x[j] - mj) > 0,
                                      "Positive %s - %.3f, %s - %.3f" % (
-                                     column_names[i], mean[i], column_names[j], mean[j])))
+                                         column_names[i], mean[i], column_names[j], mean[j])))
                 self.add_rule(DSRule(lambda x, i=i, j=j, mi=mi, mj=mj: (x[i] - mi) * (x[j] - mj) <= 0,
                                      "Negative %s - %.3f, %s - %.3f" % (
-                                     column_names[i], mean[i], column_names[j], mean[j])))
+                                         column_names[i], mean[i], column_names[j], mean[j])))
 
     def generate_custom_range_single_rules(self, column_names, name, breaks):
         """
@@ -496,69 +595,6 @@ class DSModelMultiQ(nn.Module):
         rids = [r[1] for r in rs]
         self.active_rules = rids
 
-    # ------------------------------------------------------------------ #
-    #                    ADDITIONAL RULE-GENERATOR RIPPER and FOIL                   #
-    # ------------------------------------------------------------------ #
-    def _make_lambda(self, rule_dict, cols, tol):
-        """
-        Build a Python lambda from RIPPER/FOIL textual rule.
-        """
-
-        def _f(x):
-            for attr, (op, thr) in rule_dict.items():
-                v = x[cols.index(attr)]
-                if op == '==' and abs(v - thr) > tol:
-                    return False
-                elif op == '>' and not (v > thr):
-                    return False
-                elif op == '<' and not (v < thr):
-                    return False
-            return True
-
-        return _f
-
-    # ................................................
-    def generate_ripper_rules(self, X, y, column_names, batch_size=1000):
-        """
-        Incrementally induce rules with *RIPPER* and convert them into DSRule.
-        Returns a list[DSRule].
-        """
-        if self.generator.algo != "ripper":
-            raise RuntimeError("DSModelMultiQ: generator not set to RIPPER.")
-        rule_dict = self.generator.fit(X, y,
-                                       feature_names=list(column_names),
-                                       batch_size=batch_size)
-
-        rules = []
-        for cls, rule_list in rule_dict.items():
-            for r in rule_list:
-                lam = self._make_lambda(r, list(column_names), self.generator.eq_tol)
-                desc = " AND ".join(f"{a} {op} {val:.4f}" for a, (op, val) in r.items())
-                rules.append(DSRule(lam, f"Class {cls}: {desc}"))
-        if not rules:
-            rules = [DSRule(lambda _x: True, "Fallback: always true")]
-        return rules
-
-    # ................................................
-    def generate_foil_rules(self, X, y, column_names, batch_size=1000):
-        """
-        Same as above but for *FOIL* algorithm.
-        """
-        if self.generator.algo != "foil":
-            raise RuntimeError("DSModelMultiQ: generator not set to FOIL.")
-        rule_dict = self.generator.fit(X, y,
-                                       feature_names=list(column_names),
-                                       batch_size=batch_size)
-        rules = []
-        for cls, rule_list in rule_dict.items():
-            for r in rule_list:
-                lam = self._make_lambda(r, list(column_names), self.generator.eq_tol)
-                desc = " AND ".join(f"{a} {op} {val:.4f}" for a, (op, val) in r.items())
-                rules.append(DSRule(lam, f"Class {cls}: {desc}"))
-        if not rules:
-            rules = [DSRule(lambda _x: True, "Fallback: always true")]
-        return rules
-
     # ................................................
     def import_test_rules(self, ds_rules):
         """
@@ -589,31 +625,38 @@ class DSModelMultiQ(nn.Module):
         return 1.0 - unc, ratio
 
     # ................................................
-    def prune_rules(self, X_body,
-                    max_unc=0.7, min_score=0.4, min_cov=10):
+    def prune_rules(self, X_body, max_unc=0.6, min_score=0.4, min_cov=8):
         """
-        Remove rules with high uncertainty, low score *and* tiny coverage.
+        Отсекаем правила на основе неопределенности, распределения масс и покрытия.
+        Удаляем правило, если выполняется хотя бы одно из условий:
+          1. mass_uncertainty > max_unc (правило слишком неопределённое)
+          2. log(P1/P2) < min_score (правило даёт похожие вероятности для нескольких классов)
+          3. coverage < min_cov (правило покрывает слишком мало объектов)
+        Возвращает (число оставленных правил, исходное число правил).
         """
-        ratios = [self.rule_score(p)[1] for p in self._params]
-        rmin, rmax = min(ratios), max(ratios)
-
+        old_n = self.n
         keep_preds, keep_params = [], []
         for pred, mass in zip(self.preds, self._params):
-            u_adj, ratio = self.rule_score(mass)
-
-            if rmax > rmin:
-                ratio_n = (ratio - rmin) / (rmax - rmin)
+            # Вычисляем неопределённость и распределение масс по классам для правила
+            unc = mass[-1].item()
+            class_masses = mass[:-1].detach().cpu().numpy()
+            if len(class_masses) < 2:
+                # Для правил с одним классом (маловероятно) – учитываем только неопределённость
+                top1_ratio_log = float('inf')
             else:
-                ratio_n = 1.0
-
-            H = 2 * u_adj * ratio_n / (u_adj + ratio_n + 1e-9)
-
-            cov = self._rule_coverage(pred.ld, X_body)
-
-            if not (mass[-1].item() > max_unc and H < min_score and cov < min_cov):
-                keep_preds.append(pred)
-                keep_params.append(mass)
-
-        self.preds, self._params = keep_preds, keep_params
+                # Выбираем две наибольшие вероятности классов
+                top2 = np.partition(class_masses, -2)[-2:]
+                top1_ratio_log = np.log((top2[-1] / (top2[-2] + 1e-9)) + 1e-9)
+            cov = sum(pred(row) for row in X_body)  # покрытие: число объектов, удовлетворяющих правилу
+            # Проверяем условия прунинга
+            if unc > max_unc or top1_ratio_log < min_score or cov < min_cov:
+                # Правило отбраковывается, т.к. оно либо слишком неуверенное, либо плохо различает классы, либо слишком частное
+                continue
+            # Иначе сохраняем правило
+            keep_preds.append(pred)
+            keep_params.append(mass)
+        # Обновляем списки правил и параметров
+        self.preds = keep_preds
+        self._params = keep_params
         self.n = len(self.preds)
-        return self.n
+        return self.n, old_n

@@ -1,31 +1,28 @@
 # DSClassifierMultiQ.py
+
 import time
 import numpy as np
 import torch
 from torch.autograd import Variable
+from torch import nn
 
 from Common_code.DSModelMultiQ import DSModelMultiQ
-from Common_code.DSRipper import DSRipper   # kept for back-compat
-
-# -----------------------------------------------------------------------------
+from Common_code.DSRipper import DSRipper   # нужно для совместимости
+from Common_code.core import rules_to_dsb
+import os
 
 
 class DSClassifierMultiQ:
     """
     End-to-end Dempster–Shafer classifier.
-    It can:
-        * generate rules with RIPPER (default) or FOIL (`use_foil=True`)
-        * learn masses via gradient descent (optional)
-        * prune low-value rules (optional)
-    Every *legacy* method from your former version is still present.
+    Генерирует правила (RIPPER/FOIL), оптимизирует массы, при желании пруит.
     """
 
-    # ------------------------------------------------------------------ #
     def __init__(self,
                  num_classes: int,
-                 lr: float = 0.005,
+                 lr: float = 0.05,
                  max_iter: int = 50,
-                 min_iter: int = 2,
+                 min_iter: int = 5,
                  min_dloss: float = 1e-4,
                  optim: str = "adam",
                  lossfn: str = "MSE",
@@ -34,20 +31,40 @@ class DSClassifierMultiQ:
                  precompute_rules: bool = False,
                  device: str = "cpu",
                  force_precompute: bool = False,
-                 use_foil: bool = False):
-        self.k           = num_classes
-        self.lr          = lr
-        self.max_iter    = max_iter
-        self.min_iter    = min_iter
-        self.min_dloss   = min_dloss
-        self.optim       = optim.lower()
-        self.lossfn      = lossfn.upper()
-        self.batch_size  = batch_size
-        self.num_workers = num_workers
-        self.device      = torch.device(device)
-        self.use_foil    = use_foil
+                 use_foil: bool = False,
+                 batches_per_epoch: int = None):
+        """
+        Параметры:
+          num_classes     — число классов (k).
+          lr               — learning rate для оптимизации DST-весов.
+          max_iter         — максимальное число эпох (итераций) оптимизации.
+          min_iter         — минимум итераций перед досрочным стопом.
+          min_dloss        — порог изменения loss (если delta < min_dloss) для остановки.
+          optim            — «adam» или «sgd».
+          lossfn           — «MSE» (Mean Squared Error) или «CE» (CrossEntropy).
+          batch_size       — batch_size для DataLoader’а при оптимизации ваг (DST).
+          num_workers      — число воркеров для DataLoader’а (рекомендуется = 0 при MPS).
+          precompute_rules — если True, правила будут закешированы заранее (быстрее inference).
+          device           — строка вида «cpu», «cuda», «mps».
+          force_precompute  — если True, DSModelMultiQ заранее кеширует, какие правила сработают на каких образцах.
+          use_foil         — если True, при генерации правил применяется FOIL; иначе RIPPER.
+          batches_per_epoch — сколько мини-батчей из DataLoader обрабатывать в каждой эпохе.
+                              Если None, цикл идёт до конца DataLoader (как раньше).
+        """
+        self.k                = num_classes
+        self.lr               = lr
+        self.max_iter         = max_iter
+        self.min_iter         = min_iter
+        self.min_dloss        = min_dloss
+        self.optim            = optim.lower()
+        self.lossfn           = lossfn.upper()
+        self.batch_size       = batch_size
+        self.num_workers      = num_workers
+        self.device           = torch.device(device)
+        self.use_foil         = use_foil
+        self.batches_per_epoch = batches_per_epoch  # новоe поле
 
-        # main DS model (keeps all old functionality)
+        # основная DS-модель (правила + массы)
         self.model = DSModelMultiQ(
             k=num_classes,
             precompute_rules=precompute_rules,
@@ -56,15 +73,9 @@ class DSClassifierMultiQ:
             use_foil=use_foil
         ).to(self.device)
 
-        # majority-vote fallback
+        # fallback по большинству (majority-vote)
         self.default_class_ = 0
 
-        # deprecated attr kept for older code paths
-        self.ripper = DSRipper(d=64, ratio=2/3.0, k=2)
-
-    # ------------------------------------------------------------------ #
-    #                              FIT                                   #
-    # ------------------------------------------------------------------ #
     def fit(self, X, y,
             column_names=None,
             add_single_rules=False,
@@ -74,11 +85,10 @@ class DSClassifierMultiQ:
             prune_after_fit=False,
             prune_kwargs=None):
         """
-        High-level training routine.
-        1. (optional) add handcrafted rules
-        2. generate RIPPER / FOIL rules *if* rule list is empty
-        3. optimise DST masses (optional)
-        4. prune (optional)
+        1. (опционально) добавляем «handcrafted» правила
+        2. генерируем RIPPER или FOIL (если списка правил нет)
+        3. оптимизируем массы (DST) через градиентный спуск (опционально)
+        4. пруним низкоэффективные правила (опционально)
         """
         prune_kwargs = prune_kwargs or {}
 
@@ -89,9 +99,9 @@ class DSClassifierMultiQ:
         if add_mult_rules:
             self.model.generate_mult_pair_rules(X, column_names=column_names)
 
-        # –– automatic rule induction ––
+        # –– автоматическая индукция правил ––
         if not self.model.preds:
-            print(f"Inducing {'FOIL' if self.use_foil else 'RIPPER'} rules …")
+            print(f"→ Inducing {'FOIL' if self.use_foil else 'RIPPER'} rules …")
             if self.use_foil:
                 rules = self.model.generate_foil_rules(
                     X, y, column_names, batch_size=self.batch_size)
@@ -102,89 +112,128 @@ class DSClassifierMultiQ:
         else:
             print("Existing rules detected – skipping induction.")
 
+        # определяем дефолтный класс (majority)
         self.default_class_ = int(np.bincount(y).argmax())
 
-        # rule-only accuracy before optimisation
+        # accuracy по правилам (без DST) на train
         acc0 = (self.predict_rules_only(X) == y).mean()
         print(f"Rule-only train accuracy: {acc0:.3f}")
 
-        # –– DST mass optimisation ––
+        # –– оптимизация масс DST ––
         losses, last_epoch = None, None
         if optimize_weights:
-            opt_cls = torch.optim.Adam if self.optim == "adam" else torch.optim.SGD
+            opt_cls  = torch.optim.Adam if self.optim == "adam" else torch.optim.SGD
             optimizer = opt_cls(self.model.parameters(), lr=self.lr)
             criterion = (torch.nn.CrossEntropyLoss()
-                         if self.lossfn == "CE" else torch.nn.MSELoss())
+                         if self.lossfn == "CE"
+                         else torch.nn.MSELoss())
 
+            # добавляем индекс столбца слева (нужно для DSModelMultiQ.forward)
             X_idx = np.insert(X, 0, values=np.arange(len(X)), axis=1)
-            print("Starting mass optimisation …")
+
+            print("→ Starting mass optimisation …")
             losses, last_epoch = self._optimize(X_idx, y, optimizer, criterion)
-            print(f"Finished – final loss {losses[-1]:.4f} @ epoch {last_epoch}")
+            print(f"→ Finished – final loss {losses[-1]:.4f} @ epoch {last_epoch}")
         else:
-            print("Skipping mass optimisation.")
+            print("→ Skipping mass optimisation.")
 
-        # –– pruning ––
+        # –– прунинг ––
         if prune_after_fit:
-            X_idx = np.insert(X, 0, values=np.arange(len(X)), axis=1)
-            kept = self.model.prune_rules(X_idx, **prune_kwargs)
+            kept, old = self.model.prune_rules(X, **prune_kwargs)
             acc1 = (self.predict(X) == y).mean()
-            print(f"Pruned → {kept} rules kept. Post-prune train acc: {acc1:.3f}")
+            print(f"Old {old}, Pruned → {kept} rules kept. Post-prune train acc: {acc1:.3f}")
 
         return losses, last_epoch
 
-    # ------------------------------------------------------------------ #
-    #              ORIGINAL optimise / predict methods stay              #
-    # ------------------------------------------------------------------ #
     def _optimize(self, X, y, optimizer, criterion):
-        """(unchanged except cosmetic)."""
+        """
+        Batch-based цикл обучения параметров (массы правил) через Adam/SGD,
+        но обрабатываем только ограниченное число мини-батчей (batches_per_epoch).
+        Если batches_per_epoch=None → по умолчанию используем весь DataLoader (как раньше).
+        """
         losses = []
-        self.model.train(); self.model.clear_rmap()
+        self.model.train()
+        self.model.clear_rmap()
 
-        Xt = Variable(torch.Tensor(X).to(self.device))
-        yt = (torch.LongTensor(y).to(self.device) if self.lossfn == "CE"
-              else torch.nn.functional.one_hot(
-                  torch.LongTensor(y).to(self.device), self.k).float())
+        # 1) Создаем CPU-тензоры, которые пойдут в DataLoader
+        Xt_cpu = torch.FloatTensor(X)  # на CPU
+        if self.lossfn == "CE":
+            yt_cpu = torch.LongTensor(y)  # на CPU
+        else:
+            yt_cpu = torch.nn.functional.one_hot(
+                torch.LongTensor(y), self.k
+            ).float()  # на CPU
 
-        dataset = torch.utils.data.TensorDataset(Xt, yt)
+        dataset = torch.utils.data.TensorDataset(Xt_cpu, yt_cpu)
         loader  = torch.utils.data.DataLoader(
-            dataset, batch_size=self.batch_size,
-            shuffle=False, num_workers=self.num_workers)
+            dataset,
+            batch_size=self.batch_size,
+            shuffle=True,         # желательно перемешать в начале каждой эпохи
+            num_workers=0,        # обязательно 0 → MPS не умеет шарить CPU-тензоры между процессами
+            pin_memory=False      # отключаем pin_memory, т.к. MPS/PyTorch не поддерживает это
+        )
+
+        total_samples = len(dataset)
 
         for epoch in range(self.max_iter):
             epoch_loss = 0.0
-            for Xi, yi in loader:
+            processed_batches = 0
+
+            for Xi_cpu, yi_cpu in loader:
+                Xi = Xi_cpu.to(self.device)
+                yi = yi_cpu.to(self.device)
+
                 optimizer.zero_grad()
-                loss = criterion(self.model(Xi), yi)
+                preds = self.model(Xi)
+                loss = criterion(preds, yi)
                 loss.backward(retain_graph=True)
                 optimizer.step()
                 self.model.normalize()
-                epoch_loss += loss.item() * len(yi) / len(dataset)
+
+                epoch_loss += loss.item() * Xi.size(0) / total_samples
+                processed_batches += 1
+
+                # если задано ограничение по числу батчей в эпохе ― выходим
+                if self.batches_per_epoch is not None and \
+                   processed_batches >= self.batches_per_epoch:
+                    break
+
             losses.append(epoch_loss)
-            print(f"\rEpoch {epoch+1}  loss={epoch_loss:.5f}", end="")
-            if epoch > self.min_iter and abs(losses[-2] - epoch_loss) < self.min_dloss:
+            print(f"\rEpoch {epoch+1}  loss={epoch_loss:.5f}  "
+                  f"(batches used: {processed_batches})", end="")
+
+            # досрочная остановка по delta loss
+            if epoch >= self.min_iter and abs(losses[-2] - epoch_loss) < self.min_dloss:
                 break
-        print()
+
+        print()  # перевод строки после вывода прогресса
         return losses, epoch
 
-    # ................................................
     def predict(self, X, one_hot=False):
-        """DST prediction."""
-        self.model.eval(); self.model.clear_rmap()
+        """
+        DST-предсказание: возвращает либо распределение (one_hot=True),
+        либо argmax-класс (one_hot=False).
+        """
+        self.model.eval()
+        self.model.clear_rmap()
+
         X_idx = np.insert(X, 0, values=np.arange(len(X)), axis=1)
         with torch.no_grad():
             out = self.model(torch.Tensor(X_idx).to(self.device))
-            return (out.cpu().numpy() if one_hot
-                    else torch.argmax(out, 1).cpu().numpy())
+            if one_hot:
+                return out.cpu().numpy()
+            else:
+                return torch.argmax(out, 1).cpu().numpy()
 
-    # ................................................
     def predict_rules_only(self, X):
         """
-        First-match rule prediction with majority-class fallback.
+        First-match rule prediction (первое сработавшее правило) с fallback → majority-class.
         """
         preds = np.full(len(X), self.default_class_, dtype=int)
         for i, row in enumerate(X):
             for rule in self.model.preds:
                 if rule(row):
-                    preds[i] = int(rule.caption.split()[1].rstrip(':'))
+                    lbl = int(rule.caption.split()[1].rstrip(':'))
+                    preds[i] = lbl
                     break
         return preds

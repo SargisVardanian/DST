@@ -1,90 +1,98 @@
-# =====================================================================
-# Функция загрузки датасета по номеру
-# 1: Brain Tumor – пытаемся загрузить с OpenML (если не удаётся, генерируем синтетически)
-# 2: Breast Cancer – load_breast_cancer из sklearn
-# 3: Gaussian – make_classification
-# 4: Rectangle – равномерное распределение в [-1,1]^2, класс по знаку y
-# 5: Uniform – равномерное распределение в [-5,5]^3, класс по знаку первого признака
-# =====================================================================
-from sklearn.datasets import load_breast_cancer, make_classification, fetch_openml
 import pandas as pd
+import numpy as np
+from pathlib import Path
+from sklearn.preprocessing import StandardScaler
 
+def load_dataset(csv_path: str | Path, *, normalize: bool = True):
+    """
+    Universal CSV loader  →  (X, y, feature_names)
 
-def load_dataset(dataset_id):
-    if dataset_id == 1:
-        # Brain Tumor – пытаемся загрузить локальный файл brain_tumor.csv с разделителем ';'
-        csv_path = "/Users/sargisvardanyan/PycharmProjects/DST/df_breast-cancer-wisconsin.csv"
-        df = pd.read_csv(csv_path, delimiter=',', on_bad_lines='skip')
-        # df.drop("distance_norm", axis=1, inplace=True)
-        # df.rename(columns={'labels_clustering': 'labels'}, inplace=True)
-        # median_val = df['distance_norm'].median()
-        # df['distance_norm'] = df['distance_norm'].fillna(median_val)
-        # df.drop("distance_norm", axis=1, inplace=True)
-        # df.to_csv(csv_path, index=False)
+    • автоматически определяет столбец-цель (label/target)
+    • удаляет ID-подобные колонки
+    • целочисленно кодирует категориальные признаки
+    • (optionally) Z-нормирует **только** числовые колонки
+    --------------------------------------------------------------------
+    Returns
+    -------
+    X            : np.ndarray, shape (n_samples, n_features)
+    y            : np.ndarray, shape (n_samples,)
+    feature_names: list[str]
+    """
 
-        print(df.head())
-        X = df.iloc[:, :-1].values
-        y = df.iloc[:, -1].values
-        print("X: ", X.shape)
-        print("y: ", y.shape)
-        feature_names = df.columns[:-1].tolist()
-        return X, y, feature_names
-    elif dataset_id == 2:
-        # Breast Cancer – используем датасет из sklearn
-        df = load_breast_cancer()
+    csv_path = Path(csv_path)
 
-        # print(df.head())
-        X = df.data
-        y = df.target
-        feature_names = df.feature_names.tolist()
-        return X, y, feature_names
-    elif dataset_id == 3:
-        # Gaussian – если CSV существует, загружаем его; иначе генерируем синтетически
-        csv_path = "/Users/sargisvardanyan/PycharmProjects/DST/df_gaussian.csv"
-        df = pd.read_csv(csv_path, delimiter=',', on_bad_lines='skip')
-
-        print(df.head())
-        X = df.iloc[:, :-1].values
-        y = df.iloc[:, -1].values
-        print("X: ", X.shape)
-        print("y: ", y.shape)
-        feature_names = df.columns[:-1].tolist()
-        return X, y, feature_names
-    elif dataset_id == 4:
-        # Rectangle – если CSV существует, загружаем его; иначе генерируем синтетически
-        csv_path = "/Users/sargisvardanyan/PycharmProjects/DST/df_rectangle.csv"
-        df = pd.read_csv(csv_path, delimiter=',', on_bad_lines='skip')
-
-        print(df.head())
-        X = df.iloc[:, :-1].values
-        y = df.iloc[:, -1].values
-        print("X: ", X.shape)
-        print("y: ", y.shape)
-        feature_names = df.columns[:-1].tolist()
-        return X, y, feature_names
-    elif dataset_id == 5:
-        # Uniform – если CSV существует, загружаем его; иначе генерируем синтетически
-        csv_path = "/Users/sargisvardanyan/PycharmProjects/DST/df_uniform.csv"
-        df = pd.read_csv(csv_path, delimiter=',', on_bad_lines='skip')
-
-        print(df.head())
-        X = df.iloc[:, :-1].values
-        y = df.iloc[:, -1].values
-        print("X: ", X.shape)
-        print("y: ", y.shape)
-        feature_names = df.columns[:-1].tolist()
-        return X, y, feature_names
-    elif dataset_id == 6:
-        # Uniform – если CSV существует, загружаем его; иначе генерируем синтетически
-        csv_path = "/Users/sargisvardanyan/PycharmProjects/DST/df_wine.csv"
-        df = pd.read_csv(csv_path, delimiter=',', on_bad_lines='skip')
-
-        print(df.head())
-        X = df.iloc[:, :-1].values
-        y = df.iloc[:, -1].values
-        print("X: ", X.shape)
-        print("y: ", y.shape)
-        feature_names = df.columns[:-1].tolist()
-        return X, y, feature_names
+    # 1) читаем CSV, пытаясь sep=',' и ';'
+    for sep in (",", ";"):
+        try:
+            df = pd.read_csv(csv_path, sep=sep, na_values=["?", "NA", "nan"],
+                             engine="python")
+            if df.shape[1] > 1:
+                break
+        except Exception:
+            continue
     else:
-        raise ValueError("Неизвестный ID датасета")
+        raise ValueError(f"Cannot read {csv_path} with ',' or ';'")
+
+    # 2) удаляем строки с пропусками
+    df = df.dropna(axis=0, how="any").reset_index(drop=True)
+
+    # 3) убираем ID-подобные столбцы
+    id_like = [
+        c for c in df.columns
+        if ("id" in c.lower() or "uid" in c.lower() or "identifier" in c.lower())
+        or df[c].is_unique
+    ]
+    if id_like:
+        df = df.drop(columns=id_like)
+
+    # 4) находим столбец-метку
+    preferred = {"label","labels","class","target","outcome","diagnosis","y","result"}
+    label_col = next((c for c in df.columns if c.strip().lower() in preferred), None)
+
+    if label_col is None:
+        # единственный бинарный не-float столбец
+        bins = [c for c in df.columns if df[c].nunique()==2 and df[c].dtype!=float]
+        if len(bins)==1:
+            label_col = bins[0]
+        elif len(bins)>1:
+            # самый сбалансированный
+            label_col = min(
+                bins,
+                key=lambda c: abs(df[c].value_counts(normalize=True).iloc[0] - 0.5)
+            )
+    if label_col is None:
+        # любой столбец с ≤10 уникальных
+        small = [c for c in df.columns if 2<=df[c].nunique()<=10]
+        if small:
+            label_col = small[-1]
+    if label_col is None:
+        label_col = df.columns[-1]
+
+    # 5) factorize метки → y
+    y, classes_ = pd.factorize(df[label_col], sort=True)
+    if len(classes_)<2:
+        raise ValueError(f"Too few classes in '{label_col}'")
+
+    # 6) готовим X: отделяем метку
+    X_df = df.drop(columns=[label_col])
+
+    # 6a) кодируем **целочисленно** все категориальные (object|category) колонки
+    cat_cols = X_df.select_dtypes(include=['object','category']).columns
+    for c in cat_cols:
+        X_df[c] = pd.Categorical(X_df[c]).codes.astype(float)
+
+    # 6b) нормируем числовые (включая получившиеся integer-коды)
+    # if normalize:
+    #     num_cols = X_df.select_dtypes(include=[np.number]).columns
+    #     if len(num_cols)>0:
+    #         scaler = StandardScaler()
+    #         X_df[num_cols] = scaler.fit_transform(X_df[num_cols])
+
+    X = X_df.to_numpy(dtype=float)
+    feature_names = X_df.columns.tolist()
+
+    # 7) логируем
+    print(f"Detected label column: '{label_col}'  →  classes: {classes_.tolist()}")
+    print(f"X shape = {X.shape},  y distribution = {np.bincount(y).tolist()}")
+
+    return X, y, feature_names
