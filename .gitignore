@@ -12,11 +12,11 @@ __pycache__/
 # data, модели, логи, результаты
 *.pth
 *.pkl
-*.csv
 *.png
 *.dsb
 
-# разрешить конкретные результаты
-!Common_code/benchmark_dataset6.csv
-!Common_code/benchmark_dataset6.png
 
+
+# Игнорировать все dsb и pkl
+*.dsb
+*.pkl
