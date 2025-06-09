@@ -2,7 +2,7 @@
 # DST – Rule‑Based Classification with RIPPER / FOIL + Dempster‑Shafer Theory
 
 <p align="center">
-  <img src="Common_code/benchmark_dataset6.png" width="600">
+  <img src="Common_code/results/benchmark_dataset_df_wine_metrics.png" width="600">
 </p>
 
 > • Automatic rule induction (RIPPER / FOIL)  
