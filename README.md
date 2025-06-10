@@ -22,7 +22,7 @@ Get started by cloning the repository and running the main benchmark script.
 git clone https://github.com/SargisVardanian/DST.git
 
 # 2. Navigate to the directory
-cd DST
+cd DST/Common_code
 
 # 3. Run the full experiment pipeline
 python test_Ripper_DST.py
