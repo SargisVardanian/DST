@@ -1,10 +1,12 @@
 # test_Ripper_DST.py
 
 import os
+import argparse
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import torch
 
 from collections import OrderedDict
 from pathlib import Path
@@ -47,9 +49,24 @@ def dump_rules(model, filename):
 
 if __name__ == "__main__":
     # -------------------- параметры и загрузка --------------------
-    DATASET = "/Users/sargisvardanyan/PycharmProjects/DST/german.csv"
+    parser = argparse.ArgumentParser(description="Run RIPPER/FOIL + DST benchmark")
+    parser.add_argument("--dataset", required=True, help="Path to CSV dataset")
+    parser.add_argument("--device", default=None,
+                        help="Torch device to use (cpu/cuda/mps)")
+    args = parser.parse_args()
+
+    DATASET = args.dataset
+    DEVICE = (
+        args.device
+        or ("cuda" if torch.cuda.is_available() else
+            ("mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available() else "cpu"))
+    )
 
     TAG = Path(DATASET).stem  # "adult"
+
+    os.makedirs("pkl_rules", exist_ok=True)
+    os.makedirs("dsb_rules", exist_ok=True)
+    os.makedirs("results", exist_ok=True)
 
     X, y, feat_names = load_dataset(DATASET)
     X_tr, X_te, y_tr, y_te = train_test_split(
@@ -68,9 +85,9 @@ if __name__ == "__main__":
                                  optim="adam",
                                  lossfn="MSE",
                                  batch_size=4096,
-                                 num_workers=0,       # важно для mps
+                                 num_workers=0,
                                  precompute_rules=False,
-                                 device="mps",        # или "cpu"
+                                 device=DEVICE,
                                  force_precompute=False,
                                  use_foil=False)
 
@@ -102,9 +119,9 @@ if __name__ == "__main__":
                                  optim="adam",
                                  lossfn="MSE",
                                  batch_size=4096,
-                                 num_workers=0,       # чтобы не падало на MPS
+                                 num_workers=0,
                                  precompute_rules=False,
-                                 device="mps",
+                                 device=DEVICE,
                                  force_precompute=False,
                                  use_foil=False,
                                  batches_per_epoch=3)
@@ -134,7 +151,7 @@ if __name__ == "__main__":
                                 lossfn="MSE",
                                 batch_size=4096,
                                 num_workers=0,
-                                device="mps",
+                                device=DEVICE,
                                 use_foil=False)
     rip_pr.model.import_test_rules(rip_raw.model.preds)
     rip_pr.model.load_rules_bin(dst_pkl)
@@ -160,7 +177,7 @@ if __name__ == "__main__":
                                   lossfn="MSE",
                                   batch_size=4096,
                                   num_workers=0,
-                                  device="mps",
+                                  device=DEVICE,
                                   use_foil=True)
     foil_raw.default_class_ = int(np.bincount(y_tr).argmax())
 
@@ -191,7 +208,7 @@ if __name__ == "__main__":
                                   lossfn="MSE",
                                   batch_size=4096,
                                   num_workers=0,
-                                  device="mps",
+                                  device=DEVICE,
                                   use_foil=True,
                                   batches_per_epoch=3)
     foil_dst.model.import_test_rules(foil_raw.model.preds)
@@ -218,7 +235,7 @@ if __name__ == "__main__":
                                  lossfn="MSE",
                                  batch_size=4096,
                                  num_workers=0,
-                                 device="mps",
+                                 device=DEVICE,
                                  use_foil=True)
     foil_pr.model.import_test_rules(foil_raw.model.preds)
     foil_pr.model.load_rules_bin(fdst_pkl)
