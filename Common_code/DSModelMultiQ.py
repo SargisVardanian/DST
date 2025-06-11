@@ -111,9 +111,19 @@ class DSModelMultiQ(nn.Module):
         self._all_rules = None
 
     def _select_all_rules(self, X, indices):
-        """
-        Возвращает булевый тензор shape=(len(X), n_rules),
-        True там, где правило НЕ срабатывает (для precompute).
+        """Return a boolean tensor ``(len(X), n_rules)`` marking inactive rules.
+
+        Parameters
+        ----------
+        X : torch.Tensor
+            Batch of samples.
+        indices : torch.Tensor
+            Indices identifying the samples in ``X``.
+
+        Returns
+        -------
+        torch.Tensor
+            Boolean mask where ``True`` means the rule did **not** fire.
         """
         if self._all_rules is None:
             self._all_rules = torch.zeros(0, self.n, dtype=torch.bool).to(self.device)
@@ -154,8 +164,19 @@ class DSModelMultiQ(nn.Module):
                 raise RuntimeError("NaN grad mass found at %s" % tag)
 
     def _select_rules(self, x, index=None):
-        """
-        Возвращает список индексов правил, срабатывающих на x.
+        """Return indices of rules that fire on ``x``.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input sample.
+        index : int, optional
+            Cache key used when ``precompute_rules`` is enabled.
+
+        Returns
+        -------
+        list[int]
+            Indices of triggered rules.
         """
         if self.precompute_rules and index in self.rmap:
             return self.rmap[index]
@@ -188,8 +209,14 @@ class DSModelMultiQ(nn.Module):
         return builder[:-1]
 
     def find_most_important_rules(self, classes=None, threshold=0.2):
-        """
-        Возвращает словарь {class: [(score, idx, ps, sqrt(score), masses), ...]}.
+        """Return a dict mapping class labels to their most influential rules.
+
+        Parameters
+        ----------
+        classes : list[int] | None
+            Subset of classes to inspect. If ``None`` all classes are used.
+        threshold : float
+            Minimum squared score for a rule to be reported.
         """
         if classes is None:
             classes = [i for i in range(self.k)]
@@ -303,10 +330,20 @@ class DSModelMultiQ(nn.Module):
         return ds_rules
 
     def precompute_fire_matrix(self, X: np.ndarray):
-        """
-        Вычисляет и кэширует bool-матрицу размера (N, n_rules) на CPU.
-        Вызывать один раз после импорта/генерации правил и ДО любых
-        set_test_usability / fast-forward операций.
+        """Compute and cache the rule firing matrix on CPU.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Training samples used to build the cache.
+
+        Notes
+        -----
+        The matrix has shape ``(N, n_rules)`` with ``dtype=uint8``.  Each
+        entry stores whether a rule fires for a given sample.  This method
+        should be called once after importing or generating the rules and
+        before any ``set_test_usability`` or fast-forward operations, as it
+        iterates over all rules for every sample and can be slow.
         """
         N = len(X)
         fires = np.zeros((N, self.n), dtype=np.uint8)
@@ -315,9 +352,24 @@ class DSModelMultiQ(nn.Module):
         self._fire_cpu = fires            # кэш
 
     def fire_matrix(self, X: np.ndarray) -> np.ndarray:
+        """Return a matrix showing which rules fire for each sample.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Array of samples with shape ``(N, num_features)``.
+
+        Returns
+        -------
+        np.ndarray
+            Boolean matrix of shape ``(N, n_rules)`` with ``dtype=uint8``.
+            Each element ``[i, j]`` equals ``1`` if rule ``j`` fires on
+            sample ``X[i]``.  The implementation loops over all rules for
+            every sample, so runtime grows with ``N * n_rules`` and can be
+            slow on large datasets.
+        """
         if getattr(self, "_fire_cpu", None) is None:
             raise RuntimeError("вызывайте precompute_fire_matrix(X_train) сначала")
-        # считаем fires на новом X — точно такой же цикл
         N = len(X)
         m = np.zeros((N, self.n), dtype=np.uint8)
         for j, rule in enumerate(self.preds):

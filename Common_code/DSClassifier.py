@@ -97,9 +97,25 @@ class DSClassifier(ClassifierMixin):
         return self._predict(X, self._dec_fun, threshold)
 
     def _predict(self, X, f, threshold):
+        """Apply all rules to each sample and combine masses via Dempster rule.
+
+        Parameters
+        ----------
+        X : array-like
+            Input samples.
+        f : callable
+            Decision function applied to the combined mass.
+        threshold : float
+            Optional bias parameter for ``f``.
+
+        Notes
+        -----
+        Iterates over all rules for every sample, so execution time grows
+        with ``N * n_rules`` and may be slow for large rule sets.
+        """
         y = []
         X = pd.DataFrame(X, columns=self._columns)
-        for (idx, x) in X.iterrows():
+        for (_, x) in X.iterrows():
             m = create_full_uncertainty()
             for rule in self.rules:
                 if DSClassifier._satisfy_rule(rule, x):

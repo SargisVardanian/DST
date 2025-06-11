@@ -146,10 +146,25 @@ class DSClassifierMultiQ:
         return losses, last_epoch
 
     def _optimize(self, X, y, optimizer, criterion):
-        """
-        Batch-based цикл обучения параметров (массы правил) через Adam/SGD,
-        но обрабатываем только ограниченное число мини-батчей (batches_per_epoch).
-        Если batches_per_epoch=None → по умолчанию используем весь DataLoader (как раньше).
+        """Train rule masses using mini-batch gradient descent.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Training data with sample indices prepended.
+        y : np.ndarray
+            Target labels.
+        optimizer : torch.optim.Optimizer
+            Optimiser instance (Adam or SGD).
+        criterion : torch.nn.Module
+            Loss function.
+
+        Notes
+        -----
+        Processes only a limited number of mini-batches per epoch if
+        ``batches_per_epoch`` is set.  This loop can be slow on large datasets
+        because each batch involves forward and backward passes through all
+        active rules.
         """
         losses = []
         self.model.train()
