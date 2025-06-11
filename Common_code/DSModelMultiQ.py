@@ -315,9 +315,24 @@ class DSModelMultiQ(nn.Module):
         self._fire_cpu = fires            # кэш
 
     def fire_matrix(self, X: np.ndarray) -> np.ndarray:
+        """Return a matrix showing which rules fire for each sample.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Array of samples with shape ``(N, num_features)``.
+
+        Returns
+        -------
+        np.ndarray
+            Boolean matrix of shape ``(N, n_rules)`` with ``dtype=uint8``.
+            Each element ``[i, j]`` equals ``1`` if rule ``j`` fires on
+            sample ``X[i]``.  The implementation loops over all rules for
+            every sample, so runtime grows with ``N * n_rules`` and can be
+            slow on large datasets.
+        """
         if getattr(self, "_fire_cpu", None) is None:
             raise RuntimeError("вызывайте precompute_fire_matrix(X_train) сначала")
-        # считаем fires на новом X — точно такой же цикл
         N = len(X)
         m = np.zeros((N, self.n), dtype=np.uint8)
         for j, rule in enumerate(self.preds):
