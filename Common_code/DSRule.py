@@ -1,18 +1,21 @@
-# DSRule.py
-class DSRule(object):
+# ───────── DSRule.py ─────────
+class DSRule:
     """
-    Wrapper for labeled lambdas, used to print rules in DSModel.
+    Обёртка над λ-предикатом rule.ld.
+    usability рассчитывается ТОЛЬКО на тестовой выборке
+    и задаётся после обучения (см. test_Ripper_DST.py).
     """
-    def __init__(self, ld, caption=""):
-        self.ld = ld
-        self.caption = caption
+    def __init__(self, ld, caption: str = ""):
+        self.ld = ld                  # сам предикат (lambda)
+        self.caption = caption        # текстовое описание условия
         self.freq = 0         # number of training instances this rule covers
-        self.usability = 0.0  # percentage of training set covered by this rule
+        self.usability: float | None = None   # % тестовых примеров, покрытых правилом
 
+    # красивый вывод: если usability ещё нет – без него
     def __str__(self):
-        return self.caption
+        if self.usability is None:
+            return self.caption
+        return f"{self.caption} | usability={self.usability:.1f}%"
 
-    def __call__(self, *args, **kwargs):
-        return self.ld(*args, **kwargs)
-
-
+    # чтобы правило можно было звать как функцию
+    __call__ = lambda self, *a, **kw: self.ld(*a, **kw)

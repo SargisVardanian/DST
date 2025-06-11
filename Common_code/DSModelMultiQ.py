@@ -264,83 +264,65 @@ class DSModelMultiQ(nn.Module):
         return f
 
 
-    # ------------------------------------------------------------------ #
-    #                    ADDITIONAL RULE-GENERATOR: RIPPER                 #
-    # ------------------------------------------------------------------ #
+    # ───────── фрагмент DSModelMultiQ.py ─────────
+    def _rule_text(self, cond):
+        """Строит строку 'attr op val …' из словаря или списка клауз."""
+        if isinstance(cond, dict):
+            return " AND ".join(f"{a} {op} {v:.4f}" for a, (op, v) in cond.items())
+        clause_strs = []
+        for cl in cond:   # OR
+            clause_strs.append(" AND ".join(f"{a} {op} {v:.4f}" for a, (op, v) in cl.items()))
+        return " OR ".join(f"({s})" for s in clause_strs)
+
     def generate_ripper_rules(self, X, y, column_names, batch_size=1000):
-        """
-        1) Зовём self.generator.fit(...) и собираем упорядоченный список (label, Rule).
-        2) Пропускаем «пустые» дефолтные правила ({} → TRUE).
-        3) Конвертируем каждую клауза Rule → DSRule (лямбда + текст).
-        """
-        # обучаем DSRipper (он сгенерирует self.generator._ordered_rules)
-        self.generator.fit(X, y, feature_names=list(column_names), batch_size=batch_size)
-
+        self.generator.fit(X, y, feature_names=list(column_names),
+                           batch_size=batch_size)
         ds_rules = []
         cols = list(column_names)
         tol  = self.generator.eq_tol
-
-        # идём по упорядоченному списку правил
         for cls, cond in self.generator._ordered_rules:
-            # <<< ИЗМЕНЕНИЕ: пропускаем «пустое» правило (дефолт)
-            if isinstance(cond, dict) and not cond:
+            if isinstance(cond, dict) and not cond:        # TRUE-default пропускаем
                 continue
-
-            # 1) строим лямбда-функцию
             lam = self._make_lambda(cond, cols, tol)
-
-            # 2) строим текстовое описание
-            if isinstance(cond, dict):
-                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cond.items())]
-            else:  # OR из нескольких клауз
-                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cl.items())
-                               for cl in cond]
-            desc = " OR ".join(f"({s})" for s in clause_strs)
-
-            # 3) вычисляем coverage и usability
-            cov  = sum(1 for row in X if lam(row))
-            usab = cov / len(X) * 100
-
-            ds_rules.append(
-                DSRule(lam,
-                       caption=f"Class {cls}: {desc} | freq={cov} | usability={usab:.1f}%")
-            )
-
+            caption = f"Class {cls}: {self._rule_text(cond)}"
+            ds_rules.append(DSRule(lam, caption))
         return ds_rules
 
-
-    # ------------------------------------------------------------------ #
-    #                           FOIL  (аналогично)                        #
-    # ------------------------------------------------------------------ #
     def generate_foil_rules(self, X, y, column_names, batch_size=1000):
-        self.generator.fit(X, y, feature_names=list(column_names), batch_size=batch_size)
-
+        self.generator.fit(X, y, feature_names=list(column_names),
+                           batch_size=batch_size)
         ds_rules = []
         cols = list(column_names)
         tol  = self.generator.eq_tol
-
         for cls, cond in self.generator._ordered_rules:
-            # <<< ИЗМЕНЕНИЕ: пропускаем «пустое» правило (дефолт)
             if isinstance(cond, dict) and not cond:
                 continue
-
             lam = self._make_lambda(cond, cols, tol)
-
-            if isinstance(cond, dict):
-                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cond.items())]
-            else:
-                clause_strs = [" AND ".join(f"{a} {op} {v:.4f}" for a,(op,v) in cl.items())
-                               for cl in cond]
-            desc = " OR ".join(f"({s})" for s in clause_strs)
-
-            cov  = sum(1 for row in X if lam(row))
-            usab = cov / len(X) * 100
-
-            ds_rules.append(
-                DSRule(lam,
-                       caption=f"Class {cls}: {desc} | freq={cov} | usability={usab:.1f}%")
-            )
+            caption = f"Class {cls}: {self._rule_text(cond)}"
+            ds_rules.append(DSRule(lam, caption))
         return ds_rules
+
+    def precompute_fire_matrix(self, X: np.ndarray):
+        """
+        Вычисляет и кэширует bool-матрицу размера (N, n_rules) на CPU.
+        Вызывать один раз после импорта/генерации правил и ДО любых
+        set_test_usability / fast-forward операций.
+        """
+        N = len(X)
+        fires = np.zeros((N, self.n), dtype=np.uint8)
+        for j, rule in enumerate(self.preds):
+            fires[:, j] = np.fromiter((rule(row) for row in X), dtype=np.uint8, count=N)
+        self._fire_cpu = fires            # кэш
+
+    def fire_matrix(self, X: np.ndarray) -> np.ndarray:
+        if getattr(self, "_fire_cpu", None) is None:
+            raise RuntimeError("вызывайте precompute_fire_matrix(X_train) сначала")
+        # считаем fires на новом X — точно такой же цикл
+        N = len(X)
+        m = np.zeros((N, self.n), dtype=np.uint8)
+        for j, rule in enumerate(self.preds):
+            m[:, j] = np.fromiter((rule(row) for row in X), dtype=np.uint8, count=N)
+        return m
 
     def sort_rules_by_quality(self, X_body):
         """Грубая сортировка правил по (coverage↑, top2-ratio↑, uncertainty↓)."""

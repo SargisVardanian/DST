@@ -13,7 +13,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 
 from Common_code.Datasets_loader    import load_dataset
 from Common_code.DSClassifierMultiQ import DSClassifierMultiQ
-from Common_code.core import rules_to_dsb
 
 sns.set_context("paper", font_scale=1.2)
 sns.set_style("whitegrid")
@@ -27,6 +26,24 @@ def metrics(y_true, y_pred):
         ("Recall",    recall_score(y_true, y_pred, zero_division=0)),
     ])
 
+
+# ── helpers ──────────────────────────────────────────────────
+def set_test_usability(model, X_test):
+    """
+    Заполняет rule.usability (%) через готовую fire-матрицу, без Python-циклов
+    и ошибок сравнения типов.
+    """
+    fires = model.fire_matrix(X_test)          # shape = (N_test, n_rules)
+    cov   = fires.sum(axis=0)                  # len == n_rules
+    N     = len(X_test)
+    for r, c in zip(model.preds, cov):
+        r.usability = float(c) / N * 100
+def dump_rules(model, filename):
+    """Сохраняет правила в .dsb (по строке = str(rule))."""
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "w") as f:
+        for r in model.preds:
+            f.write(str(r) + "\n")
 
 if __name__ == "__main__":
     # -------------------- параметры и загрузка --------------------
@@ -63,15 +80,15 @@ if __name__ == "__main__":
     raw_dsb = f"dsb_rules/ripper_rules_dataset_{TAG}_raw.dsb"
 
     if not os.path.exists(raw_pkl):
-        # Генерируем raw правила RIPPER
-        rules = rip_raw.model.generate_ripper_rules(
-            X_tr, y_tr, feat_names, batch_size=4096
-        )
+        rules = rip_raw.model.generate_ripper_rules(X_tr, y_tr, feat_names)
         rip_raw.model.import_test_rules(rules)
         rip_raw.model.save_rules_bin(raw_pkl)
-        rules_to_dsb(rip_raw.model.preds, rip_raw.model._params, raw_dsb)
     else:
         rip_raw.model.load_rules_bin(raw_pkl)
+
+    rip_raw.model.precompute_fire_matrix(X_tr)
+    set_test_usability(rip_raw.model, X_te)
+    dump_rules(rip_raw.model, raw_dsb)
 
     raw_rules_ripper = len(rip_raw.model.preds)
     results["R_raw"] = metrics(y_te, rip_raw.predict_rules_only(X_te))
@@ -102,7 +119,6 @@ if __name__ == "__main__":
                     optimize_weights=True, prune_after_fit=False)
         rip_dst.model.sort_rules_by_quality(X_tr)
         rip_dst.model.save_rules_bin(dst_pkl)
-        rules_to_dsb(rip_dst.model.preds, rip_dst.model._params, dst_dsb)
     else:
         rip_dst.model.load_rules_bin(dst_pkl)
 
@@ -129,7 +145,6 @@ if __name__ == "__main__":
     pr_pkl = f"pkl_rules/ripper_rules_dataset_{TAG}_pruned.pkl"
     pr_dsb = f"dsb_rules/ripper_rules_dataset_{TAG}_pruned.dsb"
     rip_pr.model.save_rules_bin(pr_pkl)
-    rules_to_dsb(rip_pr.model.preds, rip_pr.model._params, pr_dsb)
 
     results["R_pruned"] = metrics(y_te, rip_pr.predict(X_te))
     pruned_rules_ripper = len(rip_pr.model.preds)
@@ -153,14 +168,15 @@ if __name__ == "__main__":
     fraw_dsb = f"dsb_rules/foil_rules_dataset_{TAG}_raw.dsb"
 
     if not os.path.exists(fraw_pkl):
-        rules = foil_raw.model.generate_foil_rules(
-            X_tr, y_tr, feat_names, batch_size=1000
-        )
+        rules = foil_raw.model.generate_ripper_rules(X_tr, y_tr, feat_names)
         foil_raw.model.import_test_rules(rules)
         foil_raw.model.save_rules_bin(fraw_pkl)
-        rules_to_dsb(foil_raw.model.preds, foil_raw.model._params, fraw_dsb)
     else:
         foil_raw.model.load_rules_bin(fraw_pkl)
+
+    foil_raw.model.precompute_fire_matrix(X_tr)
+    set_test_usability(foil_raw.model, X_te)
+    dump_rules(foil_raw.model, fraw_dsb)
 
     raw_rules_foil = len(foil_raw.model.preds)
     results["F_raw"] = metrics(y_te, foil_raw.predict_rules_only(X_te))
@@ -187,7 +203,6 @@ if __name__ == "__main__":
                      optimize_weights=True, prune_after_fit=False)
         foil_dst.model.sort_rules_by_quality(X_tr)
         foil_dst.model.save_rules_bin(fdst_pkl)
-        rules_to_dsb(foil_dst.model.preds, foil_dst.model._params, fdst_dsb)
     else:
         foil_dst.model.load_rules_bin(fdst_pkl)
 
@@ -214,7 +229,6 @@ if __name__ == "__main__":
     fpr_pkl = f"pkl_rules/foil_rules_dataset_{TAG}_pruned.pkl"
     fpr_dsb = f"dsb_rules/foil_rules_dataset_{TAG}_pruned.dsb"
     foil_pr.model.save_rules_bin(fpr_pkl)
-    rules_to_dsb(foil_pr.model.preds, foil_pr.model._params, fpr_dsb)
 
     results["F_pruned"] = metrics(y_te, foil_pr.predict(X_te))
     pruned_rules_foil = len(foil_pr.model.preds)
