@@ -231,25 +231,21 @@ def dempster_rule_kt(m1, m2, normalize=False):
     return mf
 
 
-def rules_to_dsb(rules, masses, filepath):
+def rules_to_dsb(preds, params, filename, digits=3):
     """
-    Saves rules to a .dsb file with their frequency and usability.
+    Записывает правила + их обученные массы в читаемый .dsb-файл.
+    Формат строки:
+        <rule_text>  ||  mass=[m1, m2, …, unc=<u>]
     """
-    total_instances = 0
-    # If any rule has usability set, assume all do and use that. Otherwise, compute total from freq.
-    for rule in rules:
-        total_instances += rule.freq
-    # total_instances might sum overlaps, so instead use known dataset size if available.
-    # Here, we'll trust rule.usability if present.
-    with open(filepath, 'w') as f:
-        for i, (rule, mass) in enumerate(zip(rules, masses), start=1):
-            mass_vals = ", ".join(f"{v:.3f}" for v in mass.detach().cpu().numpy())
-            if hasattr(rule, "usability"):
-                f.write(f"Rule {i}: {rule.caption} | freq={rule.freq} | usability={rule.usability:.1f}% | masses=[{mass_vals}]\n")
-            else:
-                # Fallback: no usability attribute, just save frequency
-                f.write(f"Rule {i}: {rule.caption} | freq={rule.freq} | masses=[{mass_vals}]\n")
+    def _fmt(x):           # округление без лишних нулей
+        return f"{x:.{digits}f}".rstrip("0").rstrip(".")
 
+    with open(filename, "w", encoding="utf-8") as f:
+        for rule, m in zip(preds, params):
+            m_np = m.detach().cpu().numpy()
+            cls_m = ", ".join(_fmt(v) for v in m_np[:-1])
+            unc   = _fmt(m_np[-1])
+            f.write(f"{rule}  ||  mass=[{cls_m}, unc={unc}]\n")
 def filter_duplicate_rules(rules):
     """
     Принимает список объектов DSRule и возвращает список, оставляя только уникальные правила,

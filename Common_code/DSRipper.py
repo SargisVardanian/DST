@@ -31,13 +31,14 @@ class DSRipper:
     def __init__(self,
                  *,
                  algo: str = "ripper",
-                 min_prec: float = 0.6,
+                 min_prec: float = 0.35,
                  min_cov_frac: float = 0.01,
                  min_gain: float = 0.001,
                  max_rule_len: int = 6,
                  max_rules_per_class: int = 50,
                  eq_tol: float = 1e-3,
-                 max_unique_cat: int = 10):
+                 max_unique_cat: int = 10,
+                 ):
         """
         Параметры:
           algo             — алгоритм индукции (‘ripper’ или ‘foil’).
@@ -58,6 +59,8 @@ class DSRipper:
         self.max_rules_per_cls = max_rules_per_class
         self.eq_tol = eq_tol
         self.max_unique_cat = max_unique_cat
+
+        self.minority_first = True
 
         # внутреннее состояние
         self._feature_names: List[str] = []
@@ -378,6 +381,16 @@ class DSRipper:
         n = len(y)
         bs = n if batch_size in (None, 0) else max(1, batch_size)
 
+        classes = list(np.unique(y))
+        if self.minority_first:
+            counts = np.bincount(y.astype(int))
+            # первый – редкий, второй – частый
+            cls_min = classes[int(np.argmin(counts))]
+            cls_maj = classes[int(np.argmax(counts))]
+            class_order = [cls_min, cls_maj]
+        else:
+            class_order = classes
+
         for s in range(0, n, bs):
             e = min(s + bs, n)
             # булевый vector размера n: True на позиции в батче, False вне
@@ -386,7 +399,7 @@ class DSRipper:
 
             batch_added = 0
             print(f"\n--- batch {s}-{e-1} ---")
-            for cls in np.unique(y):
+            for cls in class_order:
                 pos = (y == cls) & batch_mask
                 if pos.sum() == 0:
                     continue

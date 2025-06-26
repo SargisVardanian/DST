@@ -77,6 +77,12 @@ class DSModelMultiQ(nn.Module):
                   в первом столбце – индекс sample, далее – признаки.
         :return: вероятностное распределение (one-hot).
         """
+        if not self._params:                        # <-- NEW EARLY EXIT
+            batch = X.size(0)
+            out   = torch.zeros(batch, self.k, device=self.device)
+            maj   = getattr(self, "default_class", 0)
+            out[:, maj] = 1.0
+            return out
         ms = torch.stack(self._params).to(self.device)
         if self.force_precompute:
             # комбинаторика commonalities → выбор всех правил сразу
@@ -152,23 +158,6 @@ class DSModelMultiQ(nn.Module):
                 print(p)
                 print(p.grad)
                 raise RuntimeError("NaN grad mass found at %s" % tag)
-
-    def _select_rules(self, x, index=None):
-        """
-        Возвращает список индексов правил, срабатывающих на x.
-        """
-        if self.precompute_rules and index in self.rmap:
-            return self.rmap[index]
-        x_np = x.cpu().data.numpy()
-        sel = []
-        for i in range(self.n):
-            if len(self.active_rules) > 0 and i not in self.active_rules:
-                continue
-            if self.preds[i](x_np):
-                sel.append(i)
-        if self.precompute_rules and index is not None:
-            self.rmap[index] = sel
-        return sel
 
     def parameters(self, recurse=True):
         return self._params
@@ -274,7 +263,7 @@ class DSModelMultiQ(nn.Module):
             clause_strs.append(" AND ".join(f"{a} {op} {v:.4f}" for a, (op, v) in cl.items()))
         return " OR ".join(f"({s})" for s in clause_strs)
 
-    def generate_ripper_rules(self, X, y, column_names, batch_size=1000):
+    def generate_ripper_rules(self, X, y, column_names, batch_size=2000):
         self.generator.fit(X, y, feature_names=list(column_names),
                            batch_size=batch_size)
         ds_rules = []
@@ -288,7 +277,7 @@ class DSModelMultiQ(nn.Module):
             ds_rules.append(DSRule(lam, caption))
         return ds_rules
 
-    def generate_foil_rules(self, X, y, column_names, batch_size=1000):
+    def generate_foil_rules(self, X, y, column_names, batch_size=2000):
         self.generator.fit(X, y, feature_names=list(column_names),
                            batch_size=batch_size)
         ds_rules = []
@@ -324,25 +313,7 @@ class DSModelMultiQ(nn.Module):
             m[:, j] = np.fromiter((rule(row) for row in X), dtype=np.uint8, count=N)
         return m
 
-    def sort_rules_by_quality(self, X_body):
-        """Грубая сортировка правил по (coverage↑, top2-ratio↑, uncertainty↓)."""
-        if not self.preds:      return
-        covs = [sum(p(row) for row in X_body) for p in self.preds]
-        ratios = []
-        uncs   = []
-        for m in self._params:
-            masses = m[:-1].detach().cpu().numpy()
-            unc    = m[-1].item();  uncs.append(unc)
-            top2   = np.partition(masses, -2)[-2:]
-            ratios.append(top2[-1]/(top2[-2]+1e-9) if len(top2)==2 else 0)
 
-        # последний -- всегда дефолт (пустое условие) – не трогаем
-        idx = list(range(len(self.preds)-1))
-        idx.sort(key=lambda i: (covs[i], ratios[i], -uncs[i]), reverse=True)
-        idx.append(len(self.preds)-1)          # default stays last
-
-        self.preds  = [self.preds[i]  for i in idx]
-        self._params= [self._params[i] for i in idx]
 
 
 
@@ -606,39 +577,95 @@ class DSModelMultiQ(nn.Module):
         ratio = top2[-1] / (top2[-2] + 1e-3)
         return 1.0 - unc, ratio
 
-    # ................................................
-    def prune_rules(self, X_body, max_unc=0.6, min_score=0.4, min_cov=8):
+    def _select_rules(self, x: torch.Tensor, idx: int = None) -> list[int]:
         """
-        Отсекаем правила на основе неопределенности, распределения масс и покрытия.
-        Удаляем правило, если выполняется хотя бы одно из условий:
-          1. mass_uncertainty > max_unc (правило слишком неопределённое)
-          2. log(P1/P2) < min_score (правило даёт похожие вероятности для нескольких классов)
-          3. coverage < min_cov (правило покрывает слишком мало объектов)
-        Возвращает (число оставленных правил, исходное число правил).
+        Internal: возвращает индексы правил, сработавших на x.
         """
-        old_n = self.n
-        keep_preds, keep_params = [], []
-        for pred, mass in zip(self.preds, self._params):
-            # Вычисляем неопределённость и распределение масс по классам для правила
-            unc = mass[-1].item()
-            class_masses = mass[:-1].detach().cpu().numpy()
-            if len(class_masses) < 2:
-                # Для правил с одним классом (маловероятно) – учитываем только неопределённость
-                top1_ratio_log = float('inf')
-            else:
-                # Выбираем две наибольшие вероятности классов
-                top2 = np.partition(class_masses, -2)[-2:]
-                top1_ratio_log = np.log((top2[-1] / (top2[-2] + 1e-9)) + 1e-9)
-            cov = sum(pred(row) for row in X_body)  # покрытие: число объектов, удовлетворяющих правилу
-            # Проверяем условия прунинга
-            if unc > max_unc or top1_ratio_log < min_score or cov < min_cov:
-                # Правило отбраковывается, т.к. оно либо слишком неуверенное, либо плохо различает классы, либо слишком частное
-                continue
-            # Иначе сохраняем правило
-            keep_preds.append(pred)
-            keep_params.append(mass)
-        # Обновляем списки правил и параметров
-        self.preds = keep_preds
-        self._params = keep_params
+        # похожим образом можно хранить rmap, но обычно у нас force_precompute=True
+        sel = []
+        x_np = x.cpu().numpy()
+        for j, rule in enumerate(self.preds):
+            if rule(x_np):
+                sel.append(j)
+        return sel
+
+    # ────────────────────────────────────────────────────────────────
+    #  ДОБАВИТЬ в класс DSModelMultiQ (после .normalize() или где угодно выше)
+    # ----------------------------------------------------------------
+    def _rule_line_with_masses(self, j:int) -> str:
+        """Текст правила + его массы «c1 ... ck | unc» – для .dsb-дампа"""
+        mass = " ".join(f"{v:.4f}" for v in self._params[j].detach().cpu().numpy())
+        return f"{self.preds[j]}   ## {mass}"
+
+    def import_rules_with_params(self, rules, params):
+        """
+        Replaces current rule set by `rules`
+        and **keeps** the supplied tensors `params`
+        (lengths must match, no grad needed any more).
+        """
+        if len(rules) != len(params):
+            raise ValueError("rules/params length mismatch")
+
+        self.preds, self._params = [], []
+        self.n = 0
+        for r, p in zip(rules, params):
+            # p is a torch.Tensor with shape (k+1,)
+            m_vec = p.detach().cpu().numpy()
+            self.add_rule(r,
+                          m_sing=m_vec[:-1].tolist(),
+                          m_uncert=float(m_vec[-1]))
+
+    # -------------------------------------------
+    #  ЗАМЕНИТЬ две функции ниже
+    # ----------------------------------------------------------------
+    def sort_rules_by_quality(self, alpha: float = 0.5) -> None:
+        """
+        quality = (best-second) − α·m_unc     (чем выше – тем правило лучше)
+        default-rule (последнее) оставляем внизу.
+        """
+        if not self.preds:
+            return
+
+        ms      = torch.stack(self._params).detach().cpu().numpy()   # (R, k+1)
+        best    = ms[:,:-1].max(1)
+        second  = np.partition(ms[:,:-1], -2, 1)[:,-2]
+        quality = (best - second) - alpha*ms[:,-1]
+        quality[-1] = -np.inf       # default → в конец
+
+        order = np.argsort(-quality)
+        self.preds   = [self.preds[i]   for i in order]
+        self._params = [self._params[i] for i in order]
+
+    # ----------------------------------------------------------------
+    def prune_rules(self,
+                    max_unc  : float = 0.80,
+                    min_ratio: float = 6.0):
+        """
+        Remove rules with  m(Θ) > max_unc  or  (top/second) < min_ratio.
+        Guarantees that at least ONE rule survives (the best one).
+        Returns (kept, old).
+        """
+        old = self.n
+        keep_p, keep_m, scores = [], [], []
+
+        for r, m in zip(self.preds, self._params):
+            m_np    = m.detach().cpu().numpy()
+            top2    = np.sort(m_np[:-1])[-2:]        # two largest class masses
+            ratio   = top2[1] / (top2[0] + 1e-12)    # top / second
+            m_unc   = m_np[-1]
+            score   = ratio - 0.5 * m_unc            # quality metric (used below)
+            scores.append(score)
+
+            if m_unc <= max_unc and ratio >= min_ratio:
+                keep_p.append(r)
+                keep_m.append(m)
+
+        # --- if everything got filtered out → keep the best rule anyway ----
+        if not keep_p:
+            best = int(np.argmax(scores))
+            keep_p.append(self.preds[best])
+            keep_m.append(self._params[best])
+
+        self.preds, self._params = keep_p, keep_m
         self.n = len(self.preds)
-        return self.n, old_n
+        return self.n, old
