@@ -1,254 +1,227 @@
-# DSClassifierMultiQ.py
+"""
+DSClassifierMultiQ
+------------------
+Thin sklearn-like wrapper around `DSModelMultiQ`.
 
-import time
+Responsibilities:
+  • generate_raw(...) — build rules (STATIC/RIPPER/FOIL), keep textual decoders
+  • fit(X, y, X_val, y_val) — batch training loop; prints validation metrics per epoch
+  • predict_rules_only(X) — simple RAW voting by per-rule target classes
+  • predict / predict_proba — inference via DST forward
+"""
+from typing import Optional, Dict, Any, List
 import numpy as np
 import torch
-from torch.autograd import Variable
-from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.model_selection import train_test_split
 
-from Common_code.DSModelMultiQ import DSModelMultiQ
-from Common_code.DSRipper import DSRipper   # нужно для совместимости
-from Common_code.core import rules_to_dsb
-import os
+try:
+    from sklearn.base import ClassifierMixin
+except Exception:  # fallback if sklearn is missing
+    class ClassifierMixin:  # type: ignore
+        pass
+
+from DSModelMultiQ import DSModelMultiQ
 
 
-class DSClassifierMultiQ:
-    """
-    End-to-end Dempster–Shafer classifier.
-    Генерирует правила (RIPPER/FOIL), оптимизирует массы, при желании пруит.
-    """
+class DSClassifierMultiQ(ClassifierMixin):
+    def __init__(
+        self,
+        k: int,
+        *,
+        algo: str = "STATIC",        # expected by test_Ripper_DST.py
+        device: str = "cpu",
+        lr: float = 1e-2,
+        batch_size: int = 512,
+        max_iter: int = 200,
+        optim: str = "adam",
+        debug_print: bool = False,
+        value_decoders: Optional[Dict[str, Dict[int, str]]] = None,
+    ):
+        self.k = int(k)
+        self.algo = (algo or "STATIC").upper()
+        self.device = device
+        self.lr = float(lr)
+        self.batch_size = int(batch_size)
+        self.max_iter = int(max_iter)
+        self.optim_name = optim.lower()
+        self.debug_print = bool(debug_print)
 
-    def __init__(self,
-                 num_classes: int,
-                 lr: float = 0.05,
-                 max_iter: int = 50,
-                 min_iter: int = 5,
-                 min_dloss: float = 1e-4,
-                 optim: str = "adam",
-                 lossfn: str = "MSE",
-                 batch_size: int = 4000,
-                 num_workers: int = 1,
-                 precompute_rules: bool = False,
-                 device: str = "cpu",
-                 force_precompute: bool = False,
-                 use_foil: bool = False,
-                 batches_per_epoch: int = None):
-        """
-        Параметры:
-          num_classes     — число классов (k).
-          lr               — learning rate для оптимизации DST-весов.
-          max_iter         — максимальное число эпох (итераций) оптимизации.
-          min_iter         — минимум итераций перед досрочным стопом.
-          min_dloss        — порог изменения loss (если delta < min_dloss) для остановки.
-          optim            — «adam» или «sgd».
-          lossfn           — «MSE» (Mean Squared Error) или «CE» (CrossEntropy).
-          batch_size       — batch_size для DataLoader’а при оптимизации ваг (DST).
-          num_workers      — число воркеров для DataLoader’а (рекомендуется = 0 при MPS).
-          precompute_rules — если True, правила будут закешированы заранее (быстрее inference).
-          device           — строка вида «cpu», «cuda», «mps».
-          force_precompute  — если True, DSModelMultiQ заранее кеширует, какие правила сработают на каких образцах.
-          use_foil         — если True, при генерации правил применяется FOIL; иначе RIPPER.
-          batches_per_epoch — сколько мини-батчей из DataLoader обрабатывать в каждой эпохе.
-                              Если None, цикл идёт до конца DataLoader (как раньше).
-        """
-        self.k                = num_classes
-        self.lr               = lr
-        self.max_iter         = max_iter
-        self.min_iter         = min_iter
-        self.min_dloss        = min_dloss
-        self.optim            = optim.lower()
-        self.lossfn           = lossfn.upper()
-        self.batch_size       = batch_size
-        self.num_workers      = num_workers
-        self.device           = torch.device(device)
-        self.use_foil         = use_foil
-        self.batches_per_epoch = batches_per_epoch  # новоe поле
+        self.model = DSModelMultiQ(k=self.k, device=self.device)
+        if value_decoders:
+            self.model.set_value_decoders(value_decoders)
 
-        # основная DS-модель (правила + массы)
-        self.model = DSModelMultiQ(
-            k=num_classes,
-            precompute_rules=precompute_rules,
-            device=self.device,
-            force_precompute=force_precompute,
-            use_foil=use_foil
-        ).to(self.device)
+        self.default_class_: int = 0  # majority fallback for RAW
 
-        # fallback по большинству (majority-vote)
-        self.default_class_ = 0
+    # ---------------- RAW ----------------
+    def set_value_decoders(self, decoders: Optional[Dict[str, Dict[int, str]]]):
+        if decoders:
+            self.model.set_value_decoders(decoders)
 
-    def fit(self, X, y,
-            column_names=None,
-            add_single_rules=False,
-            single_rules_breaks=2,
-            add_mult_rules=False,
-            optimize_weights=True,
-            prune_after_fit=False,
-            prune_kwargs=None):
-        """
-        1. (опционально) добавляем «handcrafted» правила
-        2. генерируем RIPPER или FOIL (если списка правил нет)
-        3. оптимизируем массы (DST) через градиентный спуск (опционально)
-        4. пруним низкоэффективные правила (опционально)
-        """
-        prune_kwargs = prune_kwargs or {}
-
-        # –– handcrafted extra rules ––
-        if add_single_rules:
-            self.model.generate_statistic_single_rules(
-                X, breaks=single_rules_breaks, column_names=column_names)
-        if add_mult_rules:
-            self.model.generate_mult_pair_rules(X, column_names=column_names)
-
-        # –– автоматическая индукция правил ––
-        if not self.model.preds:
-            print(f"→ Inducing {'FOIL' if self.use_foil else 'RIPPER'} rules …")
-            if self.use_foil:
-                rules = self.model.generate_foil_rules(
-                    X, y, column_names, batch_size=self.batch_size)
-            else:
-                rules = self.model.generate_ripper_rules(
-                    X, y, column_names, batch_size=self.batch_size)
-            self.model.import_test_rules(rules)
+    def generate_raw(
+        self,
+        X: np.ndarray,
+        y: Optional[np.ndarray] = None,
+        column_names: Optional[List[str]] = None,
+        algo: Optional[str] = None,
+        **rip_kwargs: Any):
+        """Build rules in the model (STATIC/RIPPER/FOIL)."""
+        used_algo = (algo or self.algo or "STATIC").upper()
+        self.algo = used_algo
+        self.model.generate_raw(X, y=y, column_names=column_names, algo=used_algo, **rip_kwargs)
+        if y is not None and y.size:
+            binc = np.bincount(y.astype(int), minlength=self.k)
+            if binc.size:
+                self.default_class_ = int(binc.argmax())
         else:
-            print("Existing rules detected – skipping induction.")
+            self.default_class_ = 0
+        return self
 
-        # определяем дефолтный класс (majority)
-        self.default_class_ = int(np.bincount(y).argmax())
+    def predict_rules_only(self, X: np.ndarray):
+        """Vote by counting active rules per class. If no rules fired → majority class."""
+        A = self.model.activation_matrix(X)  # (N, R) uint8
+        N, R = A.shape
+        if R == 0:
+            return np.full(N, self.default_class_, dtype=int)
+        t = self.model.get_rule_targets()    # (R,), -1 if a rule has no target
+        valid_idx = np.where(t >= 0)[0]
+        if valid_idx.size == 0:
+            return np.full(N, self.default_class_, dtype=int)
+        K = self.k
+        onehot = np.zeros((R, K), dtype=np.int32)
+        onehot[valid_idx, t[valid_idx].astype(int)] = 1
+        votes = A.astype(np.int32) @ onehot  # (N, K)
+        sums = votes.sum(axis=1)
+        y_pred = votes.argmax(axis=1)
+        y_pred[sums == 0] = self.default_class_
+        return y_pred.astype(int)
 
-        # accuracy по правилам (без DST) на train
-        acc0 = (self.predict_rules_only(X) == y).mean()
-        print(f"Rule-only train accuracy: {acc0:.3f}")
-
-        # –– оптимизация масс DST ––
-        losses, last_epoch = None, None
-        if optimize_weights:
-            opt_cls  = torch.optim.Adam if self.optim == "adam" else torch.optim.SGD
-            optimizer = opt_cls(self.model.parameters(), lr=self.lr)
-            criterion = (torch.nn.CrossEntropyLoss()
-                         if self.lossfn == "CE"
-                         else torch.nn.MSELoss())
-
-            # добавляем индекс столбца слева (нужно для DSModelMultiQ.forward)
-            X_idx = np.insert(X, 0, values=np.arange(len(X)), axis=1)
-
-            print("→ Starting mass optimisation …")
-            losses, last_epoch = self._optimize(X_idx, y, optimizer, criterion)
-            print(f"→ Finished – final loss {losses[-1]:.4f} @ epoch {last_epoch}")
-        else:
-            print("→ Skipping mass optimisation.")
-
-        # –– прунинг ––
-        if prune_after_fit:
-            kept, old = self.model.prune_rules(X, **prune_kwargs)
-            acc1 = (self.predict(X) == y).mean()
-            print(f"Old {old}, Pruned → {kept} rules kept. Post-prune train acc: {acc1:.3f}")
-
-        return losses, last_epoch
-
-    def _optimize(self, X, y, optimizer, criterion):
-        """Train rule masses using mini-batch gradient descent.
-
-        Parameters
-        ----------
-        X : np.ndarray
-            Training data with sample indices prepended.
-        y : np.ndarray
-            Target labels.
-        optimizer : torch.optim.Optimizer
-            Optimiser instance (Adam or SGD).
-        criterion : torch.nn.Module
-            Loss function.
-
-        Notes
-        -----
-        Processes only a limited number of mini-batches per epoch if
-        ``batches_per_epoch`` is set.  This loop can be slow on large datasets
-        because each batch involves forward and backward passes through all
-        active rules.
+    # ---------------- Train / Infer ----------------
+    def fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        *,
+        val_frac: float = 0.2,
+        val_random_state: int = 42,
+        stratified: bool = True,
+    ):
         """
-        losses = []
-        self.model.train()
-        self.model.clear_rmap()
-
-        # 1) Создаем CPU-тензоры, которые пойдут в DataLoader
-        Xt_cpu = torch.FloatTensor(X)  # на CPU
-        if self.lossfn == "CE":
-            yt_cpu = torch.LongTensor(y)  # на CPU
-        else:
-            yt_cpu = torch.nn.functional.one_hot(
-                torch.LongTensor(y), self.k
-            ).float()  # на CPU
-
-        dataset = torch.utils.data.TensorDataset(Xt_cpu, yt_cpu)
-        loader  = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=self.batch_size,
-            shuffle=True,         # желательно перемешать в начале каждой эпохи
-            num_workers=0,        # обязательно 0 → MPS не умеет шарить CPU-тензоры между процессами
-            pin_memory=False      # отключаем pin_memory, т.к. MPS/PyTorch не поддерживает это
-        )
-
-        total_samples = len(dataset)
-
-        for epoch in range(self.max_iter):
-            epoch_loss = 0.0
-            processed_batches = 0
-
-            for Xi_cpu, yi_cpu in loader:
-                Xi = Xi_cpu.to(self.device)
-                yi = yi_cpu.to(self.device)
-
-                optimizer.zero_grad()
-                preds = self.model(Xi)
-                loss = criterion(preds, yi)
-                loss.backward(retain_graph=True)
-                optimizer.step()
-                self.model.normalize()
-
-                epoch_loss += loss.item() * Xi.size(0) / total_samples
-                processed_batches += 1
-
-                # если задано ограничение по числу батчей в эпохе ― выходим
-                if self.batches_per_epoch is not None and \
-                   processed_batches >= self.batches_per_epoch:
-                    break
-
-            losses.append(epoch_loss)
-            print(f"\rEpoch {epoch+1}  loss={epoch_loss:.5f}  "
-                  f"(batches used: {processed_batches})", end="")
-
-            # досрочная остановка по delta loss
-            if epoch >= self.min_iter and abs(losses[-2] - epoch_loss) < self.min_dloss:
-                break
-
-        print()  # перевод строки после вывода прогресса
-        return losses, epoch
-
-    def predict(self, X, one_hot=False):
+        Batch training loop.
+        Validation is created internally from (X, y) via a held-out split.
         """
-        DST-предсказание: возвращает либо распределение (one_hot=True),
-        либо argmax-класс (one_hot=False).
-        """
+        device = torch.device(self.device)
+
+        # 1) internal train/val split from (X, y)
+        stratify_vec = y if (stratified and len(np.unique(y)) > 1) else None
+        try:
+            X_tr, X_val, y_tr, y_val = train_test_split(
+                X, y, test_size=val_frac, random_state=val_random_state, stratify=stratify_vec
+            )
+        except ValueError:
+            # fallback if some class too small for stratify
+            X_tr, X_val, y_tr, y_val = train_test_split(
+                X, y, test_size=val_frac, random_state=val_random_state, stratify=None
+            )
+
+        # 2) tensors
+        X_tr_t = torch.as_tensor(X_tr, dtype=torch.float32, device=device)
+        y_tr_t = torch.as_tensor(y_tr, dtype=torch.long,   device=device)
+        X_val_t = torch.as_tensor(X_val, dtype=torch.float32, device=device)
+        y_val_np = np.asarray(y_val).astype(int)
+
+        # 3) prior from TRAIN ONLY (no leakage)
+        binc = np.bincount(y_tr_t.detach().cpu().numpy(), minlength=self.k).astype(np.float32)
+        prior = binc / (binc.sum() + 1e-12)
+        self.model.set_prior(prior)
+
+        # 4) loader over TRAIN split
+        ds = TensorDataset(X_tr_t, y_tr_t)
+        dl = DataLoader(ds, batch_size=self.batch_size, shuffle=True, drop_last=False)
+
+        # 5) optimizer / loss
+        params = [p for p in self.model.parameters() if p.requires_grad]
+        opt = torch.optim.Adam(params, lr=self.lr) if self.optim_name == "adam" \
+              else torch.optim.SGD(params, lr=self.lr, momentum=0.9)
+        criterion = torch.nn.CrossEntropyLoss()
+
+        # 6) train loop + epoch-wise validation on held-out
+        for epoch in range(1, self.max_iter + 1):
+            self.model.train()
+            loss_sum, n_batches = 0.0, 0
+            for X_b, y_b in dl:
+                opt.zero_grad(set_to_none=True)
+                logits = self.model.forward(X_b)           # [B, K] logits
+                loss = criterion(logits, y_b)              # targets are class indices
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(params, 5.0)
+                opt.step()
+                loss_sum += float(loss.detach())
+                n_batches += 1
+
+            # validation on held-out split
+            self.model.eval()
+            with torch.inference_mode():
+                logits_v = self.model.forward(X_val_t)     # [N_val, K]
+                probs_v  = torch.softmax(logits_v, dim=1).cpu().numpy()
+                y_hat_v  = probs_v.argmax(axis=1).astype(int)
+
+            m = self._metrics(y_val_np, y_hat_v)
+            print(f"[epoch {epoch:03d}] loss={loss_sum/max(1,n_batches):.5f} "
+                  f"Acc={m['Accuracy']:.4f} F1={m['F1']:.4f} "
+                  f"P={m['Precision']:.4f} R={m['Recall']:.4f}")
+
+        # 7) majority fallback from TRAIN split only
+        binc = np.bincount(y_tr_t.detach().cpu().numpy())
+        if binc.size:
+            self.default_class_ = int(binc.argmax())
+
+        return self
+
+    def predict(self, X: np.ndarray):
         self.model.eval()
-        self.model.clear_rmap()
+        with torch.inference_mode():
+            X = torch.as_tensor(X, dtype=torch.float32, device=self.device)
+            logits = self.model.forward(X)
+            return torch.argmax(logits, dim=1).cpu().numpy().astype(int)
 
-        X_idx = np.insert(X, 0, values=np.arange(len(X)), axis=1)
-        with torch.no_grad():
-            out = self.model(torch.Tensor(X_idx).to(self.device))
-            if one_hot:
-                return out.cpu().numpy()
-            else:
-                return torch.argmax(out, 1).cpu().numpy()
+    def predict_proba(self, X: np.ndarray):
+        self.model.eval()
+        with torch.inference_mode():
+            X = torch.as_tensor(X, dtype=torch.float32, device=self.device)
+            logits = self.model.forward(X)                 # [N, K]
+            probs = torch.softmax(logits, dim=1).cpu().numpy()
+            return probs
 
-    def predict_rules_only(self, X):
-        """
-        First-match rule prediction (первое сработавшее правило) с fallback → majority-class.
-        """
-        preds = np.full(len(X), self.default_class_, dtype=int)
-        for i, row in enumerate(X):
-            for rule in self.model.preds:
-                if rule(row):
-                    lbl = int(rule.caption.split()[1].rstrip(':'))
-                    preds[i] = lbl
-                    break
-        return preds
+    # ---------------- utils / sklearn API ----------------
+    @staticmethod
+    def _metrics(y_true: np.ndarray, y_pred: np.ndarray):
+        from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+        y_true = np.asarray(y_true).astype(int)
+        y_pred = np.asarray(y_pred).astype(int)
+        binary = (len(np.unique(y_true)) == 2)
+        avg = "binary" if binary else "macro"
+        return {
+            "Accuracy": float(accuracy_score(y_true, y_pred)),
+            "F1": float(f1_score(y_true, y_pred, average=avg)),
+            "Precision": float(precision_score(y_true, y_pred, average=avg, zero_division=0)),
+            "Recall": float(recall_score(y_true, y_pred, average=avg)),
+        }
+
+    def get_params(self, deep: bool = True):  # sklearn compatibility
+        return {
+            "k": self.k,
+            "algo": self.algo,
+            "device": self.device,
+            "lr": self.lr,
+            "batch_size": self.batch_size,
+            "max_iter": self.max_iter,
+            "optim": self.optim_name,
+            "debug_print": self.debug_print,
+        }
+
+    def set_params(self, **params):
+        for k, v in params.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+        return self

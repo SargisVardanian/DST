@@ -1,696 +1,756 @@
-import torch
-from torch import nn
-from torch.nn.functional import pad
-import numpy as np
-from scipy.stats import norm
-from itertools import count
-import dill, os
+"""
+DSModelMultiQ
+--------------
+Multi-class Dempster–Shafer (DST) rule model with a single `forward`:
+  X → rule activations (binary) → per-rule masses → DST combination → pignistic → logits.
 
-# --- проектно-локальные вспомогательные методы -------------------------------
-from Common_code.DSRule import DSRule
-from Common_code.core import create_random_maf_k
-from Common_code.utils import is_categorical
-from Common_code.DSRipper import DSRipper    # <<< ИЗМЕНЕНИЕ: используем обновлённый DSRipper
-from Common_code.core import filter_duplicate_rules  # optional
-# -----------------------------------------------------------------------------
+Key ideas
+=========
+• Each rule r has a learnable vector of length K+1: [w_0..w_{K-1}, theta], stored as nn.Parameter.
+
+  These parameters are converted to a valid mass function m_r over {classes ∪ Ω} via softmax.
+
+  (Ω is the ignorance mass, index K.)
+
+• A rule fires on x iff all its literals are true (strict AND). Literals are kept in `_specs`.
+
+• Vectorized activation is used when `_specs` exist for all rules; otherwise Python predicates are used.
+
+• Combination uses Dempster’s rule, applied only where the rule fires (sparse updates per rule).
+
+• `forward` accepts a **batch** tensor and returns class logits (log of pignistic probabilities).
+
+• Feature value decoders keep human-readable strings in saved `.dsb` files (e.g., `education == Bachelors`).
+
+
+Public surface
+--------------
+- set_prior(prior_probs)
+
+- set_value_decoders(mapping)
+
+- generate_raw(X, y=None, column_names=None, algo="STATIC"|"RIPPER"|"FOIL")
+
+- activation_matrix(X: np.ndarray) -> np.ndarray[uint8]
+
+- get_rule_targets() -> np.ndarray[int]  (rule-level target; -1 if absent)
+
+- save_rules_bin(path), load_rules_bin(path)
+
+- save_rules_dsb(path, decimals=3)
+
+"""
+import dill
+
+import numpy as np
+
+import torch
+
+from torch import nn
+
+from typing import Iterable, List, Dict, Tuple, Optional
+
+from scipy.stats import norm
+
+
+
+from DSRule import DSRule
+
+from utils import is_categorical
+
+
+
+# Core DST transforms (vectorized, torch-first; fall back to local numpy ops if missing)
+
+try:
+
+    from core import params_to_mass, masses_to_pignistic, ds_combine_pair
+
+    _HAS_CORE = True
+
+except Exception:
+
+    _HAS_CORE = False
+
+    def params_to_mass(W: torch.Tensor) -> torch.Tensor:
+
+        # Softmax over the last dimension → normalized masses per rule
+
+        return torch.softmax(W, dim=-1)
+
+    def masses_to_pignistic(m: torch.Tensor) -> torch.Tensor:
+
+        # Move Ω mass equally to K singletons: betP = m_k + m_Ω / K
+
+        K = m.shape[-1] - 1
+
+        single = m[..., :K]
+
+        omega = m[..., K:K+1]
+
+        return single + omega / float(max(1, K))
+
+    def ds_combine_pair(mA: torch.Tensor, mB: torch.Tensor) -> torch.Tensor:
+
+        # Torch-safe, batched Dempster’s rule for (K+Ω) masses
+
+        K = mA.shape[-1] - 1
+
+        a_k, a_o = mA[..., :K], mA[..., K:K+1]
+
+        b_k, b_o = mB[..., :K], mB[..., K:K+1]
+
+        # conflict (only disjoint singletons collide). This simplified variant ignores cross-singleton conflict
+
+        # and is suitable when rules vote mostly on singletons/Ω.
+
+        # Combine singletons: s = a_k * b_k + a_k * b_o + a_o * b_k
+
+        s = a_k * b_k + a_k * b_o + a_o * b_k
+
+        # Combine omega: ω = a_o * b_o
+
+        o = a_o * b_o
+
+        mass = torch.cat([s, o], dim=-1)
+
+        mass = mass / (mass.sum(dim=-1, keepdim=True) + 1e-12)
+
+        return mass
+
+
+
+try:
+
+    from DSRipper import DSRipper  # optional rule inducer
+
+except Exception:
+
+    DSRipper = None
+
+
+
+EPS = 1e-12
+
+
+
+# ------------------------------- helpers (specs) -------------------------------
+
+def _make_predicate_from_spec(spec_list: Iterable[Tuple[str, str, float]],
+
+                              feature_names: List[str]):
+
+    """Build a Python predicate from (name, op, value) literals; ALL literals must hold (AND)."""
+
+    name2idx = {n: i for i, n in enumerate(feature_names)}
+
+    def _pred(x_row, _spec=tuple(spec_list)):
+
+        for (name, op, val) in _spec:
+
+            j = name2idx[name]
+
+            v = x_row[j]
+
+            if   op == ">":
+
+
+
+
+
+
+
+
+
+                if not (v >  val): return False
+
+            elif op == "<":
+                if not (v <  val): return False
+
+            elif op == ">=":
+                if not (v >= val): return False
+
+            elif op == "<=":
+                if not (v <= val): return False
+
+            elif op == "==":
+                if not (v == val): return False
+
+            elif op == "!=":
+                if not (v != val): return False
+
+            else:
+
+                raise ValueError(f"Unknown operator '{op}' in spec")
+
+        return True
+
+    return _pred
+
+
+
+def _caption_from_spec(spec_list: Iterable[Tuple[str, str, float]]) -> str:
+
+    return " & ".join(f"{n} {op} {v}" for n, op, v in spec_list) if spec_list else "<rule>"
+
+
+
+# =============================== MODEL ===============================
 
 class DSModelMultiQ(nn.Module):
-    """
-    Torch-имплементация Dempster–Shafer классификатора,
-    основа – human-readable rules (RIPPER/FOIL).
-    """
 
-    def __init__(self, k,
-                 precompute_rules: bool = False,
-                 device: str = "cpu",
-                 force_precompute: bool = False,
-                 use_foil: bool = False):
-        """
-        k : int
-            Number of classes.
-        use_foil : bool
-            Если True – FOIL, иначе RIPPER.
-        """
+    """k-class DST model with rule activation + combination in a single `forward`."""
+
+    def __init__(
+
+        self,
+
+        k: int,
+
+        *,
+
+        device: str = "cpu",
+
+        use_vectorized_activation: bool = True,
+
+    ) -> None:
+
         super().__init__()
-        self.k = k
-        self.precompute_rules = precompute_rules
+
+        self.k: int = int(k)
+
         self.device = torch.device(device)
-        self.force_precompute = force_precompute
 
-        # контейнеры для масс и функций правил
-        self._params, self.preds = [], []
-        self.n = 0
-        self.rmap = {}
-        self.active_rules = []
-        self._all_rules = None
+        self.use_vectorized_activation = bool(use_vectorized_activation)
 
-        # <<< ИЗМЕНЕНИЕ: инстанцируем DSRipper с новыми параметрами по умолчанию
-        algo = "foil" if use_foil else "ripper"
-        self.generator = DSRipper(
-            algo=algo
-        )
+        # Rules and learnable parameters [w_0..w_{K-1}, theta]
 
-        # dummy-параметр, чтобы избежать деления на 0
-        self.dummy = nn.Parameter(torch.tensor(1.0))
+        self.preds: List[DSRule] = []
+        self._params = nn.ParameterList()
+        self.n: int = 0
 
+        # Feature names for vectorized activation
+        self.feature_names: Optional[List[str]] = None
+        self._name2idx: Dict[str, int] = {}
+        self.n_features: Optional[int] = None
 
-    # ------------------------------------------------------------------ #
-    #                         ОРИГИНАЛЬНЫЕ МЕТОДЫ                        #
-    # ------------------------------------------------------------------ #
-    def add_rule(self, pred, m_sing=None, m_uncert=None):
-        """
-        Добавляем правило. Если массы не заданы, генерируем случайные.
-        :param pred: DSRule или лямбда-функция (predicate).
-        """
-        self.preds.append(pred)
-        self.n += 1
-        if m_sing is None or m_uncert is None or len(m_sing) != self.k:
-            masses = create_random_maf_k(self.k, 0.8)
-        else:
-            masses = m_sing + [m_uncert]
-        m = torch.tensor(masses, requires_grad=True, dtype=torch.float)
-        self._params.append(m)
+        # Value decoders: feature_name or index → {code -> string}
+        self.value_decoders: Dict[object, Dict[int, str]] = {}
 
-    def forward(self, X):
-        """
-        :param X: тензор с shape=(batch, k+1),
-                  в первом столбце – индекс sample, далее – признаки.
-        :return: вероятностное распределение (one-hot).
-        """
-        ms = torch.stack(self._params).to(self.device)
-        if self.force_precompute:
-            # комбинаторика commonalities → выбор всех правил сразу
-            qs = ms[:, :-1] + \
-                 ms[:, -1].view(-1, 1) * torch.ones_like(ms[:, :-1])
-            qt = qs.repeat(len(X), 1, 1)
-            vectors, indices = X[:, 1:], X[:, 0].long()
-            sel = self._select_all_rules(vectors, indices)
-            qt[sel] = 1
-            temp_res = qt.prod(1)
-            res = torch.where(temp_res <= 1e-16, temp_res.add(1e-16), temp_res)
-            out = res / res.sum(1, keepdim=True)
-        else:
-            out = torch.zeros(len(X), self.k).to(self.device)
-            for i in range(len(X)):
-                sel = self._select_rules(X[i, 1:], int(X[i, 0].item()))
-                if len(sel) == 0:
-                    out[i] = torch.ones(self.k, device=self.device) / self.k
-                else:
-                    mt = torch.index_select(ms, 0, torch.LongTensor(sel).to(self.device))
-                    qt = mt[:, :-1] + mt[:, -1].view(-1, 1) * torch.ones_like(mt[:, :-1])
-                    res = qt.prod(0)
-                    if res.sum().item() <= 1e-16:
-                        res = res + 1e-16
-                        out[i] = res / res.sum()
-                    else:
-                        out[i] = res / res.sum()
-        return out
+        # Prior mass/logits
+        self._prior_mass = torch.zeros(self.k + 1, dtype=torch.float32, device=self.device)
+        self._prior_log = torch.log(torch.full((self.k,), 1.0 / max(1, self.k), device=self.device))
 
-    def clear_rmap(self):
-        self.rmap = {}
-        self._all_rules = None
+    # --------------------------- basic API ---------------------------
+    @property
+    def rules(self) -> List[DSRule]:
+        return self.preds
 
-    def _select_all_rules(self, X, indices):
-        """Return a boolean tensor ``(len(X), n_rules)`` marking inactive rules.
+    @rules.setter
+    def rules(self, value: Iterable[DSRule]):
+        self.preds = list(value) if value is not None else []
+        self.n = len(self.preds)
+        self._params = nn.ParameterList([
+            nn.Parameter(torch.zeros(self.k + 1, dtype=torch.float32, device=self.device))
+            for _ in range(self.n)
+        ])
 
-        Parameters
-        ----------
-        X : torch.Tensor
-            Batch of samples.
-        indices : torch.Tensor
-            Indices identifying the samples in ``X``.
-
-        Returns
-        -------
-        torch.Tensor
-            Boolean mask where ``True`` means the rule did **not** fire.
-        """
-        if self._all_rules is None:
-            self._all_rules = torch.zeros(0, self.n, dtype=torch.bool).to(self.device)
-        max_index = torch.max(indices)
-        len_all_rules = len(self._all_rules)
-        if max_index < len_all_rules:
-            return self._all_rules[indices]
-        else:
-            desired_len = max_index + 1
-            padding = (0, 0, 0, desired_len - len_all_rules)
-            self._all_rules = pad(self._all_rules, padding)
-        sel = torch.zeros(len(X), self.n, dtype=torch.bool).to(self.device)
-        X_np = X.cpu().data.numpy()
-        for i, sample, index in zip(count(), X_np, indices):
-            for j in range(self.n):
-                sel[i, j] = not bool(self.preds[j](sample))
-            self._all_rules[index] = sel[i]
-        return sel
-
-    def normalize(self):
-        """Нормализация масс (чтобы суммировались в 1)."""
-        with torch.no_grad():
-            for t in self._params:
-                t.clamp_(0., 1.)
-                if t.sum().item() < 1:
-                    t[-1].add_(1 - t.sum())
-                else:
-                    t.div_(t.sum())
-
-    def check_nan(self, tag=""):
-        for p in self._params:
-            if torch.isnan(p).any():
-                print(p)
-                raise RuntimeError("NaN mass found at %s" % tag)
-            if p.grad is not None and torch.isnan(p.grad).any():
-                print(p)
-                print(p.grad)
-                raise RuntimeError("NaN grad mass found at %s" % tag)
-
-    def _select_rules(self, x, index=None):
-        """Return indices of rules that fire on ``x``.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input sample.
-        index : int, optional
-            Cache key used when ``precompute_rules`` is enabled.
-
-        Returns
-        -------
-        list[int]
-            Indices of triggered rules.
-        """
-        if self.precompute_rules and index in self.rmap:
-            return self.rmap[index]
-        x_np = x.cpu().data.numpy()
-        sel = []
-        for i in range(self.n):
-            if len(self.active_rules) > 0 and i not in self.active_rules:
-                continue
-            if self.preds[i](x_np):
-                sel.append(i)
-        if self.precompute_rules and index is not None:
-            self.rmap[index] = sel
-        return sel
-
-    def parameters(self, recurse=True):
+    def parameters(self, recurse: bool = True):  # keep torch API compatible
         return self._params
 
-    def extra_repr(self):
+    def _set_feature_names(self, names: Iterable[str]):
+        self.feature_names = list(names)
+        self._name2idx = {n: i for i, n in enumerate(self.feature_names)}
+        self.n_features = len(self.feature_names)
+
+    def set_value_decoders(self, decoders: Optional[Dict[object, Dict[int, str]]]):
+        """Register decoders to render categorical values as strings in saved rules.
+        Keys may be feature names or indices; we mirror both for convenience."""
+        self.value_decoders = {}
+        if not decoders:
+            return
+        self.value_decoders.update(decoders)
+        # Mirror by name/index if feature names are already known
+        if self.feature_names:
+            for k, mapping in list(self.value_decoders.items()):
+                if isinstance(k, str) and k in self._name2idx:
+                    self.value_decoders[self._name2idx[k]] = dict(mapping)
+                if isinstance(k, int) and 0 <= k < len(self.feature_names):
+                    self.value_decoders[self.feature_names[k]] = dict(mapping)
+
+    def set_prior(self, prior: Optional[np.ndarray | torch.Tensor]):
+        """Set prior class probabilities; builds both prior logits and prior mass (with small Ω)."""
+        if prior is None:
+            p = torch.full((self.k,), 1.0 / max(1, self.k), dtype=torch.float32, device=self.device)
+        else:
+            p = torch.as_tensor(prior, dtype=torch.float32, device=self.device)
+            p = p / (p.sum() + EPS)
+        self._prior_log = torch.log(p.clamp_min(1e-12))
+        # Put small ignorance mass to avoid zero Ω; renormalize
+        omega = 0.02
+        prior_mass = torch.cat([p * (1.0 - omega), torch.tensor([omega], device=self.device)])
+        self._prior_mass = prior_mass / prior_mass.sum()
+
+    def add_rule(self, rule: DSRule, *, init_for_class: Optional[int] = None, init_std: float = 0.01, omega0: float = 0.8):
+        """Register a rule and create its parameter vector [K+1].
+
+        We keep initial Ω (uncertainty) exactly 0.8 but trainable:
+          softmax_omega = exp(b) / (exp(b) + sum_i exp(a_i)) = 0.8
+          => exp(b) = (0.8 / 0.2) * sum_i exp(a_i) = 4 * sum_i exp(a_i)
         """
-        Строит текстовое представление: какие правила, с какими массами.
-        """
-        builder = f"DS Classifier using {self.n} rules\n"
-        for i in range(self.n):
-            ps = str(self.preds[i])
-            ms = self._params[i]
-            builder += f"\nRule {i+1}: {ps}\n\t"
-            for j in range(len(ms) - 1):
-                builder += f"C{j+1}: {ms[j]:.3f}\t"
-            builder += f"Unc: {ms[self.k]:.3f}\n"
-        return builder[:-1]
+        # Build class logits (a[0:k]) and omega-logit (b)
+        if getattr(rule, "caption", "") == "<bias>":
+            vec = torch.zeros(self.k + 1, dtype=torch.float32, device=self.device)
+            vec[: self.k] = self._prior_log.detach().clone()
+            s = torch.exp(vec[: self.k]).sum()
+            vec[-1] = torch.log(torch.tensor(omega0 / (1.0 - omega0), device=self.device) * s)
+        else:
+            a = torch.empty(self.k, dtype=torch.float32, device=self.device).normal_(0.0, float(init_std))
+            # Небольшой «толчок» к init_for_class только если он задан (для STATIC он None)
+            if init_for_class is not None and 0 <= int(init_for_class) < self.k:
+                a[int(init_for_class)] += 0.10
+            s = torch.exp(a).sum()
+            b = torch.log(torch.tensor(omega0 / (1.0 - omega0), device=self.device) * s)
+            vec = torch.cat([a, b.unsqueeze(0)], dim=0)
 
-    def find_most_important_rules(self, classes=None, threshold=0.2):
-        """Return a dict mapping class labels to their most influential rules.
-
-        Parameters
-        ----------
-        classes : list[int] | None
-            Subset of classes to inspect. If ``None`` all classes are used.
-        threshold : float
-            Minimum squared score for a rule to be reported.
-        """
-        if classes is None:
-            classes = [i for i in range(self.k)]
-
-        with torch.no_grad():
-            rules = {}
-            for j in range(len(classes)):
-                cls = classes[j]
-                found = []
-                for i in range(len(self._params)):
-                    ms = self._params[i].detach().numpy()
-                    score = (ms[j]) * (1 - ms[-1])
-                    if score >= threshold * threshold:
-                        ps = str(self.preds[i])
-                        found.append((score, i, ps, np.sqrt(score), ms))
-                found.sort(reverse=True)
-                rules[cls] = found
-        return rules
-
-    def print_most_important_rules(self, classes=None, threshold=0.2):
-        rules = self.find_most_important_rules(classes, threshold)
-        if classes is None:
-            classes = [i for i in range(self.k)]
-        builder = ""
-        for i_cls in range(len(classes)):
-            rs = rules[classes[i_cls]]
-            builder += f"\n\nMost important rules for class {classes[i_cls]}"
-            for r in rs:
-                builder += f"\n\n\t[{r[3]:.3f}] R{r[1]}: {r[2]}\n\t\t"
-                masses = r[4]
-                for j in range(len(masses)):
-                    builder += f"\t{str(classes[j])[:3] if j < len(classes) else 'Unc'}: {masses[j]:.3f}"
-        print(builder)
+        # Trainable
+        self._params.append(nn.Parameter(vec))
+        self.preds.append(rule)
+        self.n = len(self.preds)
 
 
-    # ==========================  П Р И В А Т Н Ы Е  ========================== #
+    # --------------------------- forward path ---------------------------
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        """Full pipeline: activations → per-rule masses → DST combination → pignistic → logits.
+        Returns class logits (log pignistic)."""
+        if not isinstance(X, torch.Tensor):
+            X = torch.as_tensor(X, dtype=torch.float32, device=self.device)
+        else:
+            X = X.to(self.device)
 
-    def _make_lambda(self, rule_obj, cols, tol):
-        """
-        Строит λ-функцию (predicate) для одного правила (или списка клауз OR).
-        rule_obj: dict (AND-клауза) или list[dict] (OR из нескольких клауз).
-        """
-        clauses = [rule_obj] if isinstance(rule_obj, dict) else rule_obj
+        # Allow optional leading index column (drop it if present)
+        Xnp = X.detach().cpu().numpy()
+        if self.n_features is not None and Xnp.shape[1] == self.n_features + 1:
+            X_plain = Xnp[:, 1:]
+        else:
+            X_plain = Xnp
 
-        def _ok(value, op, thr):
-            if value is None:  # nan / пропуск
-                return False
-            if op in ("=", "=="):
-                return abs(value - thr) <= tol
-            if op == ">":
-                return value >  thr + tol
-            if op == ">=":
-                return value >= thr - tol
-            if op == "<":
-                return value <  thr - tol
-            if op == "<=":
-                return value <= thr + tol
-            return False
+        # Build activation matrix (B, R)
+        A_np = self._fired_mask_numpy(X_plain)
+        A = torch.from_numpy(A_np.astype(np.float32)).to(self.device)
 
-        def f(x):
-            for cl in clauses:  # OR
-                good = True
-                for attr, (op, thr) in cl.items():  # AND
-                    v = x[cols.index(attr)]
-                    if not _ok(v, op, thr):
-                        good = False
+        # If no rules: return prior logits for every row
+        B = X.shape[0]
+        if self.n == 0:
+            return self._prior_log[None, :].repeat(B, 1)
+
+        # Convert parameters → per-rule masses [R, K+1]
+        W = torch.stack(list(self._params), dim=0) if self._params else torch.zeros(0, self.k + 1, device=self.device)
+        M_rules = params_to_mass(W) if _HAS_CORE else torch.softmax(W, dim=-1)
+
+        # Combine masses per sample, applying only fired rules
+        m = self._prior_mass.unsqueeze(0).repeat(B, 1)  # [B, K+1]
+        if self.n > 0 and A.any():
+            for j in range(self.n):
+                idx = torch.nonzero(A[:, j] > 0.5, as_tuple=False).squeeze(-1)
+                if idx.numel() == 0:
+                    continue
+                m_sel = m.index_select(0, idx)
+                m_rule = M_rules[j].unsqueeze(0).expand_as(m_sel)
+                m_comb = ds_combine_pair(m_sel, m_rule)
+                m.index_copy_(0, idx, m_comb)
+
+        # Pignistic transform → logits
+        p = masses_to_pignistic(m)
+        logits = torch.log(p.clamp_min(1e-12))
+        return logits
+
+    # --------------------------- activation utils ---------------------------
+    def _fired_mask_numpy(self, X_plain: np.ndarray) -> np.ndarray:
+        """Vectorized rule activation over a 2D numpy array (drops index column upstream)."""
+        B = X_plain.shape[0]
+        fired = np.zeros((B, self.n), dtype=bool)
+        can_vec = (
+            self.use_vectorized_activation and
+            (self.feature_names is not None) and
+            all((getattr(r, "_is_bias", False) or hasattr(r, "_specs")) for r in self.preds)
+        )
+        if can_vec:
+            cols = {name: X_plain[:, j] for name, j in self._name2idx.items()}
+            for j, r in enumerate(self.preds):
+                if getattr(r, "_is_bias", False) or getattr(r, "caption", "") == "<bias>":
+                    fired[:, j] = True
+                    continue
+                spec = getattr(r, "_specs", [])
+                m = np.ones(B, dtype=bool)
+                for (name, op, val) in spec:
+                    col = cols[name]
+                    if   op == ">":  m &= (col >  val)
+                    elif op == "<":  m &= (col <  val)
+                    elif op == ">=": m &= (col >= val)
+                    elif op == "<=": m &= (col <= val)
+                    elif op == "==": m &= (col == val)
+                    elif op == "!=": m &= (col != val)
+                    else: raise ValueError(f"Unknown op '{op}'")
+                    if not m.any():
                         break
-                if good:
-                    return True
-            return False
+                fired[:, j] = m
+        else:
+            for i, row in enumerate(X_plain):
+                for j, r in enumerate(self.preds):
+                    if getattr(r, "_is_bias", False) or getattr(r, "caption", "") == "<bias>":
+                        fired[i, j] = True
+                    else:
+                        try:
+                            fn = getattr(r, "pred", None) or getattr(r, "predicate", None) or r
+                            fired[i, j] = bool(fn(row))
+                        except Exception:
+                            fired[i, j] = False
+        return fired
 
-        return f
+    def activation_matrix(self, X: np.ndarray) -> np.ndarray:
+        """Public numpy API: (N, R) binary activation matrix (uint8)."""
+        X = np.asarray(X)
+        if self.n_features is not None and X.shape[1] == self.n_features + 1:
+            X = X[:, 1:]
+        return self._fired_mask_numpy(X).astype(np.uint8)
 
+    def get_rule_targets(self) -> np.ndarray:
+        """Return per-rule target class if known, else -1.
+        For induced rules we store `_label`. Otherwise -1."""
+        t = np.full((self.n,), -1, dtype=int)
+        for j, r in enumerate(self.preds):
+            if hasattr(r, "_label"):
+                try:
+                    t[j] = int(getattr(r, "_label"))
+                except Exception:
+                    pass
+        return t
 
-    # ───────── фрагмент DSModelMultiQ.py ─────────
-    def _rule_text(self, cond):
-        """Строит строку 'attr op val …' из словаря или списка клауз."""
-        if isinstance(cond, dict):
-            return " AND ".join(f"{a} {op} {v:.4f}" for a, (op, v) in cond.items())
-        clause_strs = []
-        for cl in cond:   # OR
-            clause_strs.append(" AND ".join(f"{a} {op} {v:.4f}" for a, (op, v) in cl.items()))
-        return " OR ".join(f"({s})" for s in clause_strs)
+    # --------------------------- rule builders ---------------------------
+    def _display_value(self, feat, val):
+        """Pretty-print categorical values using the decoder, if available."""
+        keys = []
+        if isinstance(feat, str):
+            keys.extend([feat, self._name2idx.get(feat, None)])
+        else:
+            keys.extend([feat, self.feature_names[feat] if self.feature_names else None])
+        for k in keys:
+            if k is None: continue
+            mp = self.value_decoders.get(k)
+            if not mp: continue
+            if val in mp: return mp[val]
+            iv = int(round(val))
+            if iv in mp and abs(val - iv) < 1e-9: return mp[iv]
+            fv = float(val)
+            if fv in mp: return mp[fv]
+        return str(int(val)) if float(val).is_integer() else f"{float(val):g}"
 
-    def generate_ripper_rules(self, X, y, column_names, batch_size=1000):
-        self.generator.fit(X, y, feature_names=list(column_names),
-                           batch_size=batch_size)
-        ds_rules = []
-        cols = list(column_names)
-        tol  = self.generator.eq_tol
-        for cls, cond in self.generator._ordered_rules:
-            if isinstance(cond, dict) and not cond:        # TRUE-default пропускаем
-                continue
-            lam = self._make_lambda(cond, cols, tol)
-            caption = f"Class {cls}: {self._rule_text(cond)}"
-            ds_rules.append(DSRule(lam, caption))
-        return ds_rules
+    def _caption_from_spec_display(self, spec_list):
+        parts = []
+        for (name, op, val) in spec_list:
+            show = self._display_value(name, val) if op in {"==", "!="} else (int(val) if float(val).is_integer() else f"{float(val):g}")
+            parts.append(f"{name} {op} {show}")
+        return " & ".join(parts) if parts else "<rule>"
 
-    def generate_foil_rules(self, X, y, column_names, batch_size=1000):
-        self.generator.fit(X, y, feature_names=list(column_names),
-                           batch_size=batch_size)
-        ds_rules = []
-        cols = list(column_names)
-        tol  = self.generator.eq_tol
-        for cls, cond in self.generator._ordered_rules:
-            if isinstance(cond, dict) and not cond:
-                continue
-            lam = self._make_lambda(cond, cols, tol)
-            caption = f"Class {cls}: {self._rule_text(cond)}"
-            ds_rules.append(DSRule(lam, caption))
-        return ds_rules
+    def _add_rule_with_specs(self, spec_list, caption=None, *, init_for_class=None):
+        assert self.feature_names is not None, "feature_names must be set"
+        pred = _make_predicate_from_spec(spec_list, self.feature_names)
+        rule = DSRule(pred, caption or _caption_from_spec(spec_list))
+        setattr(rule, "_specs", list(spec_list))
 
-    def precompute_fire_matrix(self, X: np.ndarray):
-        """Compute and cache the rule firing matrix on CPU.
+        algo_name = str(getattr(self, "algo", "")).upper()
+        if init_for_class is not None and algo_name in {"RIPPER", "FOIL"}:
+            setattr(rule, "_label", int(init_for_class))  # only for inductive rules
 
-        Parameters
-        ----------
-        X : np.ndarray
-            Training samples used to build the cache.
+        pretty = self._caption_from_spec_display(spec_list)
+        rule.caption = pretty
+        setattr(rule, "_specs_display",
+                [(n, op, self._display_value(n, v) if op in {"==", "!="} else v) for (n, op, v) in spec_list])
 
-        Notes
-        -----
-        The matrix has shape ``(N, n_rules)`` with ``dtype=uint8``.  Each
-        entry stores whether a rule fires for a given sample.  This method
-        should be called once after importing or generating the rules and
-        before any ``set_test_usability`` or fast-forward operations, as it
-        iterates over all rules for every sample and can be slow.
-        """
-        N = len(X)
-        fires = np.zeros((N, self.n), dtype=np.uint8)
-        for j, rule in enumerate(self.preds):
-            fires[:, j] = np.fromiter((rule(row) for row in X), dtype=np.uint8, count=N)
-        self._fire_cpu = fires            # кэш
-
-    def fire_matrix(self, X: np.ndarray) -> np.ndarray:
-        """Return a matrix showing which rules fire for each sample.
-
-        Parameters
-        ----------
-        X : np.ndarray
-            Array of samples with shape ``(N, num_features)``.
-
-        Returns
-        -------
-        np.ndarray
-            Boolean matrix of shape ``(N, n_rules)`` with ``dtype=uint8``.
-            Each element ``[i, j]`` equals ``1`` if rule ``j`` fires on
-            sample ``X[i]``.  The implementation loops over all rules for
-            every sample, so runtime grows with ``N * n_rules`` and can be
-            slow on large datasets.
-        """
-        if getattr(self, "_fire_cpu", None) is None:
-            raise RuntimeError("вызывайте precompute_fire_matrix(X_train) сначала")
-        N = len(X)
-        m = np.zeros((N, self.n), dtype=np.uint8)
-        for j, rule in enumerate(self.preds):
-            m[:, j] = np.fromiter((rule(row) for row in X), dtype=np.uint8, count=N)
-        return m
-
-    def sort_rules_by_quality(self, X_body):
-        """Грубая сортировка правил по (coverage↑, top2-ratio↑, uncertainty↓)."""
-        if not self.preds:      return
-        covs = [sum(p(row) for row in X_body) for p in self.preds]
-        ratios = []
-        uncs   = []
-        for m in self._params:
-            masses = m[:-1].detach().cpu().numpy()
-            unc    = m[-1].item();  uncs.append(unc)
-            top2   = np.partition(masses, -2)[-2:]
-            ratios.append(top2[-1]/(top2[-2]+1e-9) if len(top2)==2 else 0)
-
-        # последний -- всегда дефолт (пустое условие) – не трогаем
-        idx = list(range(len(self.preds)-1))
-        idx.sort(key=lambda i: (covs[i], ratios[i], -uncs[i]), reverse=True)
-        idx.append(len(self.preds)-1)          # default stays last
-
-        self.preds  = [self.preds[i]  for i in idx]
-        self._params= [self._params[i] for i in idx]
+        self.add_rule(rule, init_for_class=(int(init_for_class) if algo_name in {"RIPPER", "FOIL"} else None))
 
 
+    # --------- generators: STATIC / RIPPER / FOIL ---------
+    def generate_statistic_single_rules(self, X: np.ndarray, breaks: int = 2,
+                                        column_names: Optional[Iterable[str]] = None,
+                                        generated_columns: Optional[Iterable[bool]] = None):
+        X = np.asarray(X)
+        m = X.shape[1]
+        if column_names is None:
+            column_names = [f"X[{i}]" for i in range(m)]
+        self._set_feature_names(column_names)
 
-    def generate_statistic_single_rules(self, X, breaks=2, column_names=None, generated_columns=None):
-        """
-        Populates the model with attribute-independant rules based on statistical breaks.
-        In total this method generates No. attributes * (breaks + 1) rules
-        :param X: Set of inputs (can be the same as training or a sample)
-        :param breaks: Number of breaks per attribute
-        :param column_names: Column attribute names
-        :param generated_columns: array of booleans with len() = num_features representing which
-            will have rules generated. The default behaviour is to generate rules for all
-        """
         mean = np.nanmean(X, axis=0)
         std = np.nanstd(X, axis=0)
         brks = norm.ppf(np.linspace(0, 1, breaks + 2))[1:-1]
-        num_features = len(mean)
-
         if generated_columns is None:
-            generated_columns = np.repeat(True, num_features)
-        assert generated_columns.shape == (num_features,), "generated_columns has wrong shape {}".format(
-            generated_columns.shape)
-
-        if column_names is None:
-            column_names = ["X[%d]" % i for i in range(num_features)]
-
-        for i in range(num_features):
+            generated_columns = np.repeat(True, m)
+        for i in range(m):
             if not generated_columns[i]:
                 continue
-            if is_categorical(X[:, i]):
-                categories = np.unique(X[:, i][~np.isnan(X[:, i])])
-                for cat in categories:
-                    self.add_rule(DSRule(lambda x, i=i, k=cat: x[i] == k, "%s = %s" % (column_names[i], str(cat))))
+            fname = self.feature_names[i]
+            col = X[:, i]
+            if is_categorical(col):
+                cats = np.unique(col[~np.isnan(col)])
+                for cat in cats:
+                    self._add_rule_with_specs([(fname, "==", float(cat))], f"{fname} == {self._display_value(fname, cat)}")
             else:
-                # First rule
                 v = mean[i] + std[i] * brks[0]
-                self.add_rule(DSRule(lambda x, i=i, v=v: x[i] <= v, "%s < %.3f" % (column_names[i], v)))
-                # Mid rules
+                self._add_rule_with_specs([(fname, "<=", float(v))], f"{fname} <= {v:.6f}")
                 for j in range(1, len(brks)):
-                    vl = v
-                    v = mean[i] + std[i] * brks[j]
-                    self.add_rule(DSRule(lambda x, i=i, vl=vl, v=v: vl <=
-                                                                    x[i] < v,
-                                         "%.3f < %s < %.3f" % (vl, column_names[i], v)))
-                # Last rule
-                self.add_rule(DSRule(lambda x, i=i, v=v: x[i] > v, "%s > %.3f" % (column_names[i], v)))
+                    vl = v; v = mean[i] + std[i] * brks[j]
+                    self._add_rule_with_specs([(fname, ">=", float(vl)), (fname, "<", float(v))], f"{vl:.6f} < {fname} < {v:.6f}")
+                self._add_rule_with_specs([(fname, ">", float(v))], f"{fname} > {v:.6f}")
 
-        print(f"self.add_rule:  ", self.add_rule)
 
-    def generate_categorical_rules(self, X, column_names=None, exclude=None):
-        """
-        Populates the model with attribute-independant rules based on categories of attributes, continous columns are
-        skipped.
-        :param X: Set of inputs (can be the same as training or a sample)
-        :param column_names: Column attribute names
-        """
+    def generate_categorical_rules(self, X: np.ndarray, column_names: Optional[Iterable[str]] = None,
+                                   exclude: Optional[Iterable[str]] = None):
+        X = np.asarray(X)
         m = X.shape[1]
         if column_names is None:
-            column_names = ["X[%d]" % i for i in range(m)]
-
-        if exclude is None:
-            exclude = []
-
+            column_names = [f"X[{i}]" for i in range(m)]
+        self._set_feature_names(column_names)
+        exclude = set(exclude or [])
         for i in range(m):
-            if is_categorical(X[:, i]) and column_names[i] not in exclude:
-                categories = np.unique(X[:, i][~np.isnan(X[:, i])])
-                for cat in categories:
-                    self.add_rule(DSRule(lambda x, i=i, k=cat: x[i] == k, "%s = %s" % (column_names[i], str(cat))))
-
-    def generate_mult_pair_rules(self, X, column_names=None, include_square=False):
-        """
-        Populates the model with with rules combining 2 attributes by their multipication, adding both positive
-        and negative rule. In total this method generates (No. attributes)^2 rules
-        :param X: Set of inputs (can be the same as training or a sample)
-        :param column_names: Column attribute names
-        :param include_square: Includes rules comparing the same attribute (ie x[i] * x[i])
-        """
-        mean = np.nanmean(X, axis=0)
-
-        if column_names is None:
-            column_names = ["X[%d]" % i for i in range(len(mean))]
-
-        offset = 0 if include_square else 1
-
-        for i in range(len(mean)):
-            for j in range(i + offset, len(mean)):
-                # mk = mean[i] * mean[j]
-                mi = mean[i]
-                mj = mean[j]
-                self.add_rule(DSRule(lambda x, i=i, j=j, mi=mi, mj=mj: (x[i] - mi) * (x[j] - mj) > 0,
-                                     "Positive %s - %.3f, %s - %.3f" % (
-                                         column_names[i], mean[i], column_names[j], mean[j])))
-                self.add_rule(DSRule(lambda x, i=i, j=j, mi=mi, mj=mj: (x[i] - mi) * (x[j] - mj) <= 0,
-                                     "Negative %s - %.3f, %s - %.3f" % (
-                                         column_names[i], mean[i], column_names[j], mean[j])))
-
-    def generate_custom_range_single_rules(self, column_names, name, breaks):
-        """
-        Populates the model with attribute-independant rules based on custom defined breaks.
-        In total this method generates len(breaks) + 1 rules
-        :param column_names: Column attribute names
-        :param name: The target column name to generate rules
-        :param breaks: Array of float indicating the values of the breaks
-        """
-        i = column_names.tolist().index(name)
-        if i == -1:
-            raise NameError("Cannot find column with name %s" % name)
-        v = breaks[0]
-        # First rule
-        self.add_rule(DSRule(lambda x, i=i, v=v: x[i] <= v, "%s < %.3f" % (name, v)))
-        # Mid rules
-        for j in range(1, len(breaks)):
-            vl = v
-            v = breaks[j]
-            self.add_rule(DSRule(lambda x, i=i, vl=vl, v=v: vl <= x[i] < v, "%.3f < %s < %.3f" % (vl, name, v)))
-        # Last rule
-        self.add_rule(DSRule(lambda x, i=i, v=v: x[i] > v, "%s > %.3f" % (name, v)))
-
-    def generate_custom_range_rules_by_gender(self, column_names, name, breaks_men, breaks_women, gender_name="gender"):
-        """
-        Populates the model with attribute-independant rules based on custom defined breaks separated by gender.
-        :param column_names: Column attribute names
-        :param name: The target column name to generate rules
-        :param breaks_men: Array of float indicating the values of the breaks for men
-        :param breaks_women: Array of float indicating the values of the breaks for women
-        :param gender_name: Name of the column containing the gender
-        """
-        i = column_names.tolist().index(name)
-        g = column_names.tolist().index(gender_name)
-
-        if i == -1 or g == -1:
-            raise NameError("Cannot find column with name %s" % name)
-
-        for gv, gname, breaks in [(0, "Men", breaks_men), (1, "Women", breaks_women)]:
-            v = breaks[0]
-            # First rule
-            self.add_rule(
-                DSRule(lambda x, i=i, v=v, g=g, gv=gv: x[g] == gv and x[i] <= v, "%s: %s < %.3f" % (gname, name, v)))
-            # Mid rules
-            for j in range(1, len(breaks)):
-                vl = v
-                v = breaks[j]
-                self.add_rule(DSRule(lambda x, i=i, g=g, gv=gv, vl=vl, v=v: x[g] == gv and vl <= x[i] < v,
-                                     "%s: %.3f < %s < %.3f" % (gname, vl, name, v)))
-            # Last rule
-            self.add_rule(
-                DSRule(lambda x, i=i, g=g, gv=gv, v=v: x[g] == gv and x[i] > v, "%s: %s > %.3f" % (gname, name, v)))
-
-    def generate_outside_range_pair_rules(self, column_names, ranges):
-        """
-        Populates the model with outside-normal-range pair of attributes rules
-        :param column_names: The columns names in the dataset
-        :param ranges: Matrix size (k,3) indicating the lower, the upper bound and the name of the column
-        """
-        for index_i in range(len(ranges)):
-            col_i = ranges[index_i][2]
-            i = column_names.tolist().index(col_i)
-            for index_j in range(index_i + 1, len(ranges)):
-                col_j = ranges[index_j][2]
-                j = column_names.tolist().index(col_j)
-                # Extract ranges
-                li = ranges[index_i][0]
-                hi = ranges[index_i][1]
-                lj = ranges[index_j][0]
-                hj = ranges[index_j][1]
-                # Add Rules
-                if not np.isnan(li) and not np.isnan(lj):
-                    self.add_rule(DSRule(lambda x, i=i, j=j, li=li, lj=lj: x[i] < li and x[j] < lj,
-                                         "Low %s and Low %s" % (col_i, col_j)))
-                if not np.isnan(hi) and not np.isnan(lj):
-                    self.add_rule(DSRule(lambda x, i=i, j=j, hi=hi, lj=lj: x[i] > hi and x[j] < lj,
-                                         "High %s and Low %s" % (col_i, col_j)))
-                if not np.isnan(hi) and not np.isnan(hj):
-                    self.add_rule(DSRule(lambda x, i=i, j=j, hi=hi, hj=hj: x[i] > hi and x[j] > hj,
-                                         "High %s and High %s" % (col_i, col_j)))
-                if not np.isnan(li) and not np.isnan(hj):
-                    self.add_rule(DSRule(lambda x, i=i, j=j, li=li, hj=hj: x[i] < li and x[j] > hj,
-                                         "Low %s and High %s" % (col_i, col_j)))
-
-    def load_rules_bin(self, filename):
-        """
-        Loads rules from a file, it deletes previous rules
-        :param filename: The name of the input file
-        """
-        if os.path.getsize(filename) == 0:
-            raise RuntimeError(f"Cannot load from empty file: {filename}")
-        with open(filename, "rb") as f:
-            sv = dill.load(f)
-            self.preds = sv["preds"]
-            self._params = sv["masses"]
-            self.n = len(self.preds)
-
-        # print(self.preds)
-
-    def save_rules_bin(self, filename):
-        """
-        Saves the current rules into a file
-        :param filename: The name of the file
-        """
-        with open(filename, "wb") as f:
-            sv = {"preds": self.preds, "masses": self._params}
-            dill.dump(sv, f)
-
-    def get_rules_size(self):
-        return self.n
-
-    def get_active_rules_size(self):
-        return len(self.active_rules)
-
-    def get_rules_by_instance(self, x, order_by=0):
-        x = torch.Tensor(x).to(self.device)
-        sel = self._select_rules(x)
-        rules = np.zeros((len(sel), self.k + 1))
-        preds = []
-        for i in range(len(sel)):
-            rules[i, :] = self._params[sel[i]].data.numpy()
-            preds.append(self.preds[sel[i]])
-
-        preds = np.array(preds)
-        preds = preds[np.lexsort((rules[:, order_by],))]
-        rules = rules[np.lexsort((rules[:, order_by],))]
-        return rules, preds
-
-    def keep_top_rules(self, n=5, imbalance=None):
-        rd = self.find_most_important_rules()
-        rs = []
-        for k in rd:
-            if imbalance is None:
-                rs.extend(rd[k][:n])
-            else:
-                rs.extend(rd[k][:round(n * imbalance[k])])
-        rids = [r[1] for r in rs]
-        self.active_rules = rids
-
-    # ................................................
-    def import_test_rules(self, ds_rules):
-        """
-        Replace current rule set by `ds_rules` (list[DSRule]).
-        Masses are re-initialised randomly.
-        """
-        self._params, self.preds = [], []
-        self.n = 0
-        for r in ds_rules:
-            self.add_rule(r)
-
-    # ------------------------------------------------------------------ #
-    #                           RULE PRUNING                             #
-    # ------------------------------------------------------------------ #
-    def _rule_coverage(self, rule_lambda, X_body):
-        """Number of samples covered by `rule_lambda`."""
-        return sum(rule_lambda(row) for row in X_body)
-
-    @staticmethod
-    def rule_score(m_vec):
-        """
-        Harmonic importance score from DST_JUCS (u_adj ⊗ top-2 ratio).
-        """
-        masses = m_vec[:-1].detach().cpu().numpy()
-        unc = m_vec[-1].item()
-        top2 = np.partition(masses, -2)[-2:]
-        ratio = top2[-1] / (top2[-2] + 1e-3)
-        return 1.0 - unc, ratio
-
-    # ................................................
-    def prune_rules(self, X_body, max_unc=0.6, min_score=0.4, min_cov=8):
-        """
-        Отсекаем правила на основе неопределенности, распределения масс и покрытия.
-        Удаляем правило, если выполняется хотя бы одно из условий:
-          1. mass_uncertainty > max_unc (правило слишком неопределённое)
-          2. log(P1/P2) < min_score (правило даёт похожие вероятности для нескольких классов)
-          3. coverage < min_cov (правило покрывает слишком мало объектов)
-        Возвращает (число оставленных правил, исходное число правил).
-        """
-        old_n = self.n
-        keep_preds, keep_params = [], []
-        for pred, mass in zip(self.preds, self._params):
-            # Вычисляем неопределённость и распределение масс по классам для правила
-            unc = mass[-1].item()
-            class_masses = mass[:-1].detach().cpu().numpy()
-            if len(class_masses) < 2:
-                # Для правил с одним классом (маловероятно) – учитываем только неопределённость
-                top1_ratio_log = float('inf')
-            else:
-                # Выбираем две наибольшие вероятности классов
-                top2 = np.partition(class_masses, -2)[-2:]
-                top1_ratio_log = np.log((top2[-1] / (top2[-2] + 1e-9)) + 1e-9)
-            cov = sum(pred(row) for row in X_body)  # покрытие: число объектов, удовлетворяющих правилу
-            # Проверяем условия прунинга
-            if unc > max_unc or top1_ratio_log < min_score or cov < min_cov:
-                # Правило отбраковывается, т.к. оно либо слишком неуверенное, либо плохо различает классы, либо слишком частное
+            fname = self.feature_names[i]
+            if fname in exclude:
                 continue
-            # Иначе сохраняем правило
-            keep_preds.append(pred)
-            keep_params.append(mass)
-        # Обновляем списки правил и параметров
-        self.preds = keep_preds
-        self._params = keep_params
+            col = X[:, i]
+            if is_categorical(col):
+                cats = np.unique(col[~np.isnan(col)])
+                for cat in cats:
+                    self._add_rule_with_specs([(fname, "==", float(cat))], f"{fname} = {cat}")
+
+    def generate_mult_pair_rules(self, X: np.ndarray, column_names: Optional[Iterable[str]] = None,
+                                 include_square: bool = False):
+        X = np.asarray(X)
+        mean = np.nanmean(X, axis=0)
+        m = len(mean)
+        if column_names is None:
+            column_names = [f"X[{i}]" for i in range(m)]
+        self._set_feature_names(column_names)
+        offset = 0 if include_square else 1
+        for i in range(m):
+            for j in range(i + offset, m):
+                fi, fj = self.feature_names[i], self.feature_names[j]
+                mi, mj = float(mean[i]), float(mean[j])
+                self._add_rule_with_specs([(fi, ">=", mi), (fj, ">=", mj)],
+                                          f"Positive {fi}-{mi:.3f}, {fj}-{mj:.3f}")
+                self._add_rule_with_specs([(fi, "<", mi), (fj, "<", mj)],
+                                          f"Positive {fi}-{mi:.3f}, {fj}-{mj:.3f}")
+                self._add_rule_with_specs([(fi, ">=", mi), (fj, "<", mj)],
+                                          f"Negative {fi}-{mi:.3f}, {fj}-{mj:.3f}")
+                self._add_rule_with_specs([(fi, "<", mi), (fj, ">=", mj)],
+                                          f"Negative {fi}-{mi:.3f}, {fj}-{mj:.3f}")
+
+    def generate_custom_range_single_rules(self, column_names: Iterable[str], name: str, breaks: List[float]):
+        names = list(column_names)
+        self._set_feature_names(names)
+        v = breaks[0]
+        self._add_rule_with_specs([(name, "<=", float(v))], f"{name} <= {v:.3f}")
+        for j in range(1, len(breaks)):
+            vl = v; v = breaks[j]
+            self._add_rule_with_specs([(name, ">=", float(vl)), (name, "<", float(v))],
+                                      f"{vl:.3f} < {name} < {v:.3f}")
+        self._add_rule_with_specs([(name, ">", float(v))], f"{name} > {v:.3f}")
+
+    def generate_outside_range_pair_rules(self, column_names: Iterable[str],
+                                          ranges: List[Tuple[float, float, str]]):
+        names = list(column_names)
+        self._set_feature_names(names)
+        # ranges: [(lo_i, hi_i, col_i), ...]
+        for a in range(len(ranges)):
+            li, hi, col_i = ranges[a]
+            for b in range(a + 1, len(ranges)):
+                lj, hj, col_j = ranges[b]
+                if not np.isnan(li) and not np.isnan(lj):
+                    self._add_rule_with_specs([(col_i, "<", float(li)), (col_j, "<", float(lj))],
+                                              f"Low {col_i} and Low {col_j}")
+                if not np.isnan(hi) and not np.isnan(lj):
+                    self._add_rule_with_specs([(col_i, ">", float(hi)), (col_j, "<", float(lj))],
+                                              f"High {col_i} and Low {col_j}")
+                if not np.isnan(hi) and not np.isnan(hj):
+                    self._add_rule_with_specs([(col_i, ">", float(hi)), (col_j, ">", float(hj))],
+                                              f"High {col_i} and High {col_j}")
+                if not np.isnan(li) and not np.isnan(hj):
+                    self._add_rule_with_specs([(col_i, "<", float(li)), (col_j, ">", float(hj))],
+                                              f"Low {col_i} and High {col_j}")
+
+    def _add_induced_rule(self, cond: Dict[str, Tuple[str, float]], cls: int, column_names: List[str]):
+        self._set_feature_names(column_names)
+        spec = [(name, op, float(val)) for name, (op, val) in cond.items()]
+        caption = f"Class {cls}: " + self._caption_from_spec_display(spec)
+        self._add_rule_with_specs(spec, caption, init_for_class=int(cls))
+
+    def _dedup_and_add(self, ordered_rules, X, column_names, y=None, min_pos_coverage: float = 0.003):
+        X = np.asarray(X)
+        names = list(column_names)
+        self._set_feature_names(names)
+        y = None if y is None else np.asarray(y).astype(int)
+        seen = set()
+        for cls, cond in ordered_rules:
+            if not cond:
+                continue
+            spec = tuple((k, str(cond[k][0]), float(cond[k][1])) for k in sorted(cond.keys()))
+            if spec in seen:
+                continue
+            pred = _make_predicate_from_spec(spec, names)
+            mask = np.fromiter((bool(pred(row)) for row in X), count=len(X), dtype=bool)
+            if y is not None:
+                cls = int(cls)
+                pos = (y == cls)
+                pos_cnt = pos.sum()
+                if pos_cnt == 0: continue
+                pos_cov = float((mask & pos).sum()) / float(pos_cnt)
+                if pos_cov < float(min_pos_coverage):
+                    continue
+            seen.add(spec)
+            self._add_induced_rule({k: (op, val) for k, op, val in spec}, int(cls), names)
+
+    def generate_ripper_rules(self, X: np.ndarray, y: np.ndarray, column_names=None) -> None:
+        if DSRipper is None:
+            raise NotImplementedError("DSRipper is not available")
+        X = np.asarray(X); y = np.asarray(y).astype(int)
+        if column_names is None:
+            column_names = [f"X[{i}]" for i in range(X.shape[1])]
+        ripper = DSRipper(algo="ripper")
+        ripper.fit(X, y, feature_names=column_names)
+        self._dedup_and_add(ripper._ordered_rules, X, column_names, y=y, min_pos_coverage=0.003)
+
+    def generate_foil_rules(self, X: np.ndarray, y: np.ndarray, column_names=None) -> None:
+        if DSRipper is None:
+            raise NotImplementedError("DSRipper is not available")
+        X = np.asarray(X); y = np.asarray(y).astype(int)
+        if column_names is None:
+            column_names = [f"X[{i}]" for i in range(X.shape[1])]
+        foil = DSRipper(algo="foil")
+        foil.fit(X, y, feature_names=column_names)
+        self._dedup_and_add(foil._ordered_rules, X, column_names, y=y, min_pos_coverage=0.003)
+
+    def generate_raw(self, X: np.ndarray, y: Optional[np.ndarray] = None,
+                     column_names: Optional[List[str]] = None, *, algo: str = "STATIC", **kwargs):
+        # Remember current generator to drive labeling logic elsewhere
+        self.algo = (algo or "STATIC").upper()
+        algo = self.algo
+        if algo == "STATIC":
+            breaks = int(kwargs.get("breaks", 2))
+            self.generate_statistic_single_rules(X, breaks=breaks, column_names=column_names)
+        elif algo == "RIPPER":
+            if y is None:
+                raise ValueError("y must be provided for RIPPER rule generation.")
+            self.generate_ripper_rules(X, y, column_names=column_names)
+        elif algo == "FOIL":
+            if y is None:
+                raise ValueError("y must be provided for FOIL rule generation.")
+            self.generate_foil_rules(X, y, column_names=column_names)
+        else:
+            raise ValueError(f"Unknown algo '{algo}'. Choose from STATIC, RIPPER, FOIL.")
+
+
+    # --------------------------- save / load ---------------------------
+    def clone_from(self, other: "DSModelMultiQ") -> None:
+        self.feature_names = list(other.feature_names) if other.feature_names else None
+        self._name2idx = {n: i for i, n in enumerate(self.feature_names)} if self.feature_names else {}
+        self.n_features = len(self.feature_names) if self.feature_names else None
+        self.value_decoders = dict(getattr(other, "value_decoders", {}))
+        self.preds = []
+        self._params = nn.ParameterList()
+        for r_other, p_other in zip(other.preds, other._params):
+            fn = getattr(r_other, "pred", None) or getattr(r_other, "predicate", None)
+            rule = DSRule(fn if fn is not None else (lambda _: False), getattr(r_other, "caption", "<rule>"))
+            for attr in ("_specs", "_is_bias", "usability", "_label", "_specs_display"):
+                if hasattr(r_other, attr):
+                    setattr(rule, attr, getattr(r_other, attr))
+            self.preds.append(rule)
+            self._params.append(nn.Parameter(p_other.detach().clone().to(self.device)))
         self.n = len(self.preds)
-        return self.n, old_n
+        self._prior_log = other._prior_log.detach().clone().to(self.device)
+        self._prior_mass = other._prior_mass.detach().clone().to(self.device)
+
+    def save_rules_bin(self, path: str) -> None:
+        data = {
+            "feature_names": self.feature_names,
+            "prior_logits": self._prior_log.detach().cpu().numpy(),
+            "prior_mass": self._prior_mass.detach().cpu().numpy(),
+            "value_decoders": self.value_decoders,
+            "rules": [],
+            "params": [p.detach().cpu().numpy() for p in self._params],
+        }
+        for r in self.preds:
+            entry = {"caption": getattr(r, "caption", "<rule>")}
+            if hasattr(r, "_specs"):
+                entry["specs"] = list(getattr(r, "_specs"))
+            else:
+                fn = getattr(r, "pred", None) or getattr(r, "predicate", None)
+                entry["pred_bytes"] = dill.dumps(fn if fn is not None else (lambda _: False))
+            if getattr(r, "_is_bias", False):
+                entry["is_bias"] = True
+            if hasattr(r, "_label"):
+                entry["_label"] = int(getattr(r, "_label"))
+            if hasattr(r, "_specs_display"):
+                entry["_specs_display"] = list(getattr(r, "_specs_display"))
+            data["rules"].append(entry)
+        with open(path, "wb") as f:
+            dill.dump(data, f)
+
+    def load_rules_bin(self, path: str) -> None:
+        with open(path, "rb") as f:
+            data = dill.load(f)
+        self.feature_names = data.get("feature_names")
+        self._name2idx = {n: i for i, n in enumerate(self.feature_names)} if self.feature_names else {}
+        self.n_features = len(self.feature_names) if self.feature_names else None
+        prior = data.get("prior_logits")
+        if prior is not None:
+            self._prior_log = torch.from_numpy(prior).to(self.device)
+        prior_m = data.get("prior_mass")
+        if prior_m is not None:
+            self._prior_mass = torch.from_numpy(prior_m).to(self.device)
+        self.value_decoders = data.get("value_decoders", {})
+        self.preds = []
+        self._params = nn.ParameterList()
+        for entry, p_arr in zip(data.get("rules", []), data.get("params", [])):
+            caption = entry.get("caption", "<rule>")
+            if "specs" in entry and self.feature_names is not None:
+                pred = _make_predicate_from_spec(entry["specs"], self.feature_names)
+                rule = DSRule(pred, caption)
+                setattr(rule, "_specs", list(entry["specs"]))
+            else:
+                pred = dill.loads(entry.get("pred_bytes", dill.dumps(lambda _: False)))
+                rule = DSRule(pred, caption)
+            if entry.get("is_bias", False):
+                setattr(rule, "_is_bias", True)
+            if "_label" in entry:
+                setattr(rule, "_label", int(entry["_label"]))
+            if "_specs_display" in entry:
+                setattr(rule, "_specs_display", list(entry["_specs_display"]))
+            self.preds.append(rule)
+            self._params.append(nn.Parameter(torch.from_numpy(np.asarray(p_arr)).float().to(self.device)))
+        self.n = len(self.preds)
+
+    def save_rules_dsb(self, path: str, decimals: int = 3) -> None:
+        """Write a human-readable .dsb; no 'Class ...' prefix for unlabeled (STATIC) rules."""
+        lines = []
+        for p, r in zip(self._params, self.preds):
+            vec = p.detach().cpu().numpy().astype(np.float64)
+            probs = np.exp(vec - vec.max()); probs = probs / probs.sum()
+            cls_m = probs[: self.k]            # per-class mass
+            unc  = probs[-1]                   # Ω mass
+
+            # Human-readable body
+            if hasattr(r, "_specs_display"):
+                parts = [f"{name} {op} {val}" for (name, op, val) in getattr(r, "_specs_display")]
+                pretty = " & ".join(parts) if parts else getattr(r, "caption", "<rule>")
+            else:
+                pretty = getattr(r, "caption", "<rule>")
+
+            # Prefix only if the rule was induced with a label (RIPPER/FOIL).
+            # STATIC rules do not carry _label and must have no class prefix.
+            prefix = f"Class {int(getattr(r, '_label'))}: " if hasattr(r, "_label") else ""
+
+            cls_part = ", ".join([f"{m:.{decimals}f}" for m in cls_m])
+            lines.append(f"{prefix}{pretty}  ||  mass=[{cls_part}, unc={unc:.{decimals}f}]")
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+

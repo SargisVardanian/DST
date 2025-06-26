@@ -1,21 +1,31 @@
-# ───────── DSRule.py ─────────
+from typing import Callable, Any
+
 class DSRule:
-    """
-    Обёртка над λ-предикатом rule.ld.
-    usability рассчитывается ТОЛЬКО на тестовой выборке
-    и задаётся после обучения (см. test_Ripper_DST.py).
-    """
-    def __init__(self, ld, caption: str = ""):
-        self.ld = ld                  # сам предикат (lambda)
-        self.caption = caption        # текстовое описание условия
-        self.freq = 0         # number of training instances this rule covers
-        self.usability: float | None = None   # % тестовых примеров, покрытых правилом
+    """Tiny wrapper around a boolean predicate with a human-friendly caption.
 
-    # красивый вывод: если usability ещё нет – без него
-    def __str__(self):
-        if self.usability is None:
-            return self.caption
-        return f"{self.caption} | usability={self.usability:.1f}%"
+    Parameters
+    ----------
+    predicate : Callable[[Any], bool]
+        Function that takes a 1-D row (numpy array or sequence) and returns True/False.
+    name : str, optional
+        Caption to show in logs/exports. If omitted, ``repr(predicate)`` is used.
+    """
+    def __init__(self, predicate: Callable[..., bool], name: str = "") -> None:
+        self.predicate = predicate
+        self.name = name or repr(predicate)
 
-    # чтобы правило можно было звать как функцию
-    __call__ = lambda self, *a, **kw: self.ld(*a, **kw)
+    def __call__(self, x: Any) -> bool:
+        """Return ``bool(predicate(x))`` for convenience."""
+        return bool(self.predicate(x))
+
+    def __str__(self) -> str:
+        return self.name
+
+    # Backward compatibility: some code refers to `rule.caption`
+    @property
+    def caption(self) -> str:
+        return self.name
+
+    @caption.setter
+    def caption(self, value: str) -> None:
+        self.name = value

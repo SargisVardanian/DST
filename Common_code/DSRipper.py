@@ -1,480 +1,330 @@
 # DSRipper.py
-
-"""
-Vector-accelerated incremental RIPPER / FOIL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-• Батч-обучение для экономии памяти (batch_size в fit).
-• Для **каждого** класса строит свой список правил.
-• Кандидаты:
-      – числовые признаки → 9 квантилей (10…90 %)
-      – категориальные    → ≤ max_unique_cat самых частых значений
-• FOIL-gain и precision считаются векторно на булевых масках NumPy.
-• Дедупликация правил между батчами (_canon + _seen).
-• В конце одно TRUE-правило с меткой самого частого
-  среди непокрытых (или глобального модального класса).
-Совместим c DSModelMultiQ: сохранены ruleset[label],
-_ordered_rules, _make_lambda, сигнатура fit.
-"""
-
-from __future__ import annotations
-import math, numbers, itertools
-from collections import defaultdict, Counter
-from typing import Dict, List, Tuple, Any, Optional
+import math
+from collections import defaultdict
+from typing import Dict, List, Tuple, Optional
 import numpy as np
 
-Rule = Dict[str, Tuple[str, Any]]
-Mask = np.ndarray  # dtype=bool
+Mask = np.ndarray
+RuleCond = Dict[str, Tuple[str, float]]  # {feature_name: (op, threshold)}
 
 
 class DSRipper:
-    # ────────────────────── INIT ──────────────────────
-    def __init__(self,
-                 *,
-                 algo: str = "ripper",
-                 min_prec: float = 0.6,
-                 min_cov_frac: float = 0.01,
-                 min_gain: float = 0.001,
-                 max_rule_len: int = 6,
-                 max_rules_per_class: int = 50,
-                 eq_tol: float = 1e-3,
-                 max_unique_cat: int = 10):
+    """
+    Minimal FOIL/RIPPER-style rule inducer.
+
+    Core ideas
+    ----------
+    * Greedy rule growth using FOIL gain, with a mild bias towards rare (minority) classes.
+    * Optional pruning by Reduced Error Pruning (REP) when `algo="ripper"`.
+    * Numeric features use quantile-based thresholds; categorical features use equality tests.
+
+    After `fit(...)`
+    -----------------
+    * ruleset: Dict[int, List[RuleCond]]      # per-class list of induced rules
+    * _ordered_rules: List[Tuple[int, RuleCond]]
+      A flat ordered list of (class, rule) pairs in discovery order;
+      ends with a default rule: (default_label, {}).
+    * _default_label: int                     # default predicted class
+
+    Notes
+    -----
+    * This is intentionally simple: few (fixed) internal knobs, no external hyperparams
+      besides `algo`. Good as a lightweight baseline or seed generator for downstream DST.
+    """
+
+    def __init__(self, *, algo: str = "ripper", **_ignored):
         """
-        Параметры:
-          algo             — алгоритм индукции (‘ripper’ или ‘foil’).
-          min_prec         — минимум precision (p/(p+n)) для остановки роста rule.
-          min_cov_frac     — минимальная доля покрытия (coverage) POS‐примеров rule.
-          min_gain         — FOIL‐gain threshold: < min_gain → переносить литерал нельзя.
-          max_rule_len     — максимальная длина (число литералов) одного rule.
-          max_rules_per_class — сколько rule’ов максимум строить для каждого класса.
-          eq_tol           — допускаемая погрешность при сравнении вещественных (==).
-          max_unique_cat   — если у признака ≤ max_unique_cat уникальных значений → это categorical;
-                              тогда бираем топ max_unique_cat самых частотных категорий.
+        Parameters
+        ----------
+        algo : {"ripper", "foil"}
+            * "foil": grow-only (no pruning).
+            * "ripper": grow + REP prune.
         """
         self.algo = algo.lower()
-        self.min_prec = min_prec
-        self.min_cov_frac = min_cov_frac
-        self.min_gain = min_gain
-        self.max_rule_len = max_rule_len
-        self.max_rules_per_cls = max_rules_per_class
-        self.eq_tol = eq_tol
-        self.max_unique_cat = max_unique_cat
+        assert self.algo in {"ripper", "foil"}
 
-        # внутреннее состояние
-        self._feature_names: List[str] = []
-        self._is_cat: List[bool] = []
-        self._X: np.ndarray | None = None
+        # Internal settings (kept simple and fixed on purpose)
+        self._MAX_LITERALS = 4              # max literals per rule
+        self._MAX_FAILURES = 128            # limit futile grow attempts per class
+        self._MIN_PREC = 0.25               # allow risky rules, but not too noisy
+        self._MIN_GAIN = 1e-6               # minimal FOIL-gain to accept a literal
+        self._JACCARD_MAX = 0.95            # drop near-duplicates by positive Jaccard
+        self._QUANTILES = tuple({           # candidate numeric thresholds (global + class-conditional)
+            0.05, 0.10, 0.20, 0.30, 0.40,
+            0.50, 0.60, 0.70, 0.80, 0.90,
+            0.95
+        })
+        self._MINORITY_FIRST = True         # learn rules for minority classes first
 
-        # кэши масок (чтобы дважды не пересчитывать одни и те же булевые векторы)
-        self._num_mask_cache: Dict[Tuple[int, str, float], Mask] = {}
-        self._cat_mask_cache: Dict[Tuple[int, Any], Mask] = {}
-
-        # выход: для каждого класса (label) список правил
-        self.ruleset: Dict[int, List[Rule]] = defaultdict(list)
-        self._ordered_rules: List[Tuple[int, Rule]] = []
+        # State (set in fit)
+        self._X: Optional[np.ndarray] = None
+        self._y: Optional[np.ndarray] = None
+        self._feat: List[str] = []          # feature names
+        self._is_cat: List[bool] = []       # per-feature categorical flag
+        self.ruleset: Dict[int, List[RuleCond]] = defaultdict(list)
+        self._ordered_rules: List[Tuple[int, RuleCond]] = []
         self._default_label: Optional[int] = None
-        self._seen: set[str] = set()  # для дедупликации (каноничный ключ правила)
+        self._seen = set()                  # dedup signature cache
 
-    # ─────────────────── low-level utils ───────────────────
+    # ------------------------- utilities -------------------------
+
+    def _is_categorical(self, col: np.ndarray) -> bool:
+        """
+        Heuristic: treat as categorical if dtype is object/str OR
+        the number of unique values is small (<= 20).
+        """
+        if col.dtype == object or col.dtype.kind in {"U", "S"}:
+            return True
+        vals = np.unique(col[~np.isnan(col)]) if col.dtype.kind == "f" else np.unique(col)
+        return vals.size <= 20
+
+    def _literal_mask(self, j: int, op: str, thr: float) -> Mask:
+        """
+        Build a boolean mask for a single literal on feature j.
+        For categorical features, the operator is treated as equality.
+        For numeric features, only '>' and '<' are used.
+        """
+        c = self._X[:, j]
+        if self._is_cat[j]:
+            return (c == thr)
+        return (c > thr) if op == ">" else (c < thr)
+
     @staticmethod
-    def _precision(pos: Mask, neg: Mask, m: Mask) -> float:
-        """
-        точность (precision) правила:
-           p = |m ∧ pos|,  n = |m ∧ neg|
-        → precision = p/(p+n)
-        """
-        p = (m & pos).sum()
-        n = (m & neg).sum()
+    def _precision(pos: Mask, neg: Mask, mk: Mask) -> float:
+        """Precision among covered examples."""
+        p = int((mk & pos).sum()); n = int((mk & neg).sum())
         return p / (p + n + 1e-12)
 
-    def _canon(self, rule: Rule) -> str:
-        """
-        Канонический ключ правила:
-        e.g. { 'age':('>',32.5), 'sex':('==',1.0) } → "age>32.5|sex==1.0"
-        Нужно, чтобы не дублировать похожие правила.
-        """
-        if not rule:
-            return "TRUE"
-        parts = []
-        for a, (op, thr) in sorted(rule.items()):
-            parts.append(f"{a}{op}{thr}")
-        return "|".join(parts)
+    @staticmethod
+    def _jaccard_pos(covered_pos: Mask, mk_pos: Mask) -> float:
+        """Jaccard similarity over positives (for dedup/near-duplicate filtering)."""
+        inter = int((covered_pos & mk_pos).sum())
+        uni = int((covered_pos | mk_pos).sum())
+        return inter / max(1, uni)
 
-    # ──────────────── mask generators ────────────────
-    def _num_mask(self, col: int, op: str, thr: float) -> Mask:
+    def _candidates_for_feature(self, j: int, pos_idx: Mask) -> List[Tuple[str, float]]:
         """
-        Булева маска { True, False } для условия:
-          если op == '>' → X[:,col] > thr
-          если op == '<' → X[:,col] < thr
+        Generate candidate literals for feature j:
+        * Categorical → equality to each observed category value.
+        * Numeric → a small set of thresholds from global and class-conditional quantiles,
+                    each producing both ">" and "<" literals.
         """
-        key = (col, op, thr)
-        if key not in self._num_mask_cache:
-            x = self._X[:, col]
-            if op == ">":
-                self._num_mask_cache[key] = (x > thr)
-            else:
-                self._num_mask_cache[key] = (x < thr)
-        return self._num_mask_cache[key]
+        xj = self._X[:, j]
+        if self._is_cat[j]:
+            return [("==", float(v)) for v in np.unique(xj)]
 
-    def _cat_mask(self, col: int, val) -> Mask:
-        """
-        Булева маска для категориального условия (X[:,col] == val).
-        """
-        key = (col, val)
-        if key not in self._cat_mask_cache:
-            self._cat_mask_cache[key] = (self._X[:, col] == val)
-        return self._cat_mask_cache[key]
+        qs = np.array(sorted(self._QUANTILES), dtype=float)
+        # global and class-conditional thresholds
+        gq = np.quantile(xj, qs)
+        pq = np.quantile(xj[pos_idx], qs) if pos_idx.any() else np.array([])
+        thr = np.unique(np.concatenate([gq, pq]).astype(float))
 
-    def _literal_mask(self, attr: str, op: str, thr) -> Mask:
-        """
-        В зависимости от того, categorical ли признак,
-        возвращаем либо cat_mask(col,val), либо num_mask(col,op,thr).
-        """
-        col = self._feature_names.index(attr)
-        if self._is_cat[col]:
-            return self._cat_mask(col, thr)
-        else:
-            return self._num_mask(col, op, float(thr))
+        out: List[Tuple[str, float]] = []
+        for t in thr:
+            out.append((">", float(t)))
+            out.append(("<", float(t)))
+        return out
 
-    # ──────────────── FOIL-gain (vectorised) ────────────────
-    def _foil_gain(self, pos: Mask, neg: Mask, cur: Mask, lit: Mask) -> float:
+    # ------------------------- scoring (FOIL gain) -------------------------
+
+    def _foil_gain(
+        self,
+        pos: Mask,
+        neg: Mask,
+        cm: Mask,
+        lm: Mask,
+        rule_len: int,
+        w_pos: float
+    ) -> float:
         """
-        Векторный расчёт FOIL‐gain:
-          p0 = |cur ∧ pos|  (или pos.sum() если cur пусто)
-          n0 = |cur ∧ neg|  (или neg.sum() если cur пусто)
-          new_mask = cur ∧ lit
-          p1 = |new_mask ∧ pos|
-          n1 = |new_mask ∧ neg|
-          i0 = log2((p0+ε)/(p0+n0+ε)),  i1 = log2((p1+ε)/(p1+n1+ε))
-          gain = p1*(i1 − i0)
-        Если p1=0 → gain = −∞, правило бесполезно (не покрывает ни одного pos).
+        FOIL gain for adding literal mask `lm` on top of current mask `cm`.
+
+        We use log-precision and:
+          * upweight rare positives via w_pos,
+          * mild complexity regularization by 1/(rule_len + 1.25).
+
+        Returns -inf if no positives remain after adding the literal.
         """
-        p0 = (cur & pos).sum() or pos.sum()
-        n0 = (cur & neg).sum() or neg.sum()
-        new_mask = cur & lit
-        p1 = (new_mask & pos).sum()
-        n1 = (new_mask & neg).sum()
+        p0 = int((cm & pos).sum()); n0 = int((cm & neg).sum())
+        new = cm & lm
+        p1 = int((new & pos).sum()); n1 = int((new & neg).sum())
         if p1 == 0:
             return -math.inf
-        i0 = math.log2((p0 + 1e-9) / (p0 + n0 + 1e-9))
-        i1 = math.log2((p1 + 1e-9) / (p1 + n1 + 1e-9))
-        return float(p1) * (i1 - i0)
 
-    # ──────────────── grow one rule ────────────────
-    def _best_literal_by_prec(self, pos: Mask, neg: Mask, cur_mask: Mask,
-                              col: int, attr: str) -> Tuple[str, str, Any, Mask] | None:
+        def _log_prec(p, n) -> float:
+            return math.log((p + 1e-9) / (p + n + 1e-9))
+
+        gain = p1 * (_log_prec(p1, n1) - _log_prec(p0, n0))
+        gain *= max(1.0, w_pos)         # emphasize rare positives
+        gain /= (rule_len + 1.25)       # very light length regularization
+        return gain
+
+    # ------------------------- grow / prune -------------------------
+
+    def _grow_rule(self, pos: Mask, neg: Mask, w_pos: float) -> Tuple[Optional[RuleCond], Optional[Mask]]:
         """
-        Если FOIL‐gain = −∞ (ни один литерал не улучшает gain),
-        но правило пустое → ищем литерал, который даёт максимум precision p/(p+n).
-        Возвращает (attr, op, thr, lit_mask) либо None, если вообще ничего не подходит.
+        Greedily add literals that maximize FOIL gain until:
+          * max literal count reached,
+          * no literal improves the gain sufficiently,
+          * negatives are (almost) eliminated.
+        Returns (rule_condition, covered_mask) or (None, None) if growth failed.
         """
-        best_prec = -1.0
-        best      = None
+        cond: RuleCond = {}
+        curr = np.ones_like(pos, dtype=bool)
 
-        if self._is_cat[col]:
-            # перебираем все уникальные значения категории в pos
-            vals, cnts = np.unique(self._X[pos, col], return_counts=True)
-            # можно сразу сортировать по частоте (но на маленьких колич. это не критично)
-            for v in vals:
-                lit = self._cat_mask(col, v)
-                prec = self._precision(pos, neg, cur_mask & lit)
-                if prec > best_prec:
-                    best_prec = prec
-                    best = ("==", v, lit)
-        else:
-            # для числовых берём 9 квантилей [10%,20%, …, 90%]
-            qs = np.quantile(self._X[pos, col], np.linspace(.1, .9, 9))
-            for thr in qs:
-                for op in (">", "<"):
-                    lit = self._num_mask(col, op, thr)
-                    prec = self._precision(pos, neg, cur_mask & lit)
-                    if prec > best_prec:
-                        best_prec = prec
-                        best = (op, thr, lit)
-
-        if best is None:
-            return None
-
-        op, thr, lit = best
-        return (attr, op, thr, lit)
-
-    def _grow_rule(self, pos: Mask, neg: Mask) -> Rule | None:
-        """
-        Построение одного правила (grow):
-          – начинаем с пустого rule и маски cur_mask = all True
-          – пока точность ((cur_mask & pos).sum() / ((cur_mask & pos).sum()+(cur_mask&neg).sum())) < min_prec
-            и длина rule < max_rule_len:
-            • ищем литерал с максимальным FOIL‐gain ≥ min_gain
-            • если ни один gain ≥ min_gain, но rule ещё пустое → ищем багаж (галочку) по precision
-            • если ничего не нашли → выходим / возвращаем None
-            • добавляем найденный литерал (attr,op,thr) в rule, updates cur_mask &= lit_mask
-            • если cur_mask[pos].sum() == 0 → больше не покрываем ни один pos → выходим
-        """
-        rule: Rule = {}
-        cur_mask = np.ones_like(pos, dtype=bool)
-
-        while True:
-            # условие остановки по precision
-            if rule and self._precision(pos, neg, cur_mask) >= self.min_prec:
-                break
-            # условие остановки по длине правила
-            if len(rule) >= self.max_rule_len:
-                break
-
+        while len(cond) < self._MAX_LITERALS:
             best_gain = -math.inf
-            best_lit = None
-
-            # перебираем все столбцы/признаки, не входящие пока в rule
-            for col, attr in enumerate(self._feature_names):
-                if attr in rule:
+            best = None
+            for j, a in enumerate(self._feat):
+                if a in cond:  # only one literal per feature
                     continue
+                for op, thr in self._candidates_for_feature(j, pos):
+                    lm = self._literal_mask(j, op, thr)
+                    g = self._foil_gain(pos, neg, curr, lm, len(cond), w_pos)
+                    if g > self._MIN_GAIN and g > best_gain:
+                        best_gain, best = g, (a, op, float(thr), lm)
 
-                if self._is_cat[col]:
-                    # перебрать ≤ max_unique_cat самых частых категорий в pos
-                    vals, cnts = np.unique(self._X[pos, col], return_counts=True)
-                    # отберём топ max_unique_cat по частоте
-                    if len(vals) > self.max_unique_cat:
-                        idx_sorted = np.argsort(cnts)[-self.max_unique_cat:]
-                        vals = vals[idx_sorted]
-
-                    for v in vals:
-                        lit_mask = self._cat_mask(col, v)
-                        g = self._foil_gain(pos, neg, cur_mask, lit_mask)
-                        if g > best_gain and g >= self.min_gain:
-                            best_gain = g
-                            best_lit = (attr, "==", v, lit_mask)
-                else:
-                    # для числовых признаков – 9 квантилей
-                    qs = np.quantile(self._X[pos, col], np.linspace(.1, .9, 9))
-                    for thr in qs:
-                        for op in (">", "<"):
-                            lit_mask = self._num_mask(col, op, thr)
-                            g = self._foil_gain(pos, neg, cur_mask, lit_mask)
-                            if g > best_gain and g >= self.min_gain:
-                                best_gain = g
-                                best_lit = (attr, op, thr, lit_mask)
-
-            # если ни один FOIL‐gain не подошёл, а правило пустое → fallback по precision
-            if best_lit is None and not rule:
-                for col, attr in enumerate(self._feature_names):
-                    if attr in rule:
-                        continue
-                    r = self._best_literal_by_prec(pos, neg, cur_mask, col, attr)
-                    if r:
-                        best_lit = r
-                        break
-
-            if best_lit is None:
-                # больше нечего добавить
+            if best is None:
                 break
 
-            # добавляем найденную пару (attr, op, thr) и обновляем cur_mask
-            a, op, thr, lit_mask = best_lit
-            rule[a] = (op, thr)
-            cur_mask &= lit_mask
+            a, op, v, lm = best
+            cond[a] = (op, v)
+            curr &= lm
 
-            # если теперь ни один pos не покрывается – выходим
-            if cur_mask[pos].sum() == 0:
+            # stop once we nearly eliminated negatives
+            if not (curr & neg).any():
                 break
 
-        return rule or None
+        if not cond:
+            return None, None
 
-    # ──────────────── prune (RIPPER) ────────────────
-    def _prune_rule(self, pos: Mask, neg: Mask, rule: Rule) -> Rule:
+        # sanity filter on train: require at least one positive and a bit of precision
+        prec = self._precision(pos, neg, curr)
+        if int((curr & pos).sum()) == 0 or prec < self._MIN_PREC:
+            return None, None
+
+        return cond, curr
+
+    def _prune_rule(self, pos: Mask, neg: Mask, cond: RuleCond) -> RuleCond:
         """
-        Для RIPPER: после `grow`, проводим «ошущение листьев» (post‐prune):
-        – если dropp’нуть один литерал из rule и при этом precision= p/(p+n) всё ещё ≥ min_prec,
-          то мы считаем, что этот литерал «лишний» и удаляем его. Повторяем до тех пор, пока не улучшимrule,
-          либо не останется <2 литералов.
-        FOIL‐режим (self.algo != 'ripper') пропускает prune и возвращает rule как есть.
+        Reduced Error Pruning (REP): iteratively remove literals
+        if precision does not degrade. Only used for algo="ripper".
         """
-        if self.algo != "ripper" or len(rule) <= 1:
-            return rule
+        if self.algo != "ripper" or cond is None or len(cond) <= 1:
+            return cond
 
-        best_rule = rule
-        # для текущего `rule` строим маску cur_mask
-        cur_mask = np.ones(len(pos), dtype=bool)
-        for a, (op, thr) in rule.items():
-            cur_mask &= self._literal_mask(a, op, thr)
+        best = cond.copy()
+        mk_full = np.ones_like(pos, dtype=bool)
+        for a, (op, v) in best.items():
+            mk_full &= self._literal_mask(self._feat.index(a), op, v)
+        best_prec = self._precision(pos, neg, mk_full)
 
-        # пытаемся отбросить по одному литералу и проверяем precision
-        for a in list(rule.keys()):
-            tmp = dict(rule)
-            tmp.pop(a)
-            tmp_mask = np.ones(len(pos), dtype=bool)
-            for b, (op2, thr2) in tmp.items():
-                tmp_mask &= self._literal_mask(b, op2, thr2)
-            if self._precision(pos, neg, tmp_mask) >= self.min_prec:
-                best_rule = tmp
-        return best_rule
+        improved = True
+        while improved and len(best) > 1:
+            improved = False
+            for rm_attr in list(best.keys()):
+                test = {a: c for a, c in best.items() if a != rm_attr}
+                mk = np.ones_like(pos, dtype=bool)
+                for a, (op, v) in test.items():
+                    mk &= self._literal_mask(self._feat.index(a), op, v)
+                prec = self._precision(pos, neg, mk)
+                if prec >= best_prec - 1e-12:
+                    best, best_prec, improved = test, prec, True
+                    break
+        return best
 
-    # ──────────────── rules for one class ────────────────
-    def _rules_for_class(self, pos: Mask, neg: Mask) -> List[Rule]:
+    def _rules_for_class(self, cls: int, pos_all: Mask, neg_all: Mask) -> List[RuleCond]:
         """
-        Построение списка правил для одного класса:
-        1. Вычисляем минимальное покрытие min_cov = max(1, min_cov_frac * |pos|).
-        2. Пока ещё остались непокрытые pos (pos.sum() > 0) и не превысили max_rules_per_class:
-           a. r = grow_rule(pos, neg). Если r=None → выходим.
-           b. r = prune_rule(pos, neg, r).
-           c. строим mask для r и проверяем, что |mask| ≥ min_cov и precision(mask) ≥ min_prec.
-              Иначе выходим (r слишком неконструктивное).
-           d. Добавляем r в список, отсекаем покрытые: pos &= ~mask.
+        Induce multiple rules for a given class by repeatedly growing a rule
+        and removing the covered positives (negatives remain to encourage diversity).
         """
-        rules: List[Rule] = []
-        min_cov = max(1, int(self.min_cov_frac * pos.sum()))
+        res: List[RuleCond] = []
+        fails = 0
 
-        while pos.sum() and len(rules) < self.max_rules_per_cls:
-            r = self._grow_rule(pos, neg)
-            if r is None:
-                break
-            r = self._prune_rule(pos, neg, r)
+        # weight for rare classes: more encouragement to cover positives
+        n_pos = int(pos_all.sum()); n_neg = int(neg_all.sum())
+        w_pos = (n_neg / max(1, n_pos)) if n_pos > 0 else 1.0
 
-            # строим mask для полученного r
-            mask = np.ones(len(pos), dtype=bool)
-            for a, (op, thr) in r.items():
-                mask &= self._literal_mask(a, op, thr)
+        covered_pos = np.zeros_like(pos_all, dtype=bool)  # track coverage to avoid near-duplicates
 
-            # проверяем покр-ие и precision
-            if mask.sum() < min_cov or self._precision(pos, neg, mask) < self.min_prec:
-                break
+        pos, neg = pos_all.copy(), neg_all.copy()
+        while pos.any() and fails < self._MAX_FAILURES:
+            cand, mk_tr = self._grow_rule(pos, neg, w_pos)
+            if cand is None:
+                fails += 1
+                continue
 
-            rules.append(r)
-            pos &= ~mask  # отсекаем те pos, которые покрылись только что построенным правилом
+            if self.algo == "ripper":
+                cand = self._prune_rule(pos_all, neg_all, cand)
 
-        return rules
+            # recompute mask after pruning
+            mk = np.ones_like(pos, dtype=bool)
+            for a, (op, v) in cand.items():
+                mk &= self._literal_mask(self._feat.index(a), op, v)
 
-    # ────────────────────── FIT ──────────────────────
-    def fit(self,
-            X: np.ndarray,
-            y: np.ndarray,
-            *,
-            feature_names: List[str],
-            batch_size: Optional[int] = None):
+            # drop near-duplicates by positive Jaccard similarity
+            if self._jaccard_pos(covered_pos, mk & pos_all) > self._JACCARD_MAX:
+                fails += 1
+                continue
+
+            res.append(cand)
+            covered_pos |= (mk & pos_all)
+
+            # remove covered positives; keep negatives to allow more rules
+            pos = pos & ~mk
+
+        return res
+
+    # --------------------------- public API ---------------------------
+
+    def fit(self, X: np.ndarray, y: np.ndarray, *, feature_names: List[str]):
         """
-        Обучение RIPPER/FOIL по батчам:
-        1. Разбиваем индексы 0…N−1 на батчи размера batch_size.
-        2. Для каждого батча s:e:
-           a. строим булевый mask `[s:e]` (только эти индексы считаются).
-           b. Для каждого класса cls в np.unique(y):
-              ‒ формируем pos = (y==cls) & batch_mask, neg = (y!=cls) & batch_mask.
-              ‒ вызываем _rules_for_class(pos.copy(), neg.copy()) → набор новых правил.
-              ‒ для каждого нового правила r: если _canon(r) не в self._seen →
-                добавляем в self.ruleset[cls], self._ordered_rules, self._seen, печатаем “+ New rule for class cls: {r}”.
-        3. После прохода по всем батчам строим «TRUE–default» правило:
-           – вычисляем маску covered = ⋁_{rule∈_ordered_rules} mask(rule).
-           – uncovered = набор тех y, которые не покрылись ни одним правилом.
-           – default_label = majority‐vote( uncovered или глобально y ).
-           – Добавляем (default_label, {}) в конец списка _ordered_rules.
-        """
-        self._feature_names = list(feature_names)
-        self._X = X
-        # определяем категориальные признаки (≤ max_unique_cat уникальных)
-        self._is_cat = [len(np.unique(X[:, j])) <= self.max_unique_cat
-                        for j in range(X.shape[1])]
+        Learn a rule set for each class.
 
+        Parameters
+        ----------
+        X : (N, M) ndarray
+            Feature matrix (numeric-encoded; categorical values can be codes).
+        y : (N,) ndarray
+            Integer class labels.
+        feature_names : list of str
+            Names for the features (used in conditions and signatures).
+
+        Returns
+        -------
+        self
+        """
+        self._X, self._y = X, y
+        self._feat = feature_names.copy()
+        self._is_cat = [self._is_categorical(X[:, j]) for j in range(X.shape[1])]
         self.ruleset.clear()
         self._ordered_rules.clear()
         self._seen.clear()
 
-        n = len(y)
-        bs = n if batch_size in (None, 0) else max(1, batch_size)
+        classes = np.unique(y)
+        if self._MINORITY_FIRST:
+            classes = sorted(classes, key=lambda c: (y == c).sum())
 
-        for s in range(0, n, bs):
-            e = min(s + bs, n)
-            # булевый vector размера n: True на позиции в батче, False вне
-            batch_mask = np.zeros(n, dtype=bool)
-            batch_mask[s:e] = True
-
-            batch_added = 0
-            print(f"\n--- batch {s}-{e-1} ---")
-            for cls in np.unique(y):
-                pos = (y == cls) & batch_mask
-                if pos.sum() == 0:
+        for cls in classes:
+            pos_all, neg_all = (y == cls), (y != cls)
+            for cond in self._rules_for_class(int(cls), pos_all, neg_all):
+                # simple signature for deduplication across classes
+                sig = "|".join(f"{k}{v[0]}{v[1]}" for k, v in sorted(cond.items()))
+                if sig in self._seen:
                     continue
-                neg = (~(y == cls)) & batch_mask
+                self._seen.add(sig)
+                self.ruleset[int(cls)].append(cond)
+                self._ordered_rules.append((int(cls), cond))
 
-                for r in self._rules_for_class(pos.copy(), neg.copy()):
-                    sig = self._canon(r)
-                    if sig in self._seen:
-                        continue
-                    self._seen.add(sig)
-                    self.ruleset[cls].append(r)
-                    self._ordered_rules.append((cls, r))
-                    batch_added += 1
-                    # Печатаем информацию о новом правиле
-                    print(f"    + New rule for class {cls}: {r}")
+        # Default rule: majority among the remaining examples (if any), otherwise global majority
+        covered = np.zeros(len(y), dtype=bool)
+        for _, cond in self._ordered_rules:
+            mk = np.ones(len(y), dtype=bool)
+            for a, (op, v) in cond.items():
+                mk &= self._literal_mask(self._feat.index(a), op, v)
+            covered |= mk
 
-            total_rules_so_far = len(self._ordered_rules)  # не считаем default
-            print(f">> batch {s}-{e-1}  added: {batch_added}  "
-                  f"total rules so far (без default): {total_rules_so_far}")
-
-        # TRUE default (для непокрытых экземпляров)
-        covered = np.zeros(n, dtype=bool)
-        for _, r in self._ordered_rules:
-            m = np.ones(n, dtype=bool)
-            for a, (op, thr) in r.items():
-                m &= self._literal_mask(a, op, thr)
-            covered |= m
-        uncovered = y[~covered]
-        # если всё покрыто, смотрим глобальное majority‐label
-        self._default_label = int(np.bincount(uncovered if len(uncovered) else y).argmax())
+        rem = y[~covered]
+        self._default_label = int(np.bincount(rem.astype(int)).argmax()) if rem.size else int(np.bincount(y.astype(int)).argmax())
         self._ordered_rules.append((self._default_label, {}))
-
-        print(f"\n{self.algo}: rules per class",
-              {c: len(r) for c, r in self.ruleset.items()},
-              "| default =", self._default_label)
         return self
-
-    # ───────────────── predict / score ─────────────────
-    def _predict_one(self, row: np.ndarray) -> int:
-        """
-        Последовательно пробегаем _ordered_rules:
-         – если rule пустое → сразу возвращаем default_label (TRUE).
-         – иначе проверяем все литералы: (attr,op,thr) – сравниваем с eq_tol.
-         – если все литералы удовлетворены → возвращаем этот класс.
-        """
-        for lbl, rule in self._ordered_rules:
-            if not rule:  # пустое правило: TRUE, значит default
-                return lbl
-            ok = True
-            for a, (op, thr) in rule.items():
-                j = self._feature_names.index(a)
-                v = row[j]
-                if op in ("=", "=="):
-                    if not (abs(v - thr) <= self.eq_tol):
-                        ok = False
-                        break
-                elif op == ">":
-                    if not (v > thr):
-                        ok = False
-                        break
-                elif op == "<":
-                    if not (v < thr):
-                        ok = False
-                        break
-            if ok:
-                return lbl
-        raise RuntimeError("unreachable")
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return np.array([self._predict_one(r) for r in X])
-
-    def score(self, X: np.ndarray, y: np.ndarray) -> float:
-        return float((self.predict(X) == y).mean())
-
-    # ───────────── λ-wrapper (DSModelMultiQ) ─────────────
-    def _make_lambda(self, rule: Rule, cols: List[str], tol: float):
-        """
-        Превращает dict‐правило в лямбда‐функцию для DSModelMultiQ.generate_*_rules().
-        """
-        def f(sample: np.ndarray) -> bool:
-            for a, (op, thr) in rule.items():
-                idx = cols.index(a)
-                v = sample[idx]
-                if op in ("=", "==") and abs(v - thr) > tol:
-                    return False
-                if op == ">" and not (v > thr):
-                    return False
-                if op == "<" and not (v < thr):
-                    return False
-            return True
-        return f

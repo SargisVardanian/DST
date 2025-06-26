@@ -1,23 +1,31 @@
+# (Conda_Pytorch_opencv) sargisvardanyan@Sargiss-MacBook-Pro Common_code %
+
+# ── 1. Rewrite .gitignore comments to English ──
+cat > .gitignore <<'EOF'
 # -----------------------------------
-# Игнорировать «все» CSV-файлы
-# (нужно, чтобы в репозиторий не попали ни root/[…].csv, ни Common_code/results/[…].csv)
+# Ignore all CSV files
+# Prevent any *.csv from being added anywhere in the repo
 *.csv
 
-# Игнорировать DSB и PKL (они лежат глубоко в Common_code/dsb_rules/ и Common_code/pkl_rules/)
+# Ignore rule and model artefacts
+# (*.dsb inside dsb_rules/, *.pkl inside pkl_rules/, *.pth model weights)
 *.dsb
 *.pkl
 *.pth
 
-# Игнорировать Python-байткод, IDE, macOS остатки
 # -----------------------------------
-# macOS
+# macOS system files
 .DS_Store
+
+# Results produced by notebooks / scripts
 My_code/results/
 
-# IDE (PyCharm, IntelliJ и т. п.)
+# IDE artefacts (PyCharm, IntelliJ, etc.)
 .idea/
 *.iml
 
-# Python bytecode
+# Python byte-code
 __pycache__/
 *.py[cod]
+EOF
+
