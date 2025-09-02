@@ -97,78 +97,125 @@ This intelligent filtering process uses insights from the DST training to simpli
 
 ---
 
-## 3 · Systematic Evaluation on Public Datasets
+### Stage 3 — Pruning (Simplify without losing accuracy)
 
-We evaluated our three-stage approach on six public datasets. The plots below show the test set performance and model complexity. In each figure:
-*   **_raw**: The baseline model using only the initial RIPPER/FOIL decision list.
-*   **_DST**: The model after training the Dempster-Shafer masses.
-*   **_pruned**: The final, optimized model after pruning weak rules.
-
-### 3.1 Adult (UCI Income)
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_rules.png" width="48%">
-</p>
-
-*DST training dramatically boosts the F1-score and Recall. Pruning then halves the number of rules with negligible impact on performance, yielding a compact and accurate model.*
-
-### 3.2 Bank-Marketing
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_rules.png" width="48%">
-</p>
-
-*Once again, DST provides a significant F1-score improvement over the raw rule list. The final pruned model retains these gains while being substantially simpler.*
-
-### 3.3 Brain-Tumour MRI
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_Brain%20Tumor_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_Brain%20Tumor_rules.png" width="48%">
-</p>
-
-*Recall jumps significantly after DST training, a crucial improvement for medical diagnostics. Pruning creates a highly compact model of around 20 rules without sacrificing accuracy.*
-
-### 3.4 Breast-Cancer (Wisconsin)
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_breast-cancer-wisconsin_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_breast-cancer-wisconsin_rules.png" width="48%">
-</p>
-
-*While the baseline models are already strong on this dataset, DST closes the final gap to achieve a near-perfect F1-score, and pruning effectively removes redundant rules.*
-
-### 3.5 Wine-Quality (Red)
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_df_wine_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_df_wine_rules.png" width="48%">
-</p>
-
-*A clear success story for evidence combination: DST lifts a mediocre Recall of ~60% to over 95%, transforming an unreliable model into a highly effective one.*
-
-### 3.6 German-Credit
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_metrics.png" width="48%">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_rules.png" width="48%">
-</p>
-
-*The F1-score improves by over 8 percentage points after DST training. The subsequent pruning trims about 30% of the rules without any loss in performance, demonstrating the effectiveness of the simplification stage.*
+After training, rules with **high uncertainty**, **low discriminative power**, or **tiny coverage** are dropped. You keep the signal, ditch the noise.
 
 ---
 
-## 4 · Citing & Further Reading
+## 3 · What the Learned Rules Look Like
 
-If you use this work in your research, please cite the original paper:
+After DST training, each rule carries masses for classes and an uncertainty term:
 
-*   Peñafiel, S., Bleda, A. L., Candelas, F., & Sempere, J. M. (2020). **Applying the Dempster-Shafer theory for a flexible, accurate and interpretable classifier**. *Expert Systems with Applications*, 141, 112953.
+```
+Class 1: age < 58.0 & capital.gain > 5013.0 & marital.status == Married-civ-spouse  ||  mass=[0.007, 0.973, unc=0.020]
+Class 1: capital.loss > 1848.0 & education == Bachelors & marital.status == Married-civ-spouse & occupation == Exec-managerial  ||  mass=[0.028, 0.881, unc=0.091]
+Class 1: education == Bachelors & hours.per.week > 40.0 & marital.status == Married-civ-spouse & workclass == Private  ||  mass=[0.041, 0.789, unc=0.170]
+Class 1: education == Prof-school & hours.per.week > 40.0 & marital.status == Married-civ-spouse & occupation == Prof-specialty  ||  mass=[0.066, 0.585, unc=0.350]
+```
 
-Additional foundational reading:
-*   Shafer, G. (1976). **A Mathematical Theory of Evidence**. Princeton University Press.
-*   Cohen, W. W. (1995). *Fast Effective Rule Induction*. In Proceedings of the 12th International Conference on Machine Learning (ICML).
-*   Quinlan, J. R. (1990). *Learning logical definitions from relations*. Machine Learning, 5(3), 239-266.
+Format:
+`Class c: <conjunctive conditions>  ||  mass=[m0, m1, ..., unc=<u>]`
 
+---
 
+## 4 · Systems Compared (legend used in plots)
+
+* `r_raw` / `r_dst` — RIPPER rules as raw decision list vs with DST training
+* `f_raw` / `f_dst` — FOIL rules raw vs with DST training
+* `s_dst` — “STATIC” heuristic rules with DST training
+* `dt` / `rf` / `gb` — Decision Tree / Random Forest / Gradient Boosting baselines
+
+---
+
+## 5 · Benchmarks (public datasets)
+
+Each dataset has a **metrics** bar chart (`Accuracy`, `F1`, `Precision`, `Recall`). Files live under `Common_code/results/` with names:
+
+```
+benchmark_dataset_<dataset>_metrics.png
+```
+
+### Adult (UCI Income)
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_metrics.png" width="85%">
+</p>
+
+**Takeaway:** DST materially improves F1/Recall vs raw rule lists and is competitive with tree baselines while staying interpretable.
+
+### Bank Marketing
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_metrics.png" width="85%">
+</p>
+
+**Takeaway:** The DST layer lifts the rule-based models substantially; the final results are balanced across metrics.
+
+### Brain Tumor MRI
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_Brain%20Tumor_metrics.png" width="85%">
+</p>
+
+**Takeaway:** Very high recall/accuracy across systems; DST keeps performance strong on a high-signal medical set.
+
+### Breast Cancer (Wisconsin)
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_breast-cancer-wisconsin_metrics.png" width="85%">
+</p>
+
+**Takeaway:** Already-strong baselines; DST maintains near-ceiling metrics with rule interpretability.
+
+### Wine Quality (Red)
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_df_wine_metrics.png" width="85%">
+</p>
+
+**Takeaway:** Evidence combination stabilizes performance and lifts recall vs raw rules.
+
+### German Credit
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_metrics.png" width="85%">
+</p>
+
+**Takeaway:** DST improves F1/Recall over raw rule lists; pruning (when applied) keeps the model compact.
+
+---
+
+## 6 · Repo layout (key files)
+
+```
+Common_code/
+  ├─ test_Ripper_DST.py      # main entry: end-to-end pipeline
+  ├─ DSClassifierMultiQ.py   # training loop, optimizer, pruning logic
+  ├─ DSModelMultiQ.py        # rule activation + DST fusion forward pass
+  ├─ Datasets_loader.py      # dataset loading utilities
+  └─ results/                # PNG plots + CSV metrics
+```
+
+**Outputs:**
+
+* Bar charts per dataset in `results/benchmark_dataset_<name>_metrics.png`
+* (If enabled) CSVs with per-system metrics in `results/`
+
+---
+
+## 7 · Citing & Further Reading
+
+If you build on this work, please cite:
+
+* Peñafiel, S., Bleda, A. L., Candelas, F., & Sempere, J. M. (2020). *Applying the Dempster-Shafer theory for a flexible, accurate and interpretable classifier*. **Expert Systems with Applications**, 141, 112953.
+
+Background:
+
+* G. Shafer (1976). *A Mathematical Theory of Evidence*. Princeton University Press.
+* W. W. Cohen (1995). *Fast Effective Rule Induction (RIPPER)*. ICML.
+* J. R. Quinlan (1990). *Learning Logical Definitions from Relations (FOIL)*. *Machine Learning*, 5(3).
+
+```
+
+**Sources I checked (your repo & result images) to ground the README**: :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2} :contentReference[oaicite:3]{index=3} :contentReference[oaicite:4]{index=4} :contentReference[oaicite:5]{index=5} :contentReference[oaicite:6]{index=6}
