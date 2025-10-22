@@ -3,7 +3,6 @@
 Core DST (Dempster–Shafer Theory) utilities used by DSModelMultiQ.
 
 Exposed API (imported by the model/code elsewhere):
-  - create_random_maf_k(k, strength=0.10): initialize a (k+1)-vector of rule parameters
   - params_to_mass(W): convert rule parameters to normalized masses over K classes + Omega
   - ds_combine_pair(mA, mB): Dempster's rule combination for two mass assignments
   - ds_combine_many(m_list): left-fold combination over a sequence of masses
@@ -23,10 +22,12 @@ import numpy as np
 
 try:
     import torch
+    import torch.nn.functional as F
     from torch import Tensor
     _HAS_TORCH = True
 except Exception:
     torch = None  # type: ignore
+    F = None      # type: ignore
     Tensor = np.ndarray  # type: ignore
     _HAS_TORCH = False
 
@@ -49,10 +50,9 @@ def _to_same_backend(x: np.ndarray, like: ArrayLike) -> ArrayLike:
 def _softmax_last(a: ArrayLike) -> ArrayLike:
     """Stable softmax over the last dimension for numpy/torch."""
     if _HAS_TORCH and isinstance(a, torch.Tensor):
-        m = a.max(dim=-1, keepdim=True).values
-        e = torch.exp(a - m)
-        s = e.sum(dim=-1, keepdim=True)
-        return e / (s + 1e-12)
+        if F is None:
+            raise RuntimeError("torch.nn.functional must be available for tensor softmax")
+        return F.softmax(a, dim=-1)
     a = _to_numpy(a)
     m = np.max(a, axis=-1, keepdims=True)
     e = np.exp(a - m)
@@ -60,52 +60,34 @@ def _softmax_last(a: ArrayLike) -> ArrayLike:
     return e / (s + 1e-12)
 
 
-# ----------------------------- Initialization -----------------------------
-def create_random_maf_k(k: int, *, device=None, dtype=None) -> nn.Parameter:
-    """
-    Initialize learnable logits for a DST mass assignment of size (k + 1):
-      - The last entry corresponds to the uncertainty (Omega).
-      - At initialization, uncertainty mass is fixed to 0.8.
-      - The remaining 0.2 mass is split uniformly across the k singleton classes.
-    We return *logits* (not probabilities). Using softmax later will reproduce
-    these exact proportions because softmax(log p) ∝ p.
-
-    Args:
-        k: number of target classes.
-        device, dtype: optional torch placement/dtype.
-
-    Returns:
-        nn.Parameter of shape (k + 1,) with requires_grad=True.
-    """
-    if k <= 0:
-        raise ValueError("k must be positive")
-
-    dtype = dtype or torch.float32
-
-    # Desired initial masses: [0.2/k, ..., 0.2/k, 0.8]
-    p = torch.full((k + 1,), fill_value=0.2 / k, dtype=dtype, device=device)
-    p[-1] = torch.tensor(0.8, dtype=dtype, device=device)  # uncertainty (Omega)
-
-    # Convert masses to logits so that softmax(log p) gives exactly p / sum(p) = p
-    logits = torch.log(p)
-
-    # Make them trainable
-    return nn.Parameter(logits)
-
-
 # ----------------------------- Params → Masses -----------------------------
 def params_to_mass(W: ArrayLike) -> ArrayLike:
-    """
-    Convert rule parameters to normalized masses.
+    """Normalize parameters so they form a valid mass vector on the simplex."""
+    if _HAS_TORCH and isinstance(W, torch.Tensor):
+        eps = 1e-8
+        mass = torch.clamp(W, min=eps)
+        mass_sum = mass.sum(dim=-1, keepdim=True)
+        mass = mass / mass_sum.clamp_min(eps)
+        fallback = torch.zeros_like(mass)
+        fallback[..., -1:] = 1.0
+        return torch.where(mass_sum > eps, mass, fallback)
 
-    Input:
-      W : shape (..., K+1) where the last channel is the rule uncertainty (theta).
-          This is *not* a probability simplex yet.
+    mass = _to_numpy(W).astype(np.float32, copy=False)
+    eps = 1e-8
+    mass = np.clip(mass, eps, None)
+    mass_sum = np.sum(mass, axis=-1, keepdims=True)
+    mass = mass / np.clip(mass_sum, eps, None)
+    if np.any(mass_sum <= eps):
+        fallback = np.zeros_like(mass)
+        fallback[..., -1] = 1.0
+        mask = mass_sum <= eps
+        mass[mask] = fallback[mask]
+    return _to_same_backend(mass, W)
 
-    Output:
-      m : same shape, softmax-normalized across the last dimension (K singletons + Omega).
-    """
-    return _softmax_last(W)
+
+def logits_to_mass(W: ArrayLike) -> ArrayLike:
+    """Alias kept for readability at call sites that deal with logits explicitly."""
+    return params_to_mass(W)
 
 
 # ----------------------------- Pignistic -----------------------------
@@ -234,4 +216,3 @@ def unique_rules(rules: Sequence) -> List:
         if key and key not in seen:
             seen[key] = r
     return list(seen.values())
-

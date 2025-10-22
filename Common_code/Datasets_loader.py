@@ -17,7 +17,7 @@ upsample_minority(X, y, target_pos_ratio=0.35, random_state=42)
     Upsamples the minority class to the desired ratio.
 """
 from pathlib import Path
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -74,7 +74,15 @@ def _drop_id_like(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(columns=cols) if cols else df
 
 
-def load_dataset(csv_path: str | Path, *, normalize: bool = False) -> Tuple[np.ndarray, np.ndarray, List[str], Dict]:
+def load_dataset(
+    csv_path: str | Path,
+    *,
+    normalize: bool = False,
+    return_stats: bool = False,
+) -> Union[
+    Tuple[np.ndarray, np.ndarray, List[str], Dict[str, Dict[int, str]]],
+    Tuple[np.ndarray, np.ndarray, List[str], Dict[str, Dict[int, str]], Dict[str, object]],
+]:
     """Load a CSV into (X, y, feature_names, value_decoders).
 
     value_decoders maps a *feature name* to {int_code -> original_string} for categorical
@@ -123,13 +131,19 @@ def load_dataset(csv_path: str | Path, *, normalize: bool = False) -> Tuple[np.n
     y = np.asarray(y, dtype=int)
     feature_names = X_df.columns.tolist()
 
-    # Logging
-    print(f"Detected label column: '{label_col}'  →  classes: {classes_.tolist()}")
     uniq, cnt = np.unique(y, return_counts=True)
     dist = np.zeros(int(uniq.max()) + 1, dtype=int)
     dist[uniq] = cnt
-    print(f"X shape = {X.shape},  y distribution = {dist.tolist()}")
 
+    stats = {
+        "label_column": label_col,
+        "classes": classes_.tolist(),
+        "shape": (int(X.shape[0]), int(X.shape[1])),
+        "distribution": dist.tolist(),
+    }
+
+    if return_stats:
+        return X, y, feature_names, value_decoders, stats
     return X, y, feature_names, value_decoders
 
 

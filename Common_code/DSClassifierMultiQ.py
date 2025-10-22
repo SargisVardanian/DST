@@ -1,227 +1,280 @@
-"""
-DSClassifierMultiQ
-------------------
-Thin sklearn-like wrapper around `DSModelMultiQ`.
+# -*- coding: utf-8 -*-
+"""Sklearn-style wrapper around DSModelMultiQ with simple training loop (clean)."""
 
-Responsibilities:
-  • generate_raw(...) — build rules (STATIC/RIPPER/FOIL), keep textual decoders
-  • fit(X, y, X_val, y_val) — batch training loop; prints validation metrics per epoch
-  • predict_rules_only(X) — simple RAW voting by per-rule target classes
-  • predict / predict_proba — inference via DST forward
-"""
-from typing import Optional, Dict, Any, List
+from __future__ import annotations
+
+import copy
+from typing import Dict, Optional, Sequence
+
 import numpy as np
-import torch
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
 
 try:
-    from sklearn.base import ClassifierMixin
-except Exception:  # fallback if sklearn is missing
-    class ClassifierMixin:  # type: ignore
-        pass
+    import torch
+    from torch.utils.data import DataLoader, TensorDataset
+except Exception:  # pragma: no cover
+    torch = None  # type: ignore
+
+from sklearn.base import ClassifierMixin
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from DSModelMultiQ import DSModelMultiQ
 
 
+def _as_numpy(x):
+    if isinstance(x, np.ndarray):
+        return x
+    return np.asarray(x)
+
+
+def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    return {
+        "Accuracy": float(accuracy_score(y_true, y_pred)),
+        "F1": float(f1_score(y_true, y_pred, zero_division=0)),
+        "Precision": float(precision_score(y_true, y_pred, zero_division=0)),
+        "Recall": float(recall_score(y_true, y_pred, zero_division=0)),
+    }
+
+
+def masses_to_pignistic(m: torch.Tensor) -> torch.Tensor:
+    """BetP(i) = m(i) + m(Ω)/k  for singletons+Ω."""
+    k = m.shape[-1] - 1
+    omega = m[:, -1:].expand(-1, k)
+    return torch.clamp(m[:, :k] + omega / float(k), min=1e-12)
+
+
 class DSClassifierMultiQ(ClassifierMixin):
+    """Minimal training wrapper used throughout Common_code (simplified)."""
+
     def __init__(
         self,
         k: int,
-        *,
-        algo: str = "STATIC",        # expected by test_Ripper_DST.py
         device: str = "cpu",
-        lr: float = 1e-2,
-        batch_size: int = 512,
-        max_iter: int = 200,
-        optim: str = "adam",
-        debug_print: bool = False,
+        algo: str = "STATIC",
         value_decoders: Optional[Dict[str, Dict[int, str]]] = None,
-    ):
+        feature_names: Optional[Sequence[str]] = None,
+        max_iter: int = 50,
+        batch_size: int = 512,
+        lr: float = 5e-3,
+        val_split: float = 0.2,
+        seed: int = 42,
+        print_every: int = 5,
+        weight_decay: float = 2e-4,
+        class_weight_power: float = 0.5,
+        grad_clip: float = 1.0,
+        early_stop_patience: int = 5,
+        combination_rule: str = "dempster",
+        debug: bool = False,
+    ) -> None:
         self.k = int(k)
-        self.algo = (algo or "STATIC").upper()
-        self.device = device
-        self.lr = float(lr)
-        self.batch_size = int(batch_size)
+        self.device = str(device)
+        self.algo = str(algo or "STATIC").upper()
         self.max_iter = int(max_iter)
-        self.optim_name = optim.lower()
-        self.debug_print = bool(debug_print)
+        self.batch_size = int(batch_size)
+        self.lr = float(lr)
+        self.val_split = float(val_split)
+        self.seed = int(seed)
+        self.print_every = int(print_every)
+        self.weight_decay = float(weight_decay)
+        self.class_weight_power = float(max(0.0, class_weight_power))
+        self.grad_clip = float(max(0.0, grad_clip))
+        self.early_stop_patience = max(1, int(early_stop_patience))
+        self.debug = bool(debug)
 
-        self.model = DSModelMultiQ(k=self.k, device=self.device)
-        if value_decoders:
-            self.model.set_value_decoders(value_decoders)
+        self.model = DSModelMultiQ(
+            k=self.k,
+            algo=self.algo,
+            device=self.device,
+            feature_names=feature_names,
+            value_decoders=value_decoders,
+            combination_rule=combination_rule,
+        )
 
-        self.default_class_: int = 0  # majority fallback for RAW
+        self.default_class_ = 0
+        self.history_ = []
+        self.best_epoch_ = None
+        self.best_val_metrics_ = None
+        self.last_uncertain_mask_ = None
+        self.last_uncertain_scores_ = None
 
-    # ---------------- RAW ----------------
-    def set_value_decoders(self, decoders: Optional[Dict[str, Dict[int, str]]]):
-        if decoders:
-            self.model.set_value_decoders(decoders)
+    # --------------------------- Rule generation ---------------------------
 
-    def generate_raw(
-        self,
-        X: np.ndarray,
-        y: Optional[np.ndarray] = None,
-        column_names: Optional[List[str]] = None,
-        algo: Optional[str] = None,
-        **rip_kwargs: Any):
-        """Build rules in the model (STATIC/RIPPER/FOIL)."""
-        used_algo = (algo or self.algo or "STATIC").upper()
-        self.algo = used_algo
-        self.model.generate_raw(X, y=y, column_names=column_names, algo=used_algo, **rip_kwargs)
-        if y is not None and y.size:
-            binc = np.bincount(y.astype(int), minlength=self.k)
-            if binc.size:
-                self.default_class_ = int(binc.argmax())
-        else:
-            self.default_class_ = 0
-        return self
+    def generate_raw(self, X, y=None, feature_names=None, algo: str = "STATIC", **kwargs):
+        self.algo = str(algo or "STATIC").upper()
+        self.model.algo = self.algo
+        self.model.generate_raw(X, y, feature_names=feature_names, algo=self.algo, **kwargs)
 
-    def predict_rules_only(self, X: np.ndarray):
-        """Vote by counting active rules per class. If no rules fired → majority class."""
-        A = self.model.activation_matrix(X)  # (N, R) uint8
-        N, R = A.shape
-        if R == 0:
-            return np.full(N, self.default_class_, dtype=int)
-        t = self.model.get_rule_targets()    # (R,), -1 if a rule has no target
-        valid_idx = np.where(t >= 0)[0]
-        if valid_idx.size == 0:
-            return np.full(N, self.default_class_, dtype=int)
-        K = self.k
-        onehot = np.zeros((R, K), dtype=np.int32)
-        onehot[valid_idx, t[valid_idx].astype(int)] = 1
-        votes = A.astype(np.int32) @ onehot  # (N, K)
-        sums = votes.sum(axis=1)
-        y_pred = votes.argmax(axis=1)
-        y_pred[sums == 0] = self.default_class_
-        return y_pred.astype(int)
+    # --------------------------- Training ---------------------------
 
-    # ---------------- Train / Infer ----------------
-    def fit(
-        self,
-        X: np.ndarray,
-        y: np.ndarray,
-        *,
-        val_frac: float = 0.2,
-        val_random_state: int = 42,
-        stratified: bool = True,
-    ):
-        """
-        Batch training loop.
-        Validation is created internally from (X, y) via a held-out split.
-        """
-        device = torch.device(self.device)
+    def fit(self, X, y):  # type: ignore[override]
+        if torch is None:
+            print("[warn] PyTorch not available – skipping training")
+            return self
 
-        # 1) internal train/val split from (X, y)
-        stratify_vec = y if (stratified and len(np.unique(y)) > 1) else None
-        try:
-            X_tr, X_val, y_tr, y_val = train_test_split(
-                X, y, test_size=val_frac, random_state=val_random_state, stratify=stratify_vec
-            )
-        except ValueError:
-            # fallback if some class too small for stratify
-            X_tr, X_val, y_tr, y_val = train_test_split(
-                X, y, test_size=val_frac, random_state=val_random_state, stratify=None
-            )
+        X = _as_numpy(X).astype(np.float32)
+        y = _as_numpy(y).astype(int)
+        if X.shape[0] < 2:
+            print("[warn] need at least two samples to fit")
+            return self
 
-        # 2) tensors
-        X_tr_t = torch.as_tensor(X_tr, dtype=torch.float32, device=device)
-        y_tr_t = torch.as_tensor(y_tr, dtype=torch.long,   device=device)
-        X_val_t = torch.as_tensor(X_val, dtype=torch.float32, device=device)
-        y_val_np = np.asarray(y_val).astype(int)
+        rng = np.random.default_rng(self.seed)
+        indices = np.arange(len(X))
+        rng.shuffle(indices)
 
-        # 3) prior from TRAIN ONLY (no leakage)
-        binc = np.bincount(y_tr_t.detach().cpu().numpy(), minlength=self.k).astype(np.float32)
-        prior = binc / (binc.sum() + 1e-12)
-        self.model.set_prior(prior)
+        val_count = max(1, int(round(self.val_split * len(X)))) if self.val_split > 0 else 0
+        if val_count >= len(X):
+            val_count = len(X) - 1
+        val_idx = indices[:val_count]
+        train_idx = indices[val_count:]
+        if train_idx.size == 0:
+            print("[warn] empty train split")
+            return self
 
-        # 4) loader over TRAIN split
-        ds = TensorDataset(X_tr_t, y_tr_t)
-        dl = DataLoader(ds, batch_size=self.batch_size, shuffle=True, drop_last=False)
+        X_train, y_train = X[train_idx], y[train_idx]
+        X_val, y_val = (X[val_idx], y[val_idx]) if val_count else (X[train_idx], y[train_idx])
 
-        # 5) optimizer / loss
-        params = [p for p in self.model.parameters() if p.requires_grad]
-        opt = torch.optim.Adam(params, lr=self.lr) if self.optim_name == "adam" \
-              else torch.optim.SGD(params, lr=self.lr, momentum=0.9)
-        criterion = torch.nn.CrossEntropyLoss()
+        # убедимся, что массы инициализированы
+        self.model._init_mass_params(reset=False)
 
-        # 6) train loop + epoch-wise validation on held-out
+        params=[p for p in [self.model.rule_mass_params] if (p is not None and getattr(p,"requires_grad",False))]
+        if not params: return self
+
+        device = torch.device(getattr(self.model, "device", self.device))
+        X_train_t = torch.from_numpy(X_train)
+        y_train_t = torch.from_numpy(y_train.astype(np.int64, copy=False))
+        dataset = TensorDataset(X_train_t, y_train_t)
+        loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=False)
+
+        class_counts = np.bincount(y_train, minlength=self.k).astype(np.float32)
+        class_counts[class_counts == 0.0] = 1.0
+        inv_freq = class_counts.sum() / class_counts
+        class_weights = inv_freq ** self.class_weight_power
+        class_weights = class_weights / class_weights.mean()
+        class_weights_t = torch.from_numpy(class_weights).to(device=device, dtype=torch.float32)
+
+        optimizer = torch.optim.AdamW(params, lr=self.lr, weight_decay=self.weight_decay)
+
+        X_val_t = torch.from_numpy(X_val).to(device=device, dtype=torch.float32)
+        y_val_t = torch.from_numpy(y_val.astype(np.int64, copy=False)).to(device=device)
+
+        self.history_.clear()
+        best_state = None
+        best_val = float("inf")
+
+        assert self.k > 0, "classifier requires at least one class"
+
+        stale_epochs = 0
         for epoch in range(1, self.max_iter + 1):
             self.model.train()
-            loss_sum, n_batches = 0.0, 0
-            for X_b, y_b in dl:
-                opt.zero_grad(set_to_none=True)
-                logits = self.model.forward(X_b)           # [B, K] logits
-                loss = criterion(logits, y_b)              # targets are class indices
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(params, 5.0)
-                opt.step()
-                loss_sum += float(loss.detach())
-                n_batches += 1
+            total_loss = 0.0
+            batches = 0
 
-            # validation on held-out split
+            for xb, yb in loader:
+                xb = xb.to(device=device, dtype=torch.float32)
+                yb = yb.to(device=device, dtype=torch.int64)
+
+                optimizer.zero_grad(set_to_none=True)
+                masses = torch.clamp(self.model.forward(xb), min=1e-9)
+                betp = torch.clamp(masses_to_pignistic(masses), min=1e-9)
+                logp = torch.log(betp)
+                idx = torch.arange(yb.size(0), device=device)
+                loss = -(class_weights_t[yb] * logp[idx, yb]).mean()
+
+                loss.backward()
+                if self.grad_clip > 0.0:
+                    torch.nn.utils.clip_grad_norm_(params, self.grad_clip)
+                optimizer.step()
+                self.model.project_masses()
+
+                total_loss += float(loss.detach())
+                batches += 1
+
+            train_loss = total_loss / max(1, batches)
+
+            # Validation
             self.model.eval()
             with torch.inference_mode():
-                logits_v = self.model.forward(X_val_t)     # [N_val, K]
-                probs_v  = torch.softmax(logits_v, dim=1).cpu().numpy()
-                y_hat_v  = probs_v.argmax(axis=1).astype(int)
+                masses_val = torch.clamp(self.model.forward(X_val_t), min=1e-9)
+                betp_val = torch.clamp(masses_to_pignistic(masses_val), min=1e-9)
+                logp_val = torch.log(betp_val)
+                idx_val = torch.arange(y_val_t.size(0), device=device)
+                val_loss = -(class_weights_t[y_val_t] * logp_val[idx_val, y_val_t]).mean()
+                preds_val = betp_val.argmax(dim=1)
+                mean_unc = float(masses_val[:, -1].mean().cpu())
 
-            m = self._metrics(y_val_np, y_hat_v)
-            print(f"[epoch {epoch:03d}] loss={loss_sum/max(1,n_batches):.5f} "
-                  f"Acc={m['Accuracy']:.4f} F1={m['F1']:.4f} "
-                  f"P={m['Precision']:.4f} R={m['Recall']:.4f}")
+            val_loss_float = float(val_loss.detach().cpu())
+            metrics = _metrics(y_val, preds_val.detach().cpu().numpy())
+            record = {
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "val_loss": val_loss_float,
+                "val_uncertainty": mean_unc,
+                **metrics,
+            }
+            self.history_.append(record)
 
-        # 7) majority fallback from TRAIN split only
-        binc = np.bincount(y_tr_t.detach().cpu().numpy())
+            improved = val_loss_float < best_val - 1e-6
+            if improved:
+                best_val = val_loss_float
+                best_state = copy.deepcopy(self.model.state_dict())
+                self.best_epoch_ = epoch
+                self.best_val_metrics_ = {
+                    **metrics,
+                    "train_loss": train_loss,
+                    "val_loss": val_loss_float,
+                    "val_uncertainty": mean_unc,
+                    "epoch": epoch,
+                }
+                stale_epochs = 0
+            else:
+                stale_epochs += 1
+
+            if epoch == 1 or epoch % max(1, self.print_every) == 0 or improved:
+                print(
+                    f"[epoch {epoch:03d}] train_loss={train_loss:.5f} val_loss={val_loss_float:.5f} "
+                    f"Acc={metrics['Accuracy']:.4f} F1={metrics['F1']:.4f} "
+                    f"P={metrics['Precision']:.4f} R={metrics['Recall']:.4f} "
+                    f"val_unc={mean_unc:.4f}"
+                )
+
+            if stale_epochs >= self.early_stop_patience:
+                if self.print_every:
+                    print(f"[early-stop] patience {self.early_stop_patience} reached at epoch {epoch:03d}")
+                break
+
+        if best_state is not None:
+            self.model.load_state_dict(best_state)
+            self.model.eval()
+
+        binc = np.bincount(y_train)
         if binc.size:
             self.default_class_ = int(binc.argmax())
-
         return self
 
-    def predict(self, X: np.ndarray):
-        self.model.eval()
-        with torch.inference_mode():
-            X = torch.as_tensor(X, dtype=torch.float32, device=self.device)
-            logits = self.model.forward(X)
-            return torch.argmax(logits, dim=1).cpu().numpy().astype(int)
+    # --------------------------- Prediction helpers ---------------------------
 
-    def predict_proba(self, X: np.ndarray):
-        self.model.eval()
-        with torch.inference_mode():
-            X = torch.as_tensor(X, dtype=torch.float32, device=self.device)
-            logits = self.model.forward(X)                 # [N, K]
-            probs = torch.softmax(logits, dim=1).cpu().numpy()
-            return probs
+    def predict_mass(self, X):
+        return self.model.predict_mass(X)
 
-    # ---------------- utils / sklearn API ----------------
-    @staticmethod
-    def _metrics(y_true: np.ndarray, y_pred: np.ndarray):
-        from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-        y_true = np.asarray(y_true).astype(int)
-        y_pred = np.asarray(y_pred).astype(int)
-        binary = (len(np.unique(y_true)) == 2)
-        avg = "binary" if binary else "macro"
-        return {
-            "Accuracy": float(accuracy_score(y_true, y_pred)),
-            "F1": float(f1_score(y_true, y_pred, average=avg)),
-            "Precision": float(precision_score(y_true, y_pred, average=avg, zero_division=0)),
-            "Recall": float(recall_score(y_true, y_pred, average=avg)),
-        }
+    def predict(self, X):  # type: ignore[override]
+        masses = self.predict_mass(X)
+        if self.k == 0:
+            return np.zeros(masses.shape[0], dtype=int)
+        omega = masses[:, -1][:, None]
+        betp = masses[:, : self.k] + omega / float(self.k)
+        preds = betp.argmax(axis=1).astype(int)
+        omega_flat = omega.reshape(-1)
+        class_max = masses[:, : self.k].max(axis=1)
+        self.last_uncertain_mask_ = omega_flat >= class_max
+        self.last_uncertain_scores_ = omega_flat
+        return preds
 
-    def get_params(self, deep: bool = True):  # sklearn compatibility
-        return {
-            "k": self.k,
-            "algo": self.algo,
-            "device": self.device,
-            "lr": self.lr,
-            "batch_size": self.batch_size,
-            "max_iter": self.max_iter,
-            "optim": self.optim_name,
-            "debug_print": self.debug_print,
-        }
+    # --------------------------- Persistence ---------------------------
 
-    def set_params(self, **params):
-        for k, v in params.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
-        return self
+    def save_model(self, path: str) -> None:
+        self.model.save_rules_bin(path)
+
+    def load_model(self, path: str) -> None:
+        self.model.load_rules_bin(path)
+
+    def prepare_rules_for_export(self, sample=None):
+        return self.model.prepare_rules_for_export(sample)
