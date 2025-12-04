@@ -1,217 +1,293 @@
-# Common_code/sample_rule_inspector.py
-# Коротко: грузит PKL, печатает активные правила только с mass(K+Ω),
-# полагаясь на вспомогательные методы модели для вычислений. Всё сохраняет в JSON.
 from __future__ import annotations
+
+"""
+Simple script to inspect a single sample using a saved rule model.
+Loads a dataset and a pre-trained model, then runs prediction on a specific sample.
+"""
+
 import argparse
-import json
+from pathlib import Path
 import sys
 import numpy as np
 
-# The ``dill`` module is used for serialising Python objects.  It may not
-# always be available in constrained environments.  Attempt to import
-# ``dill`` and fall back to the built‑in ``pickle`` module if it is not
-# installed.  ``pickle`` provides similar functionality for basic data
-# structures.
-try:
-    import dill  # type: ignore
-except ImportError:
-    import pickle as dill  # type: ignore
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+THIS = Path(__file__).resolve()
+COMMON = THIS.parent
+ROOT = COMMON.parent
 
-THIS = Path(__file__).resolve(); COMMON = THIS.parent; PROJECT_ROOT = COMMON.parent
-sys.path.insert(0, str(COMMON))
+# Add Common_code to the import path for local modules
+if str(COMMON) not in sys.path:
+    sys.path.insert(0, str(COMMON))
+
 from Datasets_loader import load_dataset
 from DSClassifierMultiQ import DSClassifierMultiQ
-from core import params_to_mass
 
-# ---------- tiny utils ----------
-_f = lambda x: [float(v) for v in np.asarray(x, float).ravel().tolist()]
+def _decode_value(name: str, value: float, decoders: dict[str, dict[int, str]]) -> str:
+    """Helper to decode categorical values for display."""
+    mapping = decoders.get(name)
+    if not mapping:
+        return f"{value:.4f}" if isinstance(value, float) else str(value)
+    
+    # Try exact match first
+    if value in mapping: return mapping[value]
+    if int(value) in mapping: return mapping[int(value)]
+    
+    return str(value)
 
-def _pkl(algo: str, ds: str) -> Path:
+def resolve_dataset(path_or_name: str) -> Path:
+    """Resolve a dataset path from a name or explicit CSV filename."""
+    path = Path(path_or_name)
+    if path.suffix.lower() == ".csv" and path.is_file():
+        return path
+    for base in (ROOT, COMMON, Path.cwd()):
+        candidate = base / f"{path_or_name}.csv"
+        if candidate.is_file():
+            return candidate
+    return path
+
+def default_model_path(algo: str, dataset: Path) -> Path:
+    """Return a default model path for a given algorithm and dataset."""
     base = COMMON / "pkl_rules"
-    stem = f"{algo.lower()}_{Path(ds).stem}_dst.pkl"
+    stem = f"{algo.lower()}_{dataset.stem}_dst.pkl"
     direct = base / stem
     if direct.exists():
         return direct
-    for prefix in ("stable_", "conserv_", "baseline_", "bench_"):
-        candidate = base / f"{prefix}{stem}"
-        if candidate.exists():
-            return candidate
+    # Check .dsb file as well since load_model expects binary/pkl
+    stem_dsb = f"{algo.lower()}_{dataset.stem}_dst.dsb"
+    direct_dsb = COMMON / "dsb_rules" / stem_dsb
+    if direct_dsb.exists():
+        return direct_dsb
     return direct
-def _decode(dec: Dict[Any,Dict[Any,Any]], names: List[str], j: int, v: float) -> Optional[str]:
-    mp = (dec or {}).get(names[j]) or (dec or {}).get(j)
-    if not isinstance(mp, dict): return None
-    for k in (v, int(round(v)), float(v), str(v), str(int(round(v)))):
-        if k in mp: return str(mp[k])
-    for k, txt in mp.items():
-        try:
-            if abs(float(k)-float(v))<1e-9: return str(txt)
-        except: pass
-    return None
 
-def _prior_mass_from_blob(blob: Any) -> Optional[List[float]]:
-    if not isinstance(blob, dict):
-        return None
-    bias_payload = blob.get("bias_mass_params")
-    if bias_payload is None:
-        bias_payload = blob.get("bias_mass_logits")
-    if bias_payload is not None:
-        logits = np.asarray(bias_payload, dtype=np.float32).reshape(1, -1)
-        mass = params_to_mass(logits)[0]
-        return _f(mass)
-    if blob.get("prior_mass") is not None:
-        return _f(blob["prior_mass"])
-    if blob.get("prior_logits") is not None:
-        logits = np.asarray(blob["prior_logits"], dtype=np.float32).reshape(1, -1)
-        mass = params_to_mass(logits)[0]
-        return _f(mass)
-    return None
+def main() -> None:
+    parser = argparse.ArgumentParser("Inspect a single sample using a saved rule model")
+    parser.add_argument("--dataset", default="adult", help="Dataset name or path")
+    parser.add_argument("--algo", default="RIPPER", choices=["STATIC", "RIPPER", "FOIL"], help="Algorithm used")
+    parser.add_argument("--idx", type=int, default=0, help="Index of the sample to inspect")
+    parser.add_argument("--model", default="", help="Path to the saved model (.pkl or .dsb)")
+    args = parser.parse_args()
 
-# ---------- main ----------
-def main():
-    ap = argparse.ArgumentParser("Inspect fired rules → masses/conf → JSON")
-    ap.add_argument("--dataset", default="adult")
-    ap.add_argument("--algo", default="RIPPER", choices=["STATIC","RIPPER","FOIL"])
-    ap.add_argument("--idx", type=int, default=7)
-    ap.add_argument("--pkl", default="")
-    args = ap.parse_args()
+    # 1. Load Dataset
+    csv_path = resolve_dataset(args.dataset)
+    if not csv_path.exists():
+        print(f"Error: Dataset not found at {csv_path}")
+        return
 
-    # data + sample
-    csv = Path(args.dataset)
-    if csv.suffix.lower() != ".csv":
-        for c in (PROJECT_ROOT/f"{args.dataset}.csv", COMMON/f"{args.dataset}.csv", Path.cwd()/f"{args.dataset}.csv"):
-            if c.is_file(): csv=c; break
-    X,y,feat,dec = load_dataset(csv); y = np.asarray(y,int)
-    print(f"Detected label column: 'labels'  →  classes: {sorted(np.unique(y).tolist())}")
-    print(f"X shape = {X.shape},  y distribution = {np.bincount(y).tolist()}")
+    # Load dataset with stats to get original class labels
+    X, y, feature_names, value_decoders, stats = load_dataset(csv_path, return_stats=True)
+    X = np.asarray(X, dtype=np.float32)
+    y = np.asarray(y, dtype=int)
+    
+    # Get original class labels (before factorization)
+    original_classes = stats.get('classes', [])  # e.g., [1, 2, 3, 4, 5, 6] for gas_drift
+    
+    # Create mapping: index -> original label
+    index_to_original = {idx: label for idx, label in enumerate(original_classes)} if original_classes else {}
 
-    i = int(args.idx)%len(X);
-    x = np.asarray(X[i],float);
-    y_true=int(y[i])
-
-    print(f"\nSelected sample index: {i}")
-    feats_disp={}
-    for j,n in enumerate(feat):
-        t=_decode(dec,list(feat),j,float(x[j]));
-        if t is None: t=str(int(x[j]) if float(x[j]).is_integer() else float(x[j]))
-        print(f"  - {n}={t}"); feats_disp[n]=t
-
-    # model + PKL
-    pkl = Path(args.pkl) if args.pkl else _pkl(args.algo, csv.stem)
-    clf = DSClassifierMultiQ(k=int(np.unique(y).size), algo=args.algo, value_decoders=dec, feature_names=list(feat))
-    clf.model.load_rules_bin(str(pkl))
-    try:
-        with open(pkl,"rb") as fh: blob=dill.load(fh)
-    except Exception:
-        blob={}
-
-    # activated rules via модельный helper
-    export = clf.model.prepare_rules_for_export(x)
-    activated = export.get("activated_rules", [])
-    # Sort by activation/mass weight for readability; keep top-10
-    def _score(item: Dict[str, Any]) -> float:
-        act = float(item.get("activation", 0.0) or 0.0)
-        mass = item.get("mass")
-        cls = item.get("class")
-        w = 0.0
-        if isinstance(mass, (list, tuple)) and cls is not None:
-            try:
-                w = float(mass[int(cls)])
-            except Exception:
-                w = 0.0
-        return 0.7 * act + 0.3 * w
-    activated = sorted(activated, key=_score, reverse=True)[:10]
-    confidence = _f(export.get("confidence", []))
-    mass_vector = _f(export.get("mass_vector", []))
-    pred = int(export.get("predicted_class", 0))
-
-    # print
-    total_rules = len(getattr(clf.model, "rules", []) or [])
-    print(f"\n[info] fired rules: {len(activated)} / {total_rules}")
-    if activated:
-        print("Activated rules (top-10 by activation/weight):")
-        for item in activated:
-            cap = item.get("condition", "<rule>")
-            lbl = item.get("class")
-            mass = item.get("mass")
-            act = item.get("activation")
-            stats = item.get("stats") if isinstance(item.get("stats"), dict) else None
-            origin = (stats or {}).get("origin") if isinstance(stats, dict) else None
-            head = f"(Class {lbl}) " if lbl is not None else ""
-            extras = []
-            if act is not None:
-                extras.append(f"act={float(act):.3f}")
-            if mass is not None:
-                extras.append(f"mass={_f(mass)}")
-            if stats:
-                prec = stats.get("precision")
-                rec = stats.get("recall")
-                supp = stats.get("support")
-                f1 = stats.get("f1")
-                if prec is not None and rec is not None:
-                    extras.append(f"pr={float(prec):.3f}/rc={float(rec):.3f}")
-                if f1 is not None:
-                    extras.append(f"f1={float(f1):.3f}")
-                if supp is not None:
-                    extras.append(f"supp={int(supp)}")
-            if origin is not None:
-                extras.append(f"origin={origin}")
-            suffix = " -> " + ", ".join(extras) if extras else ""
-            print(f" - {head}{cap}{suffix}")
-
-    # Display the belief mass and derive a prediction based solely on the mass vector.
-    # The mass vector includes one entry per class followed by the uncertainty
-    # mass (Ω).  A sample is considered "uncertain" when the uncertainty
-    # exceeds the largest class mass.
-    display_pred: Any = None
-    if mass_vector:
-        print(f"\nBelief mass (classes + Ω): {mass_vector}")
-        k = len(mass_vector) - 1
-        if k > 0:
-            class_masses = mass_vector[:-1]
-            uncertainty = mass_vector[-1]
-            best_class = int(np.argmax(class_masses))
-            uncertainty = float(uncertainty)
-            predicted_label = best_class
-            dominates = uncertainty >= class_masses[best_class]
-            display_pred = f"{predicted_label} (unc={uncertainty:.3f}{', dominates' if dominates else ''})"
-        else:
-            display_pred = "n/a"
-        print(f"Prediction using belief mass: {display_pred}")
-    # Always show pignistic probabilities as a reference (optional)
-    if confidence:
-        print(f"Class mass (per class): {confidence}")
-    # Display true label and predicted label (via belief mass when available)
-    if mass_vector:
-        print(f"True label: {y_true} | Predicted: {display_pred}")
+    # 2. Select Sample
+    sample_idx = int(args.idx) % len(X)
+    sample = X[sample_idx]
+    true_label_idx = int(y[sample_idx])
+    true_label_original = index_to_original.get(true_label_idx, true_label_idx)
+    
+    print(f"\nInspecting Sample #{sample_idx}")
+    print("-" * 40)
+    for name, value in zip(feature_names, sample):
+        display = _decode_value(name, value, value_decoders)
+        print(f"{name:<20}: {display}")
+    if index_to_original:
+        print(f"{'True Label (orig)':<20}: {true_label_original}")
+        print(f"{'True Label (index)':<20}: {true_label_idx}")
     else:
-        print(f"True label: {y_true} | Predicted: {pred}")
+        print(f"{'True Label':<20}: {true_label_idx}")
+    print("-" * 40)
 
-    prior_mass = _prior_mass_from_blob(blob)
+    # 3. Load Model
+    model_path = Path(args.model) if args.model else default_model_path(args.algo, csv_path)
+    if not model_path.exists():
+        print(f"Error: Model not found at {model_path}")
+        return
 
-    # JSON
-    out = COMMON/"results"; out.mkdir(parents=True, exist_ok=True)
-    path = out / f"inspect_{args.algo.lower()}_{csv.stem}_idx{i}.json"
-    payload = {
-        "dataset": str(csv), "algo": args.algo, "pkl": str(pkl), "index": i,
-        "true_label": y_true, "predicted_class": pred,
-        "confidence": confidence,
-        "mass_vector": mass_vector,
-        "prior_mass": prior_mass,
-        "prior_logits": (_f(blob["prior_logits"]) if isinstance(blob, dict) and blob.get("prior_logits") is not None else None),
-        "counts": {"rules_total": int(total_rules), "rules_fired": int(len(activated))},
-        "features_display": feats_disp,
-        "activated_rules": [{
-            "condition": item.get("condition", "<rule>"),
-            "class": (int(item["class"]) if item.get("class") is not None else None),
-            "activation": (float(item["activation"]) if item.get("activation") is not None else None),
-            "mass": (_f(item.get("mass")) if item.get("mass") is not None else None),
-            "stats": (item.get("stats") if isinstance(item.get("stats"), dict) else None),
-        } for item in activated],
-    }
-    with open(path,"w",encoding="utf-8") as f: json.dump(payload,f,ensure_ascii=False,indent=2)
-    print(f"\n✓ Saved report → {path}")
+    print(f"\nLoading model from: {model_path.name}")
+    # Initialize classifier with correct signature
+    k = int(np.unique(y).size)
+    # NOTE: We pass rule_algo, not algo
+    clf = DSClassifierMultiQ(
+        k=k,
+        rule_algo=args.algo, 
+        device="cpu"
+    )
+    
+    # Load the trained rules and masses
+    # Note: load_model expects the path to the .dsb file usually, or .pkl
+    # DSClassifierMultiQ.load_model calls self.model.load_rules_bin(path)
+    # If we passed a .pkl, we might need to adjust if load_rules_bin expects .dsb
+    # But typically the save logic saves both. Let's try loading.
+    try:
+        clf.load_model(str(model_path))
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        # Try changing extension to .dsb if .pkl was passed
+        if model_path.suffix == '.pkl':
+            dsb_path = model_path.with_suffix('.dsb')
+            if dsb_path.exists():
+                print(f"Retrying with {dsb_path.name}...")
+                clf.load_model(str(dsb_path))
+            else:
+                return
+        else:
+            return
 
-if __name__=="__main__":
+    # 4. Predict
+    # Prepare batch (1 sample)
+    batch = sample.reshape(1, -1)
+    
+    # Get DST output.
+    # NOTE: DSModelMultiQ.forward (used by predict_with_dst) already returns
+    # class-wise probabilities of shape (k,) – there is no explicit Omega
+    # mass in this representation.
+    dst_output = np.asarray(clf.model.predict_with_dst(batch)[0], dtype=float)
+    if dst_output.shape[0] != k:
+        # Fallback: if someone loads an older model that returns K+1 masses
+        # (classes + Omega), convert to pignistic probabilities.
+        if dst_output.shape[0] == k + 1:
+            omega = float(dst_output[-1])
+            dst_output = dst_output[:-1] + (omega / float(k))
+        else:
+            raise ValueError(
+                f"Unexpected DST output shape {dst_output.shape}; "
+                f"expected {k} (num_classes) or {k + 1} (classes + Omega)."
+            )
+
+    betp = dst_output
+    pred_label_idx = int(np.argmax(betp))
+    pred_label_original = index_to_original.get(pred_label_idx, pred_label_idx)
+    # Per-sample model uncertainty (average Omega over active rules)
+    try:
+        unc_arr = clf.model.sample_uncertainty(batch)
+        unc = float(np.asarray(unc_arr, dtype=float).reshape(-1)[0])
+    except Exception:
+        unc = float("nan")
+
+    # 5. Show Activated Rules
+    print("\nActivated Rules")
+    print("-" * 40)
+    export = clf.model.prepare_rules_for_export(sample)
+    activated = export.get("activated_rules", [])
+    
+    if not activated:
+        print("No rules fired (Uncertainty/Omega dominant).")
+    else:
+        # Calculate H-scores for sorting
+        # H = 2 * U' * R' / (U' + R')
+        # U' = 1 - m(Omega)
+        # R = max(m) / 2nd_max(m)
+        # R' = normalized R
+        
+        rule_metrics = []
+        r_values = []
+        
+        for item in activated:
+            mass = np.array(item.get("mass", []))
+            if len(mass) < 2:
+                u_prime = 0.0
+                r_val = 0.0
+            else:
+                omega = mass[-1]
+                u_prime = 1.0 - omega
+                
+                # Sort masses to find max and 2nd max (excluding Omega if it's last? No, Omega is last element)
+                # We care about class masses contrast.
+                class_masses = mass[:-1]
+                if len(class_masses) > 0:
+                    sorted_m = np.sort(class_masses)
+                    max_m = sorted_m[-1]
+                    sec_m = sorted_m[-2] if len(sorted_m) > 1 else 0.0
+                    r_val = max_m / (sec_m + 1e-9)
+                else:
+                    r_val = 0.0
+            
+            r_values.append(r_val)
+            rule_metrics.append({'item': item, 'u_prime': u_prime, 'r_raw': r_val})
+            
+        # Normalize R
+        # Use log scale for R to handle huge differences (e.g. 100 vs 1e9)
+        # R_val can be 0 or inf.
+        # We clip R_val to a reasonable max (e.g. 1e6) to avoid inf issues in normalization
+        
+        r_values_log = []
+        for rm in rule_metrics:
+            r_val = rm['r_raw']
+            # If r_val is inf or extremely large, clip it
+            if np.isinf(r_val) or r_val > 1e6:
+                r_val = 1e6
+            # Use log1p to compress scale
+            r_log = np.log1p(r_val)
+            r_values_log.append(r_log)
+            rm['r_log'] = r_log
+            
+        r_min = min(r_values_log) if r_values_log else 0.0
+        r_max = max(r_values_log) if r_values_log else 1.0
+        
+        if r_max - r_min < 1e-9:
+            r_denom = 1.0
+        else:
+            r_denom = r_max - r_min
+            
+        # Compute H and sort
+        for rm in rule_metrics:
+            r_prime = (rm['r_log'] - r_min) / r_denom
+            u_prime = rm['u_prime']
+            if u_prime + r_prime < 1e-9:
+                h = 0.0
+            else:
+                h = 2 * u_prime * r_prime / (u_prime + r_prime)
+            rm['h_score'] = h
+            
+        # Sort by H-score descending
+        rule_metrics.sort(key=lambda x: x['h_score'], reverse=True)
+        
+        for rm in rule_metrics:
+            item = rm['item']
+            h = rm['h_score']
+            rid = item.get('id')
+            cond = item.get("condition", "???")
+            cls = item.get("class")
+            mass = item.get("mass")
+            stats = item.get("stats", {})
+            
+            # Format mass vector
+            mass_str = str(np.round(mass, 3)) if mass is not None else "N/A"
+            
+            # Try to infer class from mass if not explicit
+            if cls is None and mass is not None and len(mass) > 1:
+                cls = int(np.argmax(mass[:-1]))
+            
+            # Display class with original label if available
+            cls_display = index_to_original.get(cls, cls) if cls is not None and index_to_original else cls
+            
+            header = f"Rule #{rid:<3} | Class: {cls_display} (idx={cls}) | H-score: {h:.3f} | Mass: {mass_str}"
+            if not index_to_original or cls is None:
+                header = f"Rule #{rid:<3} | Class: {cls} | H-score: {h:.3f} | Mass: {mass_str}"
+                
+            print(header)
+            print(f"  Condition: {cond}")
+            if stats:
+                prec = stats.get('precision', 'N/A')
+                cov = stats.get('coverage', 'N/A')
+                print(f"  Stats    : Precision={prec}, Coverage={cov}")
+            print("-" * 20)
+
+    # 6. Show Results
+    print(f"\nPrediction Results")
+    print("-" * 40)
+    correct = (pred_label_idx == true_label_idx)
+    if index_to_original:
+        print(f"DST Prediction      : {pred_label_original} (idx={pred_label_idx}) {'(CORRECT)' if correct else '(WRONG)'}")
+    else:
+        print(f"DST Prediction      : {pred_label_idx} {'(CORRECT)' if correct else '(WRONG)'}")
+    print(f"DST Probs           : {np.round(betp, 4)}")
+    print(f"Uncertainty (Omega) : {unc:.4f}" if np.isfinite(unc) else f"Uncertainty (Omega) : N/A")
+    print("-" * 40)
+
+if __name__ == "__main__":
     main()

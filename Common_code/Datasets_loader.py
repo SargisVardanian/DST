@@ -16,8 +16,9 @@ load_dataset(csv_path: str | Path, normalize: bool = False)
 upsample_minority(X, y, target_pos_ratio=0.35, random_state=42)
     Upsamples the minority class to the desired ratio.
 """
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Tuple, List, Dict, Union
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -79,10 +80,10 @@ def load_dataset(
     *,
     normalize: bool = False,
     return_stats: bool = False,
-) -> Union[
-    Tuple[np.ndarray, np.ndarray, List[str], Dict[str, Dict[int, str]]],
-    Tuple[np.ndarray, np.ndarray, List[str], Dict[str, Dict[int, str]], Dict[str, object]],
-]:
+) -> (
+    tuple[np.ndarray, np.ndarray, list[str], dict[str, dict[int, str]]]
+    | tuple[np.ndarray, np.ndarray, list[str], dict[str, dict[int, str]], dict[str, object]]
+):
     """Load a CSV into (X, y, feature_names, value_decoders).
 
     value_decoders maps a *feature name* to {int_code -> original_string} for categorical
@@ -108,16 +109,17 @@ def load_dataset(
     # Build X dataframe (drop label)
     X_df = df.drop(columns=[label_col]).copy()
 
-    # Encode categoricals to integer codes; collect decoders
-    value_decoders: Dict[str, Dict[int, str]] = {}
+    value_decoders: dict[str, dict[int, str]] = {}
     cat_cols = X_df.select_dtypes(include=["object", "category"]).columns.tolist()
     for c in cat_cols:
         cat = pd.Categorical(X_df[c])
-        codes = cat.codes.astype(np.float32)   # keep float dtype to align with numeric pipeline
+        codes = cat.codes.astype(np.float32)
         X_df[c] = codes
-        # Build decoder: int_code -> original label (as string)
-        # Missing values were already dropped; still guard with bounds
-        dec = {int(i): str(v) for i, v in enumerate(cat.categories)}
+
+        ordered_values = list(cat.categories)
+        dec: dict[int, str] = {}
+        for code, raw_label in enumerate(ordered_values):
+            dec[int(code)] = str(raw_label)
         value_decoders[c] = dec
 
     # Normalize numeric columns only (optional, off by default)
@@ -153,7 +155,7 @@ def upsample_minority(
     *,
     target_pos_ratio: float = 0.35,
     random_state: int = 42
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Upsample the minority (class==1) to a target ratio; returns (X', y')."""
     X = np.asarray(X); y = np.asarray(y).astype(int)
     pos_mask = (y == 1)

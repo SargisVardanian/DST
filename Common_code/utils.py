@@ -16,7 +16,7 @@ Notes
   Plotly is available and `only_plot=True`.
 """
 import logging
-from typing import Callable, Dict, Iterable, List, Sequence, Tuple
+from collections.abc import Callable, Iterable, Sequence
 
 import numpy as np
 from scipy.spatial import cKDTree
@@ -112,7 +112,7 @@ def h_left(z: np.ndarray) -> np.ndarray:
 # Threshold / break generators
 # ---------------------------------------------------------------------------
 
-def natural_breaks(data: Iterable[float], k: int = 5, append_infinity: bool = False) -> List[float]:
+def natural_breaks(data: Iterable[float], k: int = 5, append_infinity: bool = False) -> list[float]:
     """Compute `k` natural breaks using 1-D KMeans on `data`.
 
     Returns the sorted cluster boundaries. If `append_infinity=True`, the last
@@ -123,7 +123,7 @@ def natural_breaks(data: Iterable[float], k: int = 5, append_infinity: bool = Fa
     km.fit(data.reshape(-1, 1))
 
     # The rightmost boundary per cluster
-    breaks: List[float] = []
+    breaks: list[float] = []
     for i in range(k):
         pts = data[km.labels_ == i]
         if pts.size:
@@ -220,23 +220,23 @@ def filter_by_rule(
 # Structure converters
 # ---------------------------------------------------------------------------
 
-def transform_X_to_cases(X: np.ndarray, column_names: Sequence[str]) -> List[Dict[str, List[float]]]:
+def transform_X_to_cases(X: np.ndarray, column_names: Sequence[str]) -> list[dict[str, list[float]]]:
     """Convert a design matrix X into a list of dict "cases" keyed by feature name.
 
     Example output (for 3 columns)::
         [{'f1': [x11], 'f2': [x12], 'f3': [x13]}, {'f1': [x21], ...}, ...]
     """
     X = np.asarray(X)
-    cases: List[Dict[str, List[float]]] = []
+    cases: list[dict[str, list[float]]] = []
     for row in X:
         case = {col: [row[i]] for i, col in enumerate(column_names)}
         cases.append(case)
     return cases
 
 
-def build_classes_dict(cases: Sequence[Dict[str, List[float]]], y: Sequence[int]) -> Dict[int, List[Dict[str, List[float]]]]:
+def build_classes_dict(cases: Sequence[dict[str, list[float]]], y: Sequence[int]) -> dict[int, list[dict[str, list[float]]]]:
     """Group cases by integer label array `y`."""
-    classes: Dict[int, List[Dict[str, List[float]]]] = {int(l): [] for l in np.unique(y)}
+    classes: dict[int, list[dict[str, list[float]]]] = {int(l): [] for l in np.unique(y)}
     for i, case in enumerate(cases):
         classes[int(y[i])].append(case)
     return classes

@@ -1,0 +1,23 @@
+class 1 :: Entropy < 0.0464599 & Kurtosis > 5.99201 → class 1 || masses: 0.000000, 0.956939, 0.043061
+class 1 :: Correlation > 0.938072 & Skewness > 5.57838 → class 1 || masses: 0.002134, 0.951100, 0.046766
+class 0 :: Contrast > 57.3753 & Homogeneity > 0.454179 & Kurtosis < 5.99201 & Variance < 821.14 → class 0 || masses: 0.914515, 0.000000, 0.085485
+class 0 :: Dissimilarity > 4.4824 & Kurtosis < 5.99201 & Variance < 869.095 → class 0 || masses: 0.890930, 0.000000, 0.109070
+class 0 :: Correlation < 0.950734 & Entropy > 0.0521825 & Skewness < 5.96271 → class 0 || masses: 0.854646, 0.000013, 0.145341
+class 1 :: Entropy < 0.0530744 & Homogeneity < 0.502103 & Variance > 869.095 → class 1 || masses: 0.000000, 0.775639, 0.224361
+class 1 :: Correlation > 0.96158 & Homogeneity < 0.517312 & Kurtosis > 5.64937 & Mean > 15.7966 → class 1 || masses: 0.000459, 0.756423, 0.243118
+class 0 :: Entropy > 0.051364 & Mean > 12.2043 & Variance < 1624.66 → class 0 || masses: 0.721014, 0.000000, 0.278986
+class 0 :: Contrast < 158.783 & Energy > 0.211103 & Entropy > 0.0416922 & Mean < 16.1559 → class 0 || masses: 0.693446, 0.000000, 0.306554
+class 0 :: Entropy > 0.105257 & Homogeneity > 0.474768 & Variance < 254.675 → class 0 || masses: 0.679032, 0.000000, 0.320968
+class 1 :: Correlation > 0.948698 & Energy < 0.214848 & Kurtosis > 5.99201 & Skewness > 2.29089 → class 1 || masses: 0.000000, 0.647863, 0.352137
+class 1 :: Contrast > 149.015 & Entropy < 0.0668942 & Kurtosis > 11.1211 & Skewness > 2.29123 → class 1 || masses: 0.000000, 0.606273, 0.393727
+class 0 :: Entropy > 0.0650003 → class 0 || masses: 0.594144, 0.000265, 0.405591
+class 0 :: Dissimilarity > 6.27083 & Entropy > 0.0481348 & Homogeneity > 0.448883 → class 0 || masses: 0.576315, 0.000000, 0.423685
+class 0 :: Energy > 0.203346 & Homogeneity > 0.512322 & Variance > 655.526 → class 0 || masses: 0.526726, 0.000000, 0.473274
+class 1 :: Correlation > 0.969597 & Energy < 0.193606 & Entropy < 0.0866425 → class 1 || masses: 0.000000, 0.498136, 0.501864
+class 0 :: Contrast < 161.687 & Entropy > 0.056126 & Homogeneity > 0.5629 → class 0 || masses: 0.484326, 0.000000, 0.515674
+class 0 :: Dissimilarity < 4.4824 & Energy > 0.225861 & Entropy > 0.0591928 & Kurtosis < 12.3973 → class 0 || masses: 0.419677, 0.000199, 0.580124
+class 0 :: Contrast > 149.015 & Entropy > 0.0378691 & Homogeneity > 0.50478 & Mean > 5.75997 → class 0 || masses: 0.400532, 0.008446, 0.591021
+class 1 :: Homogeneity < 0.5629 & Kurtosis > 12.3795 → class 1 || masses: 0.000000, 0.243545, 0.756455
+class 1 :: Kurtosis > 19.4867 → class 1 || masses: 0.000000, 0.216889, 0.783111
+class 1 :: Entropy < 0.0668942 → class 1 || masses: 0.000000, 0.123031, 0.876969
+class 1 :: Variance > 945.406 → class 1 || masses: 0.000042, 0.007982, 0.991976

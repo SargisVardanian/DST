@@ -1,0 +1,715 @@
+class 1 :: age > 38 & alcohol < 14.71 & ldl > 3.58 → class 1 || masses: 0.000000, 0.218405, 0.781595
+class 0 :: alcohol < 2.06 & ldl > 5.08 & sbp > 128 → class 0 || masses: 0.216659, 0.000000, 0.783341
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & typea < 57 → class 0 || masses: 0.215028, 0.000000, 0.784972
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.213978, 0.000000, 0.786022
+class 0 :: age < 52 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.211984, 0.000000, 0.788016
+class 0 :: alcohol < 14.71 & tobacco > 0.46 & typea < 57 → class 0 || masses: 0.210678, 0.000000, 0.789322
+class 1 :: alcohol > 2.06 & chd == 1 & typea > 57 → class 1 || masses: 0.000022, 0.209718, 0.790260
+class 1 :: alcohol < 2.06 & ldl > 5.08 & typea > 49 → class 1 || masses: 0.004297, 0.205390, 0.790313
+class 0 :: adiposity > 21.93 & age < 38 & alcohol < 14.71 → class 0 || masses: 0.140485, 0.068563, 0.790951
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & sbp < 142 → class 0 || masses: 0.208327, 0.000000, 0.791673
+class 0 :: age < 38 & alcohol < 14.71 & ldl > 5.08 → class 0 || masses: 0.184992, 0.023261, 0.791747
+class 1 :: age > 38 & alcohol < 14.71 & sbp < 142 → class 1 || masses: 0.000697, 0.207224, 0.792078
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.198058, 0.009791, 0.792151
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.055443, 0.152062, 0.792495
+class 0 :: age < 52 & alcohol > 2.06 & sbp < 142 → class 0 || masses: 0.058656, 0.148708, 0.792636
+class 1 :: adiposity < 29.26 & alcohol > 2.06 & chd == 1 → class 1 || masses: 0.067027, 0.140308, 0.792664
+class 0 :: age > 38 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.143367, 0.063952, 0.792681
+class 0 :: age < 38 & alcohol < 14.71 & chd == 1 → class 0 || masses: 0.145385, 0.061865, 0.792750
+class 1 :: alcohol > 2.06 & ldl > 5.08 & tobacco < 4.2 → class 1 || masses: 0.071545, 0.135638, 0.792817
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.129317, 0.077619, 0.793064
+class 1 :: age > 38 & alcohol > 2.06 & chd == 1 → class 1 || masses: 0.000000, 0.206850, 0.793149
+class 0 :: age > 38 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.139582, 0.066991, 0.793426
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.144777, 0.061738, 0.793485
+class 1 :: alcohol < 14.71 & ldl > 5.08 → class 1 || masses: 0.000000, 0.206464, 0.793536
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & chd == 1 → class 0 || masses: 0.046290, 0.159999, 0.793712
+class 1 :: alcohol < 14.71 & chd == 1 → class 1 || masses: 0.048201, 0.158079, 0.793720
+class 0 :: age < 38 & alcohol < 2.06 & ldl > 5.08 → class 0 || masses: 0.148620, 0.057658, 0.793722
+class 0 :: age < 38 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.073315, 0.132829, 0.793857
+class 0 :: chd == 0 → class 0 || masses: 0.152443, 0.053676, 0.793881
+class 0 :: alcohol < 14.71 & obesity > 23.76 & tobacco > 0.46 → class 0 || masses: 0.206118, 0.000000, 0.793882
+class 0 :: age < 38 & alcohol > 2.06 & ldl > 5.08 → class 0 || masses: 0.180217, 0.025899, 0.793884
+class 0 :: age < 38 & alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.157104, 0.048951, 0.793945
+class 1 :: alcohol < 14.71 & chd == 1 & sbp < 142 → class 1 || masses: 0.032927, 0.172931, 0.794142
+class 1 :: chd == 1 → class 1 || masses: 0.044960, 0.160859, 0.794180
+class 0 :: adiposity < 21.93 & age > 38 & alcohol > 2.06 → class 0 || masses: 0.161347, 0.044365, 0.794288
+class 0 :: alcohol > 2.06 & sbp < 142 & tobacco < 4.2 → class 0 || masses: 0.074141, 0.131528, 0.794331
+class 1 :: alcohol > 2.06 & ldl > 5.08 & tobacco < 0.46 → class 1 || masses: 0.075397, 0.130196, 0.794406
+class 0 :: alcohol > 2.06 & tobacco < 4.2 → class 0 || masses: 0.000000, 0.205542, 0.794458
+class 0 :: alcohol > 2.06 & sbp < 142 & typea < 57 → class 0 || masses: 0.046832, 0.158698, 0.794470
+class 0 :: alcohol < 14.71 & chd == 0 & sbp > 128 → class 0 || masses: 0.168992, 0.036405, 0.794603
+class 1 :: alcohol > 2.06 & chd == 1 & typea > 49 → class 1 || masses: 0.057943, 0.147429, 0.794628
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & chd == 1 → class 1 || masses: 0.039399, 0.165902, 0.794699
+class 1 :: alcohol < 2.06 & ldl > 5.08 & sbp < 128 → class 1 || masses: 0.032481, 0.172801, 0.794718
+class 0 :: alcohol > 2.06 & obesity < 27.23 & sbp < 128 → class 0 || masses: 0.131327, 0.073945, 0.794728
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & sbp < 128 → class 0 || masses: 0.130813, 0.074091, 0.795095
+class 0 :: alcohol > 2.06 & obesity > 23.76 & tobacco < 4.2 → class 0 || masses: 0.072133, 0.132676, 0.795192
+class 0 :: alcohol > 2.06 & ldl > 3.58 & tobacco < 4.2 → class 0 || masses: 0.076991, 0.127813, 0.795196
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.060941, 0.143853, 0.795206
+class 1 :: alcohol < 14.71 & chd == 1 & typea < 57 → class 1 || masses: 0.071675, 0.133062, 0.795263
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.044856, 0.159878, 0.795266
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.054433, 0.150187, 0.795381
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.153853, 0.050746, 0.795400
+class 1 :: age > 38 & alcohol < 2.06 & typea > 49 → class 1 || masses: 0.048715, 0.155753, 0.795531
+class 0 :: age < 38 & alcohol < 14.71 → class 0 || masses: 0.129849, 0.074532, 0.795619
+class 1 :: age > 38 & alcohol < 14.71 & tobacco < 0.46 → class 1 || masses: 0.073965, 0.130359, 0.795676
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.125678, 0.078642, 0.795680
+class 0 :: alcohol < 2.06 & tobacco > 0.46 & typea < 57 → class 0 || masses: 0.191743, 0.012509, 0.795748
+class 1 :: alcohol < 2.06 & chd == 1 & sbp < 142 → class 1 || masses: 0.078549, 0.125695, 0.795756
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & ldl > 5.08 → class 0 || masses: 0.146840, 0.057335, 0.795825
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.026683, 0.177477, 0.795839
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.123823, 0.080324, 0.795852
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.048583, 0.155544, 0.795873
+class 0 :: alcohol < 2.06 & ldl < 5.08 & sbp < 128 → class 0 || masses: 0.155532, 0.048494, 0.795974
+class 0 :: adiposity > 21.93 & age < 52 & alcohol < 14.71 → class 0 || masses: 0.065641, 0.138283, 0.796077
+class 1 :: age > 38 & alcohol < 2.06 & ldl > 3.58 → class 1 || masses: 0.033849, 0.170072, 0.796079
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.067371, 0.136474, 0.796155
+class 1 :: adiposity < 29.26 & alcohol < 14.71 & chd == 1 → class 1 || masses: 0.037770, 0.166046, 0.796183
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.127583, 0.076230, 0.796187
+class 0 :: adiposity < 29.26 & age < 38 & alcohol < 14.71 → class 0 || masses: 0.191918, 0.011825, 0.796257
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & sbp < 142 → class 0 || masses: 0.139380, 0.064353, 0.796267
+class 0 :: age < 52 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.000000, 0.203680, 0.796320
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & ldl > 5.08 → class 0 || masses: 0.124906, 0.078771, 0.796322
+class 0 :: alcohol < 2.06 & obesity < 27.23 & sbp > 128 → class 0 || masses: 0.198691, 0.004980, 0.796329
+class 1 :: age > 38 & alcohol > 2.06 & sbp < 142 → class 1 || masses: 0.034654, 0.168892, 0.796454
+class 0 :: age < 38 & alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.152948, 0.050553, 0.796498
+class 0 :: ldl < 3.58 → class 0 || masses: 0.137504, 0.065927, 0.796569
+class 0 :: age < 38 & alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.155464, 0.047964, 0.796571
+class 1 :: alcohol < 2.06 & chd == 1 → class 1 || masses: 0.024495, 0.178909, 0.796597
+class 1 :: adiposity > 21.93 & age > 38 & alcohol < 14.71 → class 1 || masses: 0.044476, 0.158920, 0.796605
+class 0 :: alcohol < 14.71 & ldl > 3.58 & sbp < 142 → class 0 || masses: 0.050269, 0.153119, 0.796612
+class 0 :: alcohol < 14.71 & obesity < 27.23 & typea < 57 → class 0 || masses: 0.172408, 0.030964, 0.796628
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & ldl > 5.08 → class 1 || masses: 0.029951, 0.173368, 0.796681
+class 0 :: age < 38 & alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.127936, 0.075337, 0.796726
+class 0 :: age < 38 & alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.147747, 0.055519, 0.796734
+class 0 :: alcohol < 14.71 & ldl < 5.08 & sbp > 128 → class 0 || masses: 0.177638, 0.025620, 0.796743
+class 1 :: age > 38 & alcohol < 14.71 & chd == 1 → class 1 || masses: 0.076751, 0.126476, 0.796773
+class 0 :: alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.123310, 0.079882, 0.796807
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & sbp < 128 → class 0 || masses: 0.119271, 0.083909, 0.796821
+class 0 :: ldl < 5.08 → class 0 || masses: 0.183239, 0.019933, 0.796828
+class 1 :: age < 52 & alcohol < 14.71 & chd == 1 → class 1 || masses: 0.017552, 0.185550, 0.796898
+class 0 :: alcohol > 2.06 & sbp < 142 & tobacco > 0.46 → class 0 || masses: 0.080586, 0.122503, 0.796911
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.153107, 0.049955, 0.796938
+class 1 :: age < 52 & alcohol < 14.71 & ldl > 5.08 → class 1 || masses: 0.010420, 0.192639, 0.796941
+class 0 :: adiposity < 29.26 & age < 52 & alcohol < 14.71 → class 0 || masses: 0.117444, 0.085613, 0.796944
+class 0 :: alcohol > 2.06 & ldl < 5.08 & typea < 57 → class 0 || masses: 0.129161, 0.073863, 0.796976
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & chd == 1 → class 0 || masses: 0.144248, 0.058728, 0.797025
+class 0 :: age < 38 & alcohol < 2.06 & typea > 49 → class 0 || masses: 0.128674, 0.074276, 0.797050
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.007137, 0.195791, 0.797072
+class 0 :: adiposity > 21.93 & age < 38 & alcohol > 2.06 → class 0 || masses: 0.131144, 0.071771, 0.797085
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & typea > 49 → class 0 || masses: 0.164704, 0.038199, 0.797097
+class 0 :: age < 38 & alcohol < 2.06 → class 0 || masses: 0.134712, 0.068177, 0.797111
+class 0 :: adiposity < 21.93 → class 0 || masses: 0.128683, 0.074203, 0.797114
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & ldl > 3.58 → class 0 || masses: 0.135951, 0.066934, 0.797115
+class 1 :: age > 38 & alcohol < 14.71 → class 1 || masses: 0.080172, 0.122713, 0.797116
+class 0 :: alcohol > 2.06 & sbp < 142 & typea > 49 → class 0 || masses: 0.086084, 0.116798, 0.797118
+class 1 :: alcohol < 14.71 & ldl > 5.08 & typea < 57 → class 1 || masses: 0.033544, 0.169315, 0.797141
+class 0 :: alcohol < 14.71 & ldl < 5.08 & tobacco < 4.2 → class 0 || masses: 0.127923, 0.074927, 0.797150
+class 0 :: alcohol < 14.71 & ldl < 5.08 & sbp < 128 → class 0 || masses: 0.132832, 0.070001, 0.797167
+class 0 :: alcohol < 2.06 & obesity < 23.76 & typea > 49 → class 0 || masses: 0.020713, 0.182116, 0.797171
+class 0 :: alcohol > 2.06 & obesity < 27.23 & tobacco < 0.46 → class 0 || masses: 0.129877, 0.072950, 0.797172
+class 0 :: age < 38 & alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.154819, 0.048006, 0.797175
+class 1 :: alcohol > 2.06 & ldl > 5.08 & typea < 57 → class 1 || masses: 0.030585, 0.172232, 0.797183
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.070177, 0.132630, 0.797194
+class 0 :: age < 52 & alcohol < 14.71 & typea < 57 → class 0 || masses: 0.123783, 0.079019, 0.797198
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & typea > 57 → class 0 || masses: 0.156423, 0.046356, 0.797221
+class 0 :: adiposity < 21.93 & age < 52 & alcohol < 2.06 → class 0 || masses: 0.121023, 0.081740, 0.797237
+class 1 :: alcohol < 2.06 & chd == 1 & typea < 57 → class 1 || masses: 0.117285, 0.085475, 0.797240
+class 0 :: age > 38 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.180789, 0.021959, 0.797252
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & typea > 49 → class 0 || masses: 0.196027, 0.006687, 0.797286
+class 0 :: alcohol < 14.71 & ldl > 3.58 → class 0 || masses: 0.048725, 0.153938, 0.797337
+class 1 :: alcohol > 2.06 & chd == 1 & sbp < 142 → class 1 || masses: 0.082866, 0.119759, 0.797375
+class 0 :: alcohol < 14.71 & ldl > 3.58 & typea > 49 → class 0 || masses: 0.121077, 0.081544, 0.797379
+class 0 :: age < 38 → class 0 || masses: 0.142708, 0.059896, 0.797395
+class 0 :: alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.147464, 0.055135, 0.797402
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.189225, 0.013362, 0.797413
+class 0 :: age < 38 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.144119, 0.058466, 0.797415
+class 0 :: age < 38 & alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.120898, 0.081680, 0.797423
+class 0 :: age < 52 & alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.200694, 0.001870, 0.797436
+class 0 :: alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.200423, 0.002132, 0.797445
+class 0 :: alcohol < 2.06 & sbp > 128 & tobacco < 4.2 → class 0 || masses: 0.147190, 0.055353, 0.797457
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.173005, 0.029500, 0.797495
+class 1 :: alcohol < 2.06 & chd == 1 & typea > 49 → class 1 || masses: 0.053513, 0.148986, 0.797501
+class 0 :: alcohol > 2.06 & obesity < 23.76 & sbp < 128 → class 0 || masses: 0.140466, 0.061966, 0.797568
+class 0 :: alcohol < 14.71 & typea > 49 → class 0 || masses: 0.117296, 0.085132, 0.797572
+class 0 :: adiposity < 21.93 & age < 38 & alcohol < 14.71 → class 0 || masses: 0.133324, 0.069039, 0.797637
+class 0 :: alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.138345, 0.063987, 0.797668
+class 0 :: alcohol > 2.06 & obesity < 27.23 & typea < 57 → class 0 || masses: 0.118152, 0.084180, 0.797669
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.195916, 0.006408, 0.797676
+class 0 :: alcohol > 2.06 & ldl > 3.58 & typea < 57 → class 0 || masses: 0.083757, 0.118561, 0.797682
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.135338, 0.066948, 0.797713
+class 0 :: alcohol > 2.06 & sbp > 128 & tobacco > 0.46 → class 0 || masses: 0.080022, 0.122243, 0.797736
+class 0 :: alcohol < 2.06 & obesity < 23.76 & tobacco > 0.46 → class 0 || masses: 0.084802, 0.117462, 0.797736
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.154759, 0.047496, 0.797745
+class 0 :: alcohol < 2.06 & obesity > 23.76 & tobacco < 0.46 → class 0 || masses: 0.085402, 0.116820, 0.797779
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.138676, 0.063545, 0.797779
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.129984, 0.072229, 0.797787
+class 0 :: alcohol > 2.06 & sbp < 142 & tobacco < 0.46 → class 0 || masses: 0.018611, 0.183592, 0.797797
+class 0 :: age < 38 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.121711, 0.080489, 0.797800
+class 0 :: alcohol > 2.06 & sbp < 128 & typea > 57 → class 0 || masses: 0.120949, 0.081251, 0.797801
+class 0 :: adiposity < 21.93 & age < 38 & alcohol > 2.06 → class 0 || masses: 0.077350, 0.124829, 0.797821
+class 1 :: age > 38 & alcohol > 2.06 & ldl > 3.58 → class 1 || masses: 0.081523, 0.120617, 0.797860
+class 0 :: alcohol < 2.06 & sbp < 128 & tobacco < 0.46 → class 0 || masses: 0.133554, 0.068580, 0.797866
+class 0 :: alcohol > 2.06 & chd == 0 & sbp < 128 → class 0 || masses: 0.176671, 0.025441, 0.797888
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.079879, 0.122223, 0.797897
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & typea > 57 → class 0 || masses: 0.123065, 0.078987, 0.797948
+class 0 :: age < 38 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.172103, 0.029947, 0.797950
+class 0 :: alcohol < 14.71 & obesity < 23.76 & tobacco > 0.46 → class 0 || masses: 0.069785, 0.132257, 0.797957
+class 0 :: alcohol < 14.71 & sbp > 128 & tobacco < 4.2 → class 0 || masses: 0.120009, 0.082021, 0.797970
+class 0 :: alcohol > 2.06 & obesity < 27.23 & sbp > 128 → class 0 || masses: 0.079823, 0.122182, 0.797994
+class 0 :: typea < 49 → class 0 || masses: 0.196441, 0.005559, 0.798000
+class 0 :: alcohol < 14.71 & sbp > 128 & typea > 49 → class 0 || masses: 0.117999, 0.083998, 0.798003
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & ldl > 3.58 → class 0 || masses: 0.125470, 0.076510, 0.798019
+class 0 :: sbp > 128 → class 0 || masses: 0.134537, 0.067409, 0.798054
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.006977, 0.194964, 0.798059
+class 0 :: age < 38 & alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.172354, 0.029585, 0.798062
+class 0 :: alcohol < 2.06 & chd == 0 → class 0 || masses: 0.152618, 0.049308, 0.798073
+class 0 :: alcohol > 2.06 & sbp > 128 & typea > 57 → class 0 || masses: 0.000649, 0.201266, 0.798085
+class 0 :: alcohol < 2.06 & chd == 0 & sbp < 128 → class 0 || masses: 0.117560, 0.084346, 0.798094
+class 0 :: alcohol < 14.71 & ldl > 3.58 & typea > 57 → class 0 || masses: 0.062239, 0.139664, 0.798098
+class 1 :: adiposity > 21.93 & age > 38 & alcohol > 2.06 → class 1 || masses: 0.085215, 0.116672, 0.798114
+class 1 :: ldl > 5.08 → class 1 || masses: 0.066703, 0.135146, 0.798151
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.139598, 0.062251, 0.798151
+class 0 :: alcohol > 2.06 & sbp < 128 & tobacco > 0.46 → class 0 || masses: 0.123660, 0.078151, 0.798189
+class 0 :: alcohol < 2.06 & sbp < 142 & tobacco < 0.46 → class 0 || masses: 0.077420, 0.124390, 0.798190
+class 0 :: age > 38 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.170246, 0.031543, 0.798211
+class 0 :: alcohol < 2.06 & sbp < 142 & tobacco > 0.46 → class 0 || masses: 0.132473, 0.069267, 0.798260
+class 0 :: alcohol < 14.71 & chd == 0 & sbp < 128 → class 0 || masses: 0.120887, 0.080844, 0.798269
+class 0 :: age < 38 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.119683, 0.082043, 0.798274
+class 0 :: age < 38 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.145520, 0.056189, 0.798291
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.137496, 0.064197, 0.798307
+class 0 :: alcohol < 14.71 & sbp < 142 & tobacco < 0.46 → class 0 || masses: 0.025436, 0.176248, 0.798316
+class 0 :: alcohol < 14.71 & tobacco < 4.2 & typea > 57 → class 0 || masses: 0.074676, 0.126994, 0.798330
+class 0 :: alcohol < 14.71 & sbp < 128 & typea > 49 → class 0 || masses: 0.060281, 0.141366, 0.798353
+class 1 :: alcohol > 2.06 & obesity > 23.76 & sbp < 128 → class 1 || masses: 0.081397, 0.120244, 0.798359
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & typea < 57 → class 0 || masses: 0.030446, 0.171186, 0.798368
+class 0 :: alcohol < 14.71 & sbp < 128 & tobacco > 0.46 → class 0 || masses: 0.087129, 0.114497, 0.798374
+class 0 :: age < 52 & alcohol > 2.06 & sbp < 128 → class 0 || masses: 0.166200, 0.035417, 0.798384
+class 0 :: alcohol < 2.06 & obesity < 27.23 & typea > 57 → class 0 || masses: 0.122171, 0.079415, 0.798414
+class 0 :: age < 52 & alcohol < 14.71 → class 0 || masses: 0.179657, 0.021922, 0.798421
+class 0 :: alcohol < 14.71 & sbp > 128 & tobacco < 0.46 → class 0 || masses: 0.146328, 0.055222, 0.798450
+class 0 :: adiposity < 21.93 & alcohol > 2.06 → class 0 || masses: 0.161616, 0.039932, 0.798452
+class 0 :: sbp < 142 → class 0 || masses: 0.082084, 0.119456, 0.798460
+class 0 :: age < 52 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.188537, 0.012962, 0.798501
+class 0 :: alcohol > 2.06 & sbp > 128 & tobacco < 0.46 → class 0 || masses: 0.129289, 0.072188, 0.798523
+class 1 :: alcohol < 2.06 & ldl > 5.08 & sbp < 142 → class 1 || masses: 0.088658, 0.112792, 0.798550
+class 0 :: age < 38 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.142703, 0.058693, 0.798604
+class 0 :: alcohol < 2.06 & obesity < 23.76 & tobacco < 0.46 → class 0 || masses: 0.191457, 0.009938, 0.798605
+class 0 :: age < 52 & alcohol < 14.71 & typea > 57 → class 0 || masses: 0.034985, 0.166404, 0.798611
+class 0 :: adiposity < 29.26 & alcohol > 2.06 → class 0 || masses: 0.043634, 0.157746, 0.798621
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.149120, 0.052250, 0.798630
+class 0 :: alcohol > 2.06 & obesity < 27.23 & typea > 57 → class 0 || masses: 0.114464, 0.086904, 0.798632
+class 0 :: age < 52 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.186708, 0.014646, 0.798645
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.182748, 0.018587, 0.798665
+class 0 :: alcohol > 2.06 & sbp < 128 → class 0 || masses: 0.171740, 0.029588, 0.798672
+class 0 :: alcohol > 2.06 & obesity > 23.76 & typea > 49 → class 0 || masses: 0.193658, 0.007661, 0.798681
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.154763, 0.046542, 0.798695
+class 0 :: alcohol < 2.06 & chd == 0 & typea < 57 → class 0 || masses: 0.167815, 0.033485, 0.798700
+class 0 :: age < 52 & alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.136153, 0.065145, 0.798702
+class 0 :: age > 38 & alcohol > 2.06 & typea < 57 → class 0 || masses: 0.076352, 0.124912, 0.798736
+class 0 :: age < 52 & alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.129743, 0.071519, 0.798738
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & typea < 57 → class 0 || masses: 0.164431, 0.036816, 0.798753
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.119529, 0.081692, 0.798778
+class 0 :: alcohol > 2.06 & obesity < 27.23 & tobacco < 4.2 → class 0 || masses: 0.174015, 0.027202, 0.798783
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.020533, 0.180684, 0.798783
+class 0 :: alcohol > 2.06 & obesity > 23.76 & tobacco < 0.46 → class 0 || masses: 0.023529, 0.177680, 0.798790
+class 0 :: age < 38 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.130759, 0.070438, 0.798802
+class 0 :: alcohol < 14.71 & obesity > 23.76 & tobacco < 4.2 → class 0 || masses: 0.045029, 0.156159, 0.798811
+class 0 :: alcohol < 2.06 & sbp < 128 & typea > 57 → class 0 || masses: 0.151247, 0.049938, 0.798816
+class 0 :: alcohol < 2.06 & ldl < 5.08 & sbp < 142 → class 0 || masses: 0.128903, 0.072281, 0.798816
+class 0 :: alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.116266, 0.084906, 0.798829
+class 0 :: alcohol > 2.06 & sbp > 128 & typea < 57 → class 0 || masses: 0.082938, 0.118230, 0.798832
+class 0 :: alcohol < 2.06 & sbp > 128 & tobacco < 0.46 → class 0 || masses: 0.071568, 0.129568, 0.798864
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.118423, 0.082696, 0.798881
+class 0 :: alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.174954, 0.026164, 0.798882
+class 0 :: alcohol < 2.06 & tobacco < 0.46 & typea > 49 → class 0 || masses: 0.044831, 0.156278, 0.798891
+class 0 :: typea > 57 → class 0 || masses: 0.142851, 0.058223, 0.798926
+class 0 :: age < 38 & alcohol < 14.71 & typea > 57 → class 0 || masses: 0.155418, 0.045642, 0.798940
+class 0 :: alcohol < 2.06 & obesity > 23.76 & tobacco < 4.2 → class 0 || masses: 0.125780, 0.075248, 0.798972
+class 0 :: age < 38 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.048948, 0.152076, 0.798976
+class 0 :: age > 38 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.056902, 0.144087, 0.799011
+class 0 :: alcohol > 2.06 & typea < 57 → class 0 || masses: 0.020322, 0.180645, 0.799033
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.185497, 0.015468, 0.799035
+class 0 :: age < 52 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.126176, 0.074784, 0.799040
+class 0 :: alcohol < 14.71 & ldl > 3.58 & typea < 57 → class 0 || masses: 0.089695, 0.111264, 0.799041
+class 0 :: age < 52 & alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.047903, 0.153046, 0.799051
+class 1 :: age > 38 & alcohol > 2.06 & typea > 49 → class 1 || masses: 0.122386, 0.078549, 0.799065
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.045626, 0.155308, 0.799066
+class 1 :: alcohol < 14.71 & ldl > 5.08 & tobacco > 0.46 → class 1 || masses: 0.087300, 0.113610, 0.799090
+class 0 :: adiposity < 21.93 & age > 38 & alcohol < 2.06 → class 0 || masses: 0.029502, 0.171405, 0.799093
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.126452, 0.074431, 0.799117
+class 0 :: age < 52 → class 0 || masses: 0.128703, 0.072175, 0.799122
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.136839, 0.064025, 0.799135
+class 0 :: alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.108677, 0.092171, 0.799152
+class 0 :: alcohol < 2.06 & obesity < 27.23 & tobacco < 0.46 → class 0 || masses: 0.148561, 0.052262, 0.799178
+class 0 :: alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.143662, 0.057152, 0.799187
+class 0 :: alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.170760, 0.030026, 0.799214
+class 0 :: age > 52 → class 0 || masses: 0.149120, 0.051655, 0.799225
+class 0 :: alcohol < 2.06 & ldl > 3.58 & typea > 49 → class 0 || masses: 0.054595, 0.146175, 0.799230
+class 0 :: alcohol > 2.06 & sbp < 128 & tobacco < 4.2 → class 0 || masses: 0.061073, 0.139648, 0.799279
+class 0 :: age < 52 & alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.196471, 0.004248, 0.799281
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.076582, 0.124135, 0.799284
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.123229, 0.077481, 0.799290
+class 1 :: alcohol > 2.06 & ldl > 5.08 & typea > 49 → class 1 || masses: 0.150177, 0.050532, 0.799291
+class 0 :: age > 38 → class 0 || masses: 0.018760, 0.181935, 0.799305
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.080859, 0.119828, 0.799314
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & ldl > 5.08 → class 0 || masses: 0.159282, 0.041399, 0.799319
+class 0 :: age < 52 & alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.122037, 0.078631, 0.799332
+class 0 :: alcohol > 2.06 & tobacco < 4.2 & typea > 57 → class 0 || masses: 0.032354, 0.168303, 0.799343
+class 0 :: alcohol < 2.06 & tobacco < 0.46 & typea < 57 → class 0 || masses: 0.049495, 0.151154, 0.799352
+class 0 :: alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.126644, 0.073992, 0.799364
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.071173, 0.129457, 0.799369
+class 0 :: alcohol < 14.71 & obesity > 23.76 & sbp < 142 → class 0 || masses: 0.029172, 0.171454, 0.799374
+class 0 :: age > 38 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.124417, 0.076188, 0.799396
+class 0 :: age < 52 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.189513, 0.011082, 0.799406
+class 0 :: alcohol < 14.71 & ldl > 3.58 & sbp > 128 → class 0 || masses: 0.141397, 0.059182, 0.799420
+class 0 :: alcohol < 2.06 & typea > 57 → class 0 || masses: 0.118480, 0.082026, 0.799493
+class 0 :: age < 52 & alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.111904, 0.088573, 0.799523
+class 0 :: age > 38 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.067894, 0.132581, 0.799525
+class 1 :: age > 38 & alcohol < 14.71 & typea > 49 → class 1 || masses: 0.051695, 0.148761, 0.799545
+class 0 :: alcohol < 14.71 & sbp < 142 & typea > 49 → class 0 || masses: 0.109470, 0.090953, 0.799577
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.128641, 0.071757, 0.799601
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & ldl > 3.58 → class 1 || masses: 0.084822, 0.115572, 0.799605
+class 1 :: age > 38 & alcohol < 2.06 & obesity > 23.76 → class 1 || masses: 0.066934, 0.133459, 0.799608
+class 0 :: alcohol > 2.06 & typea > 57 → class 0 || masses: 0.106333, 0.094059, 0.799608
+class 0 :: age < 52 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.108482, 0.091886, 0.799632
+class 0 :: alcohol < 14.71 & obesity < 23.76 & sbp > 128 → class 0 || masses: 0.142443, 0.057909, 0.799648
+class 0 :: alcohol > 2.06 → class 0 || masses: 0.021996, 0.178332, 0.799672
+class 0 :: alcohol > 2.06 & ldl < 5.08 & typea > 57 → class 0 || masses: 0.119137, 0.081189, 0.799674
+class 0 :: alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.126717, 0.073582, 0.799701
+class 0 :: age < 52 & alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.108572, 0.091725, 0.799702
+class 1 :: alcohol > 2.06 & ldl > 5.08 & tobacco > 0.46 → class 1 || masses: 0.074404, 0.125889, 0.799707
+class 0 :: age > 38 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.119174, 0.081114, 0.799712
+class 0 :: alcohol < 14.71 & sbp < 142 & typea > 57 → class 0 || masses: 0.043233, 0.157049, 0.799718
+class 0 :: alcohol > 2.06 & sbp < 128 & tobacco < 0.46 → class 0 || masses: 0.011553, 0.188721, 0.799726
+class 0 :: alcohol > 2.06 & obesity > 23.76 & tobacco > 0.46 → class 0 || masses: 0.074394, 0.125859, 0.799747
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.019541, 0.180695, 0.799763
+class 0 :: age < 52 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.105734, 0.094500, 0.799766
+class 0 :: alcohol < 14.71 & obesity > 23.76 & typea > 57 → class 0 || masses: 0.131424, 0.068796, 0.799779
+class 0 :: age < 52 & alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.087087, 0.113123, 0.799790
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & typea > 49 → class 0 || masses: 0.032625, 0.167583, 0.799792
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.170440, 0.029765, 0.799795
+class 0 :: alcohol < 2.06 & obesity < 27.23 & tobacco < 4.2 → class 0 || masses: 0.125506, 0.074693, 0.799801
+class 0 :: alcohol < 2.06 & obesity < 27.23 & sbp < 142 → class 0 || masses: 0.030943, 0.169247, 0.799809
+class 0 :: adiposity > 21.93 & age < 52 & alcohol > 2.06 → class 0 || masses: 0.004510, 0.195665, 0.799825
+class 0 :: alcohol < 2.06 & ldl > 3.58 & typea > 57 → class 0 || masses: 0.078362, 0.121798, 0.799840
+class 0 :: alcohol < 2.06 & sbp > 128 & typea > 57 → class 0 || masses: 0.115544, 0.084611, 0.799845
+class 0 :: alcohol < 14.71 & sbp < 128 & typea < 57 → class 0 || masses: 0.053685, 0.146462, 0.799853
+class 0 :: adiposity < 29.26 & age > 38 & alcohol < 14.71 → class 0 || masses: 0.174616, 0.025523, 0.799862
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.094978, 0.105151, 0.799871
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.119834, 0.080283, 0.799883
+class 0 :: age < 38 & alcohol > 2.06 & typea > 49 → class 0 || masses: 0.038744, 0.161371, 0.799884
+class 0 :: alcohol < 2.06 & sbp < 128 & tobacco < 4.2 → class 0 || masses: 0.085802, 0.114309, 0.799889
+class 0 :: adiposity < 29.26 & alcohol < 2.06 → class 0 || masses: 0.037091, 0.163012, 0.799896
+class 0 :: alcohol > 2.06 & obesity < 23.76 & typea > 49 → class 0 || masses: 0.048398, 0.151692, 0.799910
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & ldl > 5.08 → class 0 || masses: 0.091884, 0.108205, 0.799910
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.109259, 0.090817, 0.799924
+class 0 :: age < 52 & alcohol < 2.06 → class 0 || masses: 0.071285, 0.128784, 0.799931
+class 0 :: adiposity < 29.26 & age < 38 & alcohol > 2.06 → class 0 || masses: 0.200065, 0.000000, 0.799935
+class 0 :: alcohol > 2.06 & ldl < 5.08 & tobacco > 0.46 → class 0 || masses: 0.136668, 0.063397, 0.799935
+class 1 :: age > 38 & alcohol < 2.06 → class 1 || masses: 0.089106, 0.110945, 0.799949
+class 0 :: alcohol < 14.71 & obesity < 27.23 & typea > 57 → class 0 || masses: 0.091496, 0.108552, 0.799951
+class 0 :: alcohol < 14.71 & obesity < 27.23 & typea > 49 → class 0 || masses: 0.170699, 0.029321, 0.799981
+class 0 :: age > 38 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.125646, 0.074371, 0.799983
+class 0 :: alcohol > 2.06 & sbp > 128 & typea > 49 → class 0 || masses: 0.146646, 0.053370, 0.799984
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.152508, 0.047501, 0.799991
+class 0 :: age < 52 & alcohol < 14.71 & sbp < 142 → class 0 || masses: 0.129003, 0.071004, 0.799994
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.134858, 0.065133, 0.800010
+class 0 :: age < 52 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.148097, 0.051882, 0.800021
+class 0 :: alcohol < 2.06 & ldl > 5.08 & tobacco < 0.46 → class 0 || masses: 0.025301, 0.174673, 0.800026
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.084884, 0.115086, 0.800030
+class 0 :: alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.065849, 0.134112, 0.800039
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.124199, 0.075760, 0.800041
+class 0 :: alcohol < 2.06 & tobacco > 0.46 & typea > 49 → class 0 || masses: 0.118314, 0.081643, 0.800043
+class 0 :: alcohol > 2.06 & tobacco < 0.46 & typea > 49 → class 0 || masses: 0.001401, 0.198544, 0.800055
+class 0 :: alcohol < 2.06 & ldl < 5.08 & typea > 49 → class 0 || masses: 0.190859, 0.009067, 0.800074
+class 0 :: alcohol > 14.71 → class 0 || masses: 0.067199, 0.132720, 0.800081
+class 0 :: age < 52 & alcohol > 2.06 & typea > 49 → class 0 || masses: 0.062862, 0.137047, 0.800091
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.009771, 0.190130, 0.800099
+class 0 :: age < 52 & alcohol > 2.06 & typea < 57 → class 0 || masses: 0.010300, 0.189600, 0.800099
+class 0 :: alcohol < 2.06 & sbp < 142 & typea > 57 → class 0 || masses: 0.015941, 0.183887, 0.800173
+class 1 :: alcohol < 14.71 & ldl > 5.08 & sbp > 128 → class 1 || masses: 0.091869, 0.107958, 0.800173
+class 0 :: alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.177420, 0.022397, 0.800183
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & sbp < 142 → class 0 || masses: 0.133242, 0.066571, 0.800187
+class 0 :: alcohol < 2.06 & obesity > 23.76 & sbp < 142 → class 0 || masses: 0.156859, 0.042943, 0.800198
+class 1 :: alcohol < 2.06 & ldl > 5.08 & typea > 57 → class 1 || masses: 0.130956, 0.068843, 0.800201
+class 0 :: alcohol > 2.06 & obesity < 23.76 & tobacco < 4.2 → class 0 || masses: 0.109611, 0.090187, 0.800202
+class 0 :: alcohol < 2.06 & ldl > 3.58 & typea < 57 → class 0 || masses: 0.126403, 0.073383, 0.800214
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.115700, 0.084077, 0.800224
+class 0 :: alcohol > 2.06 & obesity < 23.76 & tobacco > 0.46 → class 0 || masses: 0.070902, 0.128872, 0.800226
+class 0 :: alcohol > 2.06 & tobacco > 0.46 & typea > 49 → class 0 || masses: 0.152955, 0.046816, 0.800229
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & typea > 49 → class 0 || masses: 0.058232, 0.141504, 0.800264
+class 0 :: alcohol < 2.06 & sbp < 142 & typea < 57 → class 0 || masses: 0.083524, 0.116176, 0.800301
+class 0 :: alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.136146, 0.063524, 0.800329
+class 0 :: alcohol < 14.71 & tobacco < 0.46 & typea < 57 → class 0 || masses: 0.123273, 0.076370, 0.800357
+class 1 :: age > 38 & alcohol < 14.71 & sbp > 128 → class 1 || masses: 0.086507, 0.113122, 0.800371
+class 1 :: adiposity > 21.93 & alcohol < 2.06 & ldl > 5.08 → class 1 || masses: 0.151739, 0.047872, 0.800389
+class 0 :: alcohol < 2.06 & tobacco < 0.46 & typea > 57 → class 0 || masses: 0.104730, 0.094862, 0.800408
+class 0 :: alcohol < 2.06 & chd == 0 & typea > 49 → class 0 || masses: 0.061081, 0.138511, 0.800408
+class 0 :: alcohol > 2.06 & obesity < 23.76 & sbp < 142 → class 0 || masses: 0.138241, 0.061336, 0.800422
+class 0 :: tobacco > 0.46 → class 0 || masses: 0.029042, 0.170520, 0.800438
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.091206, 0.108353, 0.800441
+class 0 :: alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.158243, 0.041312, 0.800445
+class 1 :: age > 38 & alcohol < 14.71 & sbp < 128 → class 1 || masses: 0.084910, 0.114643, 0.800447
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.106575, 0.092970, 0.800456
+class 0 :: alcohol < 2.06 & ldl < 5.08 & typea > 57 → class 0 || masses: 0.059965, 0.139574, 0.800461
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.105543, 0.093990, 0.800467
+class 0 :: adiposity < 29.26 & age < 52 & alcohol < 2.06 → class 0 || masses: 0.152230, 0.047285, 0.800485
+class 0 :: age > 38 & alcohol > 2.06 → class 0 || masses: 0.133237, 0.066274, 0.800488
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.163867, 0.035640, 0.800492
+class 0 :: alcohol > 2.06 & tobacco < 0.46 & typea < 57 → class 0 || masses: 0.160626, 0.038866, 0.800507
+class 0 :: alcohol < 2.06 & ldl < 5.08 & sbp > 128 → class 0 || masses: 0.104514, 0.094973, 0.800513
+class 0 :: alcohol > 2.06 & obesity > 23.76 & sbp > 128 → class 0 || masses: 0.099525, 0.099960, 0.800516
+class 0 :: alcohol < 2.06 & typea > 49 → class 0 || masses: 0.117392, 0.082092, 0.800516
+class 0 :: alcohol > 2.06 & ldl > 3.58 & typea > 49 → class 0 || masses: 0.109942, 0.089533, 0.800526
+class 0 :: age < 38 & alcohol > 2.06 & sbp < 142 → class 0 || masses: 0.088607, 0.110849, 0.800544
+class 0 :: alcohol > 2.06 & ldl > 3.58 & tobacco < 0.46 → class 0 || masses: 0.146229, 0.053213, 0.800558
+class 0 :: alcohol < 2.06 & tobacco < 4.2 & typea < 57 → class 0 || masses: 0.105873, 0.093566, 0.800561
+class 0 :: age < 52 & alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.104678, 0.094742, 0.800580
+class 0 :: alcohol < 2.06 & obesity < 23.76 & sbp < 142 → class 0 || masses: 0.113709, 0.085709, 0.800582
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.106543, 0.092863, 0.800594
+class 0 :: alcohol < 14.71 & typea > 57 → class 0 || masses: 0.116054, 0.083351, 0.800595
+class 0 :: alcohol < 2.06 & obesity < 27.23 & tobacco > 0.46 → class 0 || masses: 0.081859, 0.117535, 0.800606
+class 0 :: alcohol < 2.06 & obesity < 27.23 & typea < 57 → class 0 || masses: 0.039671, 0.159724, 0.800606
+class 0 :: age < 52 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.011059, 0.188270, 0.800670
+class 0 :: alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.095591, 0.103723, 0.800685
+class 0 :: alcohol < 2.06 & obesity < 23.76 & typea < 57 → class 0 || masses: 0.087646, 0.111664, 0.800690
+class 0 :: alcohol > 2.06 & obesity < 27.23 & typea > 49 → class 0 || masses: 0.076068, 0.123238, 0.800694
+class 0 :: age < 38 & alcohol > 2.06 → class 0 || masses: 0.028989, 0.170315, 0.800696
+class 0 :: alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.049369, 0.149935, 0.800696
+class 0 :: age < 52 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.176142, 0.023151, 0.800707
+class 1 :: alcohol < 2.06 & ldl > 5.08 & tobacco > 0.46 → class 1 || masses: 0.135417, 0.063870, 0.800713
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.157145, 0.042140, 0.800715
+class 0 :: alcohol < 2.06 & sbp < 128 & typea < 57 → class 0 || masses: 0.090805, 0.108476, 0.800719
+class 0 :: age < 38 & alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.165045, 0.034219, 0.800736
+class 1 :: adiposity > 29.26 → class 1 || masses: 0.091007, 0.108253, 0.800741
+class 0 :: alcohol < 2.06 & ldl < 5.08 & tobacco < 0.46 → class 0 || masses: 0.071763, 0.127496, 0.800741
+class 0 :: age < 52 & alcohol < 14.71 & ldl > 3.58 → class 0 || masses: 0.114224, 0.085035, 0.800741
+class 0 :: sbp < 128 → class 0 || masses: 0.081842, 0.117417, 0.800741
+class 0 :: alcohol < 14.71 & sbp < 128 & tobacco < 0.46 → class 0 || masses: 0.060065, 0.139174, 0.800761
+class 0 :: alcohol < 2.06 & ldl < 5.08 & tobacco < 4.2 → class 0 || masses: 0.107310, 0.091906, 0.800784
+class 0 :: adiposity < 29.26 & age < 52 & alcohol > 2.06 → class 0 || masses: 0.051122, 0.148086, 0.800792
+class 0 :: alcohol < 14.71 & obesity < 23.76 & sbp < 128 → class 0 || masses: 0.104936, 0.094271, 0.800794
+class 0 :: obesity > 23.76 → class 0 || masses: 0.044141, 0.155060, 0.800799
+class 0 :: age > 38 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.072510, 0.126688, 0.800802
+class 0 :: alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.091851, 0.107342, 0.800807
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.187817, 0.011368, 0.800815
+class 0 :: alcohol > 2.06 & sbp < 142 & typea > 57 → class 0 || masses: 0.093815, 0.105352, 0.800833
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.161748, 0.037409, 0.800843
+class 0 :: alcohol < 2.06 & ldl > 3.58 & tobacco > 0.46 → class 0 || masses: 0.137093, 0.062046, 0.800861
+class 0 :: adiposity < 21.93 & age < 52 & alcohol > 2.06 → class 0 || masses: 0.129828, 0.069303, 0.800869
+class 0 :: alcohol < 14.71 & sbp < 142 → class 0 || masses: 0.054973, 0.144152, 0.800876
+class 0 :: alcohol < 2.06 → class 0 || masses: 0.068235, 0.130886, 0.800879
+class 0 :: alcohol < 14.71 & sbp < 128 & typea > 57 → class 0 || masses: 0.102048, 0.097050, 0.800902
+class 0 :: alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.108507, 0.090590, 0.800903
+class 0 :: alcohol < 2.06 & sbp < 128 & typea > 49 → class 0 || masses: 0.121355, 0.077739, 0.800906
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & tobacco < 4.2 → class 0 || masses: 0.025024, 0.174061, 0.800915
+class 0 :: alcohol < 2.06 & tobacco > 0.46 & typea > 57 → class 0 || masses: 0.039275, 0.159809, 0.800916
+class 1 :: alcohol < 2.06 & ldl > 5.08 → class 1 || masses: 0.000000, 0.199078, 0.800922
+class 0 :: age < 38 & alcohol < 14.71 & typea < 57 → class 0 || masses: 0.113577, 0.085500, 0.800924
+class 1 :: age > 38 & alcohol < 14.71 & typea < 57 → class 1 || masses: 0.141209, 0.057854, 0.800937
+class 0 :: alcohol > 2.06 & ldl > 5.08 & typea > 57 → class 0 || masses: 0.100414, 0.098602, 0.800984
+class 0 :: alcohol < 14.71 & obesity > 23.76 & tobacco < 0.46 → class 0 || masses: 0.181153, 0.017853, 0.800994
+class 0 :: alcohol < 14.71 & sbp > 128 & tobacco > 0.46 → class 0 || masses: 0.019836, 0.179155, 0.801009
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.116427, 0.082563, 0.801010
+class 0 :: alcohol > 2.06 & obesity < 23.76 & typea > 57 → class 0 || masses: 0.144839, 0.054148, 0.801013
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & obesity < 27.23 → class 0 || masses: 0.088705, 0.110268, 0.801027
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & typea > 49 → class 0 || masses: 0.021540, 0.177429, 0.801032
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.052497, 0.146416, 0.801087
+class 0 :: adiposity < 29.26 & age > 38 & alcohol < 2.06 → class 0 || masses: 0.088881, 0.110031, 0.801088
+class 0 :: alcohol < 14.71 & obesity < 27.23 & sbp > 128 → class 0 || masses: 0.074630, 0.124258, 0.801112
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.111644, 0.087238, 0.801118
+class 0 :: alcohol < 2.06 & tobacco < 4.2 & typea > 57 → class 0 || masses: 0.083519, 0.115348, 0.801133
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.150609, 0.048256, 0.801135
+class 0 :: alcohol < 14.71 & tobacco < 0.46 & typea > 49 → class 0 || masses: 0.097966, 0.100895, 0.801140
+class 0 :: alcohol < 2.06 & obesity > 23.76 & typea > 57 → class 0 || masses: 0.015543, 0.183306, 0.801151
+class 0 :: alcohol < 14.71 & obesity < 23.76 & sbp < 142 → class 0 || masses: 0.043803, 0.155032, 0.801165
+class 0 :: age < 52 & alcohol < 2.06 & typea > 49 → class 0 || masses: 0.094630, 0.104204, 0.801166
+class 0 :: alcohol < 2.06 & sbp < 142 & typea > 49 → class 0 || masses: 0.095704, 0.103127, 0.801169
+class 0 :: alcohol > 2.06 & obesity < 27.23 & sbp < 142 → class 0 || masses: 0.116294, 0.082533, 0.801173
+class 0 :: alcohol < 14.71 & ldl < 5.08 & typea > 57 → class 0 || masses: 0.185865, 0.012935, 0.801201
+class 0 :: alcohol > 2.06 & ldl > 3.58 & sbp < 128 → class 0 || masses: 0.135263, 0.063535, 0.801202
+class 0 :: alcohol < 2.06 & tobacco < 4.2 & typea > 49 → class 0 || masses: 0.035416, 0.163372, 0.801212
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.184520, 0.014257, 0.801223
+class 0 :: alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.034835, 0.163940, 0.801224
+class 0 :: alcohol < 14.71 & tobacco < 4.2 & typea > 49 → class 0 || masses: 0.031279, 0.167465, 0.801256
+class 1 :: alcohol < 14.71 & ldl > 5.08 & typea > 49 → class 1 || masses: 0.103057, 0.095676, 0.801267
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & sbp < 128 → class 1 || masses: 0.088885, 0.109846, 0.801270
+class 0 :: alcohol < 14.71 & tobacco < 4.2 & typea < 57 → class 0 || masses: 0.066853, 0.131861, 0.801286
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.108294, 0.090419, 0.801287
+class 0 :: age < 38 & alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.111486, 0.087226, 0.801288
+class 0 :: age < 52 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.090153, 0.108551, 0.801296
+class 0 :: age < 52 & alcohol < 2.06 & tobacco < 0.46 → class 0 || masses: 0.135181, 0.063518, 0.801300
+class 0 :: alcohol < 2.06 & sbp < 142 & tobacco < 4.2 → class 0 || masses: 0.095816, 0.102880, 0.801304
+class 1 :: age < 52 & alcohol > 2.06 & ldl > 5.08 → class 1 || masses: 0.108252, 0.090428, 0.801321
+class 0 :: alcohol < 14.71 & chd == 0 & sbp < 142 → class 0 || masses: 0.111974, 0.086702, 0.801324
+class 0 :: age > 38 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.092646, 0.106025, 0.801328
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & chd == 1 → class 0 || masses: 0.118268, 0.080401, 0.801331
+class 0 :: alcohol > 2.06 & ldl < 5.08 & typea > 49 → class 0 || masses: 0.013640, 0.185014, 0.801346
+class 0 :: alcohol < 2.06 & ldl > 5.08 & typea < 57 → class 0 || masses: 0.051545, 0.147095, 0.801361
+class 0 :: alcohol < 2.06 & obesity < 27.23 & typea > 49 → class 0 || masses: 0.097263, 0.101369, 0.801368
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.087756, 0.110871, 0.801373
+class 0 :: alcohol < 2.06 & ldl > 3.58 & tobacco < 4.2 → class 0 || masses: 0.120696, 0.077930, 0.801375
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & ldl > 5.08 → class 0 || masses: 0.149242, 0.049367, 0.801391
+class 0 :: alcohol > 2.06 & ldl > 3.58 & sbp < 142 → class 0 || masses: 0.087831, 0.110776, 0.801393
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.097678, 0.100929, 0.801393
+class 0 :: age < 52 & alcohol < 14.71 & typea > 49 → class 0 || masses: 0.099671, 0.098931, 0.801398
+class 0 :: age < 38 & alcohol > 2.06 & typea < 57 → class 0 || masses: 0.107918, 0.090660, 0.801421
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & typea > 49 → class 0 || masses: 0.093088, 0.105483, 0.801429
+class 0 :: alcohol < 14.71 & obesity < 23.76 & typea < 57 → class 0 || masses: 0.084310, 0.114260, 0.801430
+class 1 :: alcohol < 2.06 & chd == 1 & sbp > 128 → class 1 || masses: 0.088720, 0.109841, 0.801439
+class 1 :: age > 38 & alcohol < 14.71 & tobacco > 0.46 → class 1 || masses: 0.133228, 0.065326, 0.801446
+class 0 :: alcohol > 2.06 & sbp < 128 & typea < 57 → class 0 || masses: 0.043701, 0.154826, 0.801472
+class 1 :: alcohol < 14.71 & ldl > 5.08 & typea > 57 → class 1 || masses: 0.096896, 0.101622, 0.801482
+class 0 :: alcohol < 14.71 & ldl < 5.08 & typea > 49 → class 0 || masses: 0.067379, 0.131125, 0.801496
+class 0 :: age < 52 & alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.087976, 0.110519, 0.801505
+class 0 :: alcohol < 14.71 & sbp < 142 & tobacco < 4.2 → class 0 || masses: 0.107591, 0.090902, 0.801506
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.106776, 0.091711, 0.801513
+class 0 :: alcohol < 2.06 & sbp > 128 & typea > 49 → class 0 || masses: 0.042098, 0.156381, 0.801521
+class 0 :: alcohol < 14.71 & obesity < 27.23 & tobacco > 0.46 → class 0 || masses: 0.032637, 0.165840, 0.801524
+class 0 :: alcohol < 2.06 & obesity > 23.76 & typea < 57 → class 0 || masses: 0.111463, 0.087008, 0.801529
+class 0 :: alcohol < 2.06 & ldl > 5.08 & tobacco < 4.2 → class 0 || masses: 0.169803, 0.028667, 0.801530
+class 1 :: alcohol > 2.06 & ldl > 5.08 & sbp > 128 → class 1 || masses: 0.164614, 0.033844, 0.801542
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.148651, 0.049784, 0.801564
+class 0 :: adiposity > 21.93 & alcohol > 2.06 → class 0 || masses: 0.149392, 0.049033, 0.801575
+class 0 :: alcohol < 14.71 & obesity < 23.76 & tobacco < 4.2 → class 0 || masses: 0.061178, 0.137241, 0.801581
+class 0 :: adiposity < 29.26 → class 0 || masses: 0.084466, 0.113951, 0.801583
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.073812, 0.124602, 0.801586
+class 0 :: alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.048036, 0.150377, 0.801587
+class 0 :: alcohol < 14.71 & sbp < 128 & tobacco < 4.2 → class 0 || masses: 0.096924, 0.101486, 0.801591
+class 0 :: alcohol > 2.06 & sbp < 128 & typea > 49 → class 0 || masses: 0.118099, 0.080309, 0.801592
+class 1 :: age > 38 & alcohol < 2.06 & sbp < 128 → class 1 || masses: 0.089175, 0.109230, 0.801595
+class 0 :: alcohol < 14.71 & sbp > 128 & typea > 57 → class 0 || masses: 0.134108, 0.064290, 0.801602
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.144562, 0.053834, 0.801604
+class 1 :: age > 38 & alcohol < 2.06 & obesity < 27.23 → class 1 || masses: 0.096482, 0.101910, 0.801609
+class 0 :: alcohol > 2.06 & tobacco > 0.46 & typea > 57 → class 0 || masses: 0.095241, 0.103146, 0.801613
+class 0 :: alcohol < 14.71 & ldl > 3.58 & tobacco < 0.46 → class 0 || masses: 0.104299, 0.094039, 0.801662
+class 0 :: alcohol < 14.71 & sbp < 142 & typea < 57 → class 0 || masses: 0.094591, 0.103746, 0.801662
+class 0 :: alcohol < 14.71 & obesity > 23.76 → class 0 || masses: 0.090167, 0.108161, 0.801672
+class 0 :: alcohol < 14.71 & tobacco > 0.46 & typea > 49 → class 0 || masses: 0.108402, 0.089900, 0.801698
+class 0 :: age < 52 & alcohol > 2.06 & tobacco < 4.2 → class 0 || masses: 0.140502, 0.057799, 0.801699
+class 0 :: alcohol < 2.06 & obesity > 23.76 & sbp < 128 → class 0 || masses: 0.172675, 0.025623, 0.801702
+class 1 :: age > 38 & alcohol > 2.06 & ldl > 5.08 → class 1 || masses: 0.088839, 0.109449, 0.801712
+class 0 :: alcohol < 2.06 & obesity > 23.76 & typea > 49 → class 0 || masses: 0.092982, 0.105298, 0.801720
+class 0 :: alcohol < 2.06 & obesity < 23.76 & typea > 57 → class 0 || masses: 0.158056, 0.040219, 0.801724
+class 0 :: alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.173478, 0.024780, 0.801742
+class 0 :: adiposity < 21.93 & alcohol < 2.06 → class 0 || masses: 0.052312, 0.145944, 0.801745
+class 0 :: obesity < 23.76 → class 0 || masses: 0.080265, 0.117979, 0.801756
+class 0 :: alcohol < 2.06 & ldl < 5.08 → class 0 || masses: 0.088933, 0.109308, 0.801758
+class 0 :: alcohol > 2.06 & obesity > 23.76 & typea < 57 → class 0 || masses: 0.122831, 0.075402, 0.801766
+class 0 :: alcohol > 2.06 & ldl < 5.08 & sbp < 142 → class 0 || masses: 0.106710, 0.091524, 0.801766
+class 0 :: age < 52 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.091830, 0.106390, 0.801780
+class 0 :: alcohol < 2.06 & obesity < 23.76 & sbp > 128 → class 0 || masses: 0.149681, 0.048539, 0.801780
+class 0 :: adiposity > 21.93 & alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.119990, 0.078199, 0.801811
+class 0 :: alcohol < 14.71 → class 0 || masses: 0.029366, 0.168821, 0.801813
+class 0 :: alcohol > 2.06 & ldl < 5.08 & sbp > 128 → class 0 || masses: 0.081810, 0.116346, 0.801844
+class 0 :: typea > 49 → class 0 || masses: 0.072014, 0.126112, 0.801874
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.080899, 0.117217, 0.801885
+class 0 :: age < 52 & alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.095413, 0.102701, 0.801886
+class 0 :: adiposity > 21.93 → class 0 || masses: 0.112643, 0.085451, 0.801905
+class 0 :: age > 38 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.092158, 0.105936, 0.801905
+class 0 :: alcohol > 2.06 & obesity < 23.76 & sbp > 128 → class 0 || masses: 0.172729, 0.025359, 0.801912
+class 0 :: alcohol < 14.71 & tobacco < 0.46 & typea > 57 → class 0 || masses: 0.060130, 0.137954, 0.801916
+class 0 :: alcohol < 2.06 & chd == 0 & sbp > 128 → class 0 || masses: 0.085719, 0.112348, 0.801934
+class 0 :: alcohol < 14.71 & obesity > 23.76 & sbp < 128 → class 0 || masses: 0.098566, 0.099492, 0.801942
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.106528, 0.091515, 0.801956
+class 0 :: alcohol < 14.71 & tobacco > 0.46 & typea > 57 → class 0 || masses: 0.182983, 0.015052, 0.801965
+class 0 :: alcohol > 2.06 & chd == 0 & sbp < 142 → class 0 || masses: 0.180381, 0.017617, 0.802002
+class 0 :: alcohol < 2.06 & obesity < 27.23 & sbp < 128 → class 0 || masses: 0.064569, 0.133426, 0.802005
+class 0 :: alcohol > 2.06 & ldl > 3.58 & typea > 57 → class 0 || masses: 0.095042, 0.102953, 0.802005
+class 0 :: adiposity > 21.93 & alcohol < 2.06 → class 0 || masses: 0.097754, 0.100233, 0.802013
+class 1 :: age < 52 & alcohol < 2.06 & chd == 1 → class 1 || masses: 0.116615, 0.081366, 0.802019
+class 0 :: alcohol > 2.06 & typea > 49 → class 0 || masses: 0.101928, 0.096048, 0.802024
+class 0 :: alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.099977, 0.097998, 0.802025
+class 0 :: age < 38 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.131418, 0.066538, 0.802044
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & sbp < 142 → class 0 || masses: 0.127112, 0.070833, 0.802055
+class 0 :: sbp > 142 → class 0 || masses: 0.106799, 0.091143, 0.802058
+class 0 :: age < 52 & alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.127481, 0.070438, 0.802081
+class 0 :: alcohol < 2.06 & ldl > 3.58 & sbp > 128 → class 0 || masses: 0.059986, 0.137925, 0.802089
+class 0 :: alcohol < 14.71 & obesity < 23.76 & typea > 49 → class 0 || masses: 0.125228, 0.072678, 0.802094
+class 1 :: alcohol < 14.71 & ldl > 3.58 & tobacco > 0.46 → class 1 || masses: 0.178721, 0.019157, 0.802122
+class 0 :: age > 38 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.038355, 0.159522, 0.802124
+class 1 :: alcohol < 2.06 & sbp < 128 & tobacco > 0.46 → class 1 || masses: 0.173659, 0.024211, 0.802131
+class 0 :: age < 52 & alcohol > 2.06 → class 0 || masses: 0.097140, 0.100726, 0.802134
+class 0 :: age < 38 & alcohol < 2.06 & tobacco > 0.46 → class 0 || masses: 0.070702, 0.127164, 0.802134
+class 0 :: alcohol > 2.06 & ldl < 5.08 & tobacco < 4.2 → class 0 || masses: 0.074735, 0.123124, 0.802141
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.079397, 0.118430, 0.802173
+class 0 :: alcohol < 2.06 & ldl < 5.08 & typea < 57 → class 0 || masses: 0.106580, 0.091234, 0.802186
+class 0 :: alcohol < 14.71 & ldl > 3.58 & tobacco < 4.2 → class 0 || masses: 0.146953, 0.050861, 0.802186
+class 0 :: alcohol > 2.06 & tobacco < 4.2 & typea > 49 → class 0 || masses: 0.117345, 0.080468, 0.802187
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.093772, 0.104039, 0.802189
+class 0 :: age < 52 & alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.103337, 0.094473, 0.802190
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & obesity > 23.76 → class 0 || masses: 0.094631, 0.103175, 0.802194
+class 0 :: age < 38 & alcohol < 2.06 & chd == 1 → class 0 || masses: 0.107310, 0.090493, 0.802197
+class 0 :: alcohol > 2.06 & obesity < 23.76 & tobacco < 0.46 → class 0 || masses: 0.035376, 0.162391, 0.802233
+class 0 :: alcohol < 2.06 & chd == 0 & sbp < 142 → class 0 || masses: 0.094245, 0.103520, 0.802236
+class 1 :: age > 38 & alcohol < 14.71 & obesity > 23.76 → class 1 || masses: 0.124010, 0.073748, 0.802242
+class 0 :: adiposity > 21.93 & alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.116973, 0.080758, 0.802269
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & tobacco < 4.2 → class 0 || masses: 0.093652, 0.104056, 0.802292
+class 1 :: age > 38 & alcohol > 2.06 & obesity > 23.76 → class 1 || masses: 0.122855, 0.074844, 0.802301
+class 0 :: age < 38 & alcohol > 2.06 & tobacco < 4.2 → class 0 || masses: 0.078227, 0.119471, 0.802302
+class 1 :: age < 52 & alcohol < 2.06 & ldl > 5.08 → class 1 || masses: 0.111221, 0.086428, 0.802352
+class 0 :: alcohol < 2.06 & typea < 57 → class 0 || masses: 0.090646, 0.106991, 0.802362
+class 0 :: alcohol > 2.06 & obesity < 23.76 & typea < 57 → class 0 || masses: 0.104912, 0.092684, 0.802404
+class 0 :: alcohol > 2.06 & obesity > 23.76 & typea > 57 → class 0 || masses: 0.071924, 0.125654, 0.802422
+class 0 :: adiposity < 21.93 & age < 38 & alcohol < 2.06 → class 0 || masses: 0.105665, 0.091906, 0.802429
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.067830, 0.129739, 0.802432
+class 0 :: age < 38 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.058388, 0.139180, 0.802432
+class 0 :: age < 52 & alcohol < 2.06 & sbp < 128 → class 0 || masses: 0.095651, 0.101914, 0.802435
+class 0 :: alcohol < 14.71 & obesity < 23.76 & typea > 57 → class 0 || masses: 0.179897, 0.017640, 0.802463
+class 0 :: adiposity > 21.93 & alcohol < 14.71 → class 0 || masses: 0.162341, 0.035188, 0.802471
+class 1 :: age > 38 & alcohol < 14.71 & typea > 57 → class 1 || masses: 0.129805, 0.067716, 0.802479
+class 0 :: age < 38 & alcohol < 2.06 & sbp < 142 → class 0 || masses: 0.032212, 0.165299, 0.802488
+class 0 :: alcohol > 2.06 & tobacco < 0.46 & typea > 57 → class 0 || masses: 0.094781, 0.102722, 0.802496
+class 0 :: adiposity < 29.26 & age < 38 & alcohol < 2.06 → class 0 || masses: 0.084153, 0.113348, 0.802499
+class 0 :: alcohol > 2.06 & ldl > 3.58 → class 0 || masses: 0.105555, 0.091939, 0.802506
+class 1 :: adiposity > 21.93 & age > 38 & alcohol < 2.06 → class 1 || masses: 0.092903, 0.104582, 0.802515
+class 0 :: alcohol < 2.06 & ldl < 5.08 & tobacco > 0.46 → class 0 || masses: 0.046227, 0.151256, 0.802517
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & tobacco < 4.2 → class 0 || masses: 0.066335, 0.131142, 0.802523
+class 0 :: age < 38 & alcohol < 14.71 & typea > 49 → class 0 || masses: 0.096401, 0.101075, 0.802524
+class 0 :: age < 38 & alcohol < 2.06 & chd == 0 → class 0 || masses: 0.021723, 0.175722, 0.802554
+class 0 :: age < 38 & alcohol < 14.71 & obesity < 23.76 → class 0 || masses: 0.073732, 0.123711, 0.802557
+class 0 :: alcohol < 14.71 & obesity < 27.23 & sbp < 128 → class 0 || masses: 0.077152, 0.120288, 0.802560
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & typea < 57 → class 0 || masses: 0.050455, 0.146979, 0.802565
+class 0 :: alcohol < 14.71 & ldl < 5.08 & sbp < 142 → class 0 || masses: 0.028553, 0.168863, 0.802583
+class 0 :: alcohol < 14.71 & obesity > 23.76 & sbp > 128 → class 0 || masses: 0.072533, 0.124880, 0.802588
+class 0 :: adiposity < 29.26 & alcohol < 14.71 → class 0 || masses: 0.104718, 0.092693, 0.802589
+class 0 :: adiposity < 21.93 & age > 38 & alcohol < 14.71 → class 0 || masses: 0.017954, 0.179436, 0.802610
+class 0 :: alcohol < 14.71 & obesity < 27.23 & tobacco < 4.2 → class 0 || masses: 0.096881, 0.100495, 0.802625
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & typea < 57 → class 0 || masses: 0.072939, 0.124426, 0.802635
+class 0 :: age > 38 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.107116, 0.090249, 0.802635
+class 0 :: alcohol < 2.06 & obesity > 23.76 & sbp > 128 → class 0 || masses: 0.102200, 0.095164, 0.802636
+class 0 :: alcohol < 2.06 & obesity < 23.76 & sbp < 128 → class 0 || masses: 0.100302, 0.097060, 0.802638
+class 0 :: age < 38 & alcohol < 14.71 & sbp < 128 → class 0 || masses: 0.103504, 0.093858, 0.802638
+class 0 :: alcohol < 14.71 & ldl < 5.08 & tobacco < 0.46 → class 0 || masses: 0.094451, 0.102875, 0.802674
+class 0 :: alcohol < 2.06 & ldl > 3.58 & sbp < 128 → class 0 || masses: 0.119758, 0.077542, 0.802700
+class 0 :: age < 52 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.098229, 0.099067, 0.802704
+class 0 :: alcohol > 2.06 & ldl > 3.58 & tobacco > 0.46 → class 0 || masses: 0.108328, 0.088961, 0.802711
+class 0 :: adiposity < 29.26 & alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.132049, 0.065234, 0.802717
+class 0 :: alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.085227, 0.112042, 0.802731
+class 0 :: alcohol < 14.71 & obesity < 27.23 & sbp < 142 → class 0 || masses: 0.045639, 0.151622, 0.802739
+class 0 :: age < 52 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.097689, 0.099559, 0.802753
+class 0 :: alcohol > 2.06 & tobacco > 0.46 → class 0 || masses: 0.097082, 0.100158, 0.802759
+class 0 :: alcohol < 2.06 & ldl > 3.58 & tobacco < 0.46 → class 0 || masses: 0.148827, 0.048412, 0.802761
+class 0 :: alcohol > 2.06 & ldl > 3.58 & sbp > 128 → class 0 || masses: 0.125292, 0.071941, 0.802768
+class 1 :: age > 38 & alcohol < 2.06 & ldl > 5.08 → class 1 || masses: 0.172412, 0.024821, 0.802768
+class 0 :: alcohol < 14.71 & obesity < 27.23 & tobacco < 0.46 → class 0 || masses: 0.102617, 0.094614, 0.802769
+class 0 :: alcohol > 2.06 & ldl < 5.08 & tobacco < 0.46 → class 0 || masses: 0.106778, 0.090429, 0.802794
+class 0 :: age < 52 & alcohol > 2.06 & obesity < 27.23 → class 0 || masses: 0.091755, 0.105438, 0.802807
+class 1 :: age > 38 & alcohol < 2.06 & tobacco < 4.2 → class 1 || masses: 0.114276, 0.082913, 0.802812
+class 0 :: obesity > 27.23 → class 0 || masses: 0.101792, 0.095393, 0.802815
+class 0 :: alcohol > 2.06 & tobacco > 0.46 & typea < 57 → class 0 || masses: 0.102675, 0.094503, 0.802822
+class 0 :: alcohol > 2.06 & obesity < 27.23 & tobacco > 0.46 → class 0 || masses: 0.100404, 0.096759, 0.802837
+class 0 :: adiposity < 21.93 & age < 52 & alcohol < 14.71 → class 0 || masses: 0.040151, 0.156996, 0.802852
+class 0 :: tobacco > 4.2 → class 0 || masses: 0.034461, 0.162680, 0.802859
+class 0 :: alcohol > 2.06 & chd == 0 & typea > 57 → class 0 || masses: 0.105053, 0.092087, 0.802860
+class 0 :: alcohol > 2.06 & sbp > 128 & tobacco < 4.2 → class 0 || masses: 0.102826, 0.094238, 0.802936
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.106310, 0.090735, 0.802954
+class 0 :: age < 38 & alcohol > 2.06 & obesity < 23.76 → class 0 || masses: 0.097927, 0.099100, 0.802972
+class 0 :: age < 38 & alcohol < 14.71 & sbp < 142 → class 0 || masses: 0.079978, 0.117049, 0.802973
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.094679, 0.102345, 0.802975
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & typea > 49 → class 0 || masses: 0.096357, 0.100648, 0.802995
+class 1 :: alcohol > 2.06 & ldl > 5.08 → class 1 || masses: 0.095181, 0.101824, 0.802996
+class 0 :: adiposity < 21.93 & alcohol < 14.71 → class 0 || masses: 0.093163, 0.103841, 0.802996
+class 0 :: age < 38 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.048724, 0.148267, 0.803010
+class 0 :: adiposity < 29.26 & age > 38 & alcohol > 2.06 → class 0 || masses: 0.127471, 0.069501, 0.803028
+class 1 :: alcohol < 14.71 & ldl > 5.08 & tobacco < 0.46 → class 1 || masses: 0.164068, 0.032898, 0.803033
+class 0 :: alcohol < 14.71 & ldl < 5.08 & tobacco > 0.46 → class 0 || masses: 0.084803, 0.112162, 0.803035
+class 0 :: age > 38 & alcohol < 2.06 & obesity < 23.76 → class 0 || masses: 0.103382, 0.093578, 0.803040
+class 0 :: alcohol < 2.06 & ldl > 3.58 & sbp < 142 → class 0 || masses: 0.099794, 0.097166, 0.803040
+class 0 :: ldl > 3.58 → class 0 || masses: 0.159177, 0.037761, 0.803062
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.094566, 0.102371, 0.803063
+class 0 :: age < 38 & alcohol > 2.06 & sbp < 128 → class 0 || masses: 0.104773, 0.092145, 0.803082
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.021134, 0.175772, 0.803094
+class 0 :: alcohol < 14.71 & obesity < 23.76 & tobacco < 0.46 → class 0 || masses: 0.103702, 0.093136, 0.803163
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.116439, 0.080377, 0.803184
+class 0 :: age < 38 & alcohol < 14.71 & chd == 0 → class 0 || masses: 0.016526, 0.180288, 0.803186
+class 0 :: alcohol < 14.71 & chd == 0 & typea > 49 → class 0 || masses: 0.105958, 0.090836, 0.803205
+class 0 :: alcohol < 2.06 & obesity > 23.76 & tobacco > 0.46 → class 0 || masses: 0.082336, 0.114455, 0.803209
+class 1 :: alcohol < 14.71 & ldl > 5.08 & sbp < 142 → class 1 || masses: 0.121581, 0.075187, 0.803232
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & ldl > 5.08 → class 0 || masses: 0.109597, 0.087153, 0.803250
+class 1 :: adiposity < 29.26 & alcohol < 2.06 & chd == 1 → class 1 || masses: 0.146297, 0.050449, 0.803254
+class 0 :: age < 38 & alcohol < 14.71 & tobacco > 0.46 → class 0 || masses: 0.025935, 0.170800, 0.803265
+class 0 :: age < 38 & alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.100140, 0.096585, 0.803274
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & ldl > 5.08 → class 1 || masses: 0.143816, 0.052895, 0.803289
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & typea > 49 → class 0 || masses: 0.046569, 0.150117, 0.803314
+class 0 :: alcohol < 2.06 & sbp > 128 & tobacco > 0.46 → class 0 || masses: 0.060754, 0.135925, 0.803322
+class 1 :: alcohol > 2.06 & ldl > 5.08 & sbp < 142 → class 1 || masses: 0.135193, 0.061482, 0.803326
+class 0 :: adiposity < 21.93 & alcohol < 14.71 & obesity < 27.23 → class 0 || masses: 0.055819, 0.140854, 0.803327
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.037585, 0.159060, 0.803355
+class 1 :: alcohol > 2.06 & ldl > 5.08 & sbp < 128 → class 1 || masses: 0.093346, 0.103282, 0.803372
+class 0 :: age < 38 & alcohol < 14.71 & sbp > 128 → class 0 || masses: 0.088193, 0.108428, 0.803379
+class 1 :: alcohol > 2.06 & chd == 1 & sbp < 128 → class 1 || masses: 0.099493, 0.097119, 0.803388
+class 0 :: age < 38 & alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.093408, 0.103144, 0.803448
+class 1 :: age < 52 & alcohol > 2.06 & chd == 1 → class 1 || masses: 0.098262, 0.098265, 0.803473
+class 1 :: age > 38 & alcohol > 2.06 & sbp < 128 → class 1 || masses: 0.120980, 0.075537, 0.803483
+class 0 :: alcohol < 14.71 & typea < 57 → class 0 || masses: 0.031145, 0.165353, 0.803502
+class 0 :: alcohol < 14.71 & ldl > 3.58 & sbp < 128 → class 0 || masses: 0.125260, 0.071219, 0.803521
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.091120, 0.105350, 0.803530
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & typea > 57 → class 1 || masses: 0.097000, 0.099414, 0.803586
+class 0 :: alcohol > 2.06 & ldl < 5.08 & sbp < 128 → class 0 || masses: 0.101022, 0.095384, 0.803594
+class 0 :: alcohol < 14.71 & sbp < 142 & tobacco > 0.46 → class 0 || masses: 0.039610, 0.156793, 0.803596
+class 1 :: age > 38 & alcohol > 2.06 & tobacco < 0.46 → class 1 || masses: 0.146445, 0.049944, 0.803611
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & tobacco < 0.46 → class 0 || masses: 0.052778, 0.143594, 0.803628
+class 0 :: obesity < 27.23 → class 0 || masses: 0.078627, 0.117732, 0.803641
+class 0 :: alcohol < 2.06 & obesity < 23.76 & tobacco < 4.2 → class 0 || masses: 0.097387, 0.098971, 0.803642
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.095362, 0.100994, 0.803644
+class 1 :: age > 38 & alcohol < 2.06 & chd == 1 → class 1 || masses: 0.158137, 0.038214, 0.803649
+class 1 :: alcohol < 2.06 & chd == 1 & sbp < 128 → class 1 || masses: 0.145275, 0.051070, 0.803655
+class 0 :: tobacco < 0.46 → class 0 || masses: 0.099983, 0.096353, 0.803663
+class 0 :: age < 52 & alcohol < 2.06 & sbp > 128 → class 0 || masses: 0.143778, 0.052541, 0.803681
+class 0 :: alcohol < 2.06 & chd == 0 & typea > 57 → class 0 || masses: 0.076667, 0.119626, 0.803708
+class 0 :: alcohol > 2.06 & tobacco < 4.2 & typea < 57 → class 0 || masses: 0.171562, 0.024695, 0.803743
+class 1 :: adiposity > 21.93 & alcohol < 2.06 & chd == 1 → class 1 || masses: 0.143966, 0.052246, 0.803788
+class 0 :: typea < 57 → class 0 || masses: 0.057001, 0.139153, 0.803846
+class 0 :: age < 52 & alcohol < 2.06 & ldl > 3.58 → class 0 || masses: 0.107603, 0.088538, 0.803859
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & typea < 57 → class 1 || masses: 0.172131, 0.023972, 0.803897
+class 0 :: alcohol < 14.71 & sbp > 128 & typea < 57 → class 0 || masses: 0.087712, 0.108349, 0.803939
+class 1 :: age > 38 & alcohol > 2.06 & tobacco < 4.2 → class 1 || masses: 0.111542, 0.084456, 0.804001
+class 0 :: adiposity < 29.26 & alcohol < 14.71 & tobacco < 4.2 → class 0 || masses: 0.040156, 0.155837, 0.804007
+class 1 :: age > 38 & alcohol < 2.06 & sbp < 142 → class 1 || masses: 0.170163, 0.025821, 0.804016
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & obesity > 23.76 → class 0 || masses: 0.021458, 0.174454, 0.804089
+class 0 :: age > 38 & alcohol < 14.71 & ldl < 5.08 → class 0 || masses: 0.063426, 0.132476, 0.804098
+class 0 :: adiposity < 21.93 & alcohol > 2.06 & tobacco < 0.46 → class 0 || masses: 0.028791, 0.167091, 0.804118
+class 0 :: adiposity > 21.93 & alcohol < 2.06 & typea < 57 → class 0 || masses: 0.094287, 0.101593, 0.804120
+class 0 :: alcohol > 2.06 & sbp < 142 → class 0 || masses: 0.099938, 0.095938, 0.804123
+class 0 :: age < 38 & alcohol > 2.06 & typea > 57 → class 0 || masses: 0.115847, 0.080016, 0.804137
+class 0 :: adiposity > 21.93 & age < 52 & alcohol < 2.06 → class 0 || masses: 0.114204, 0.081651, 0.804145
+class 1 :: age > 38 & alcohol < 14.71 & ldl > 5.08 → class 1 || masses: 0.140141, 0.055714, 0.804145
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & typea > 49 → class 1 || masses: 0.100092, 0.095750, 0.804158
+class 1 :: age > 38 & alcohol < 2.06 & tobacco < 0.46 → class 1 || masses: 0.126918, 0.068911, 0.804171
+class 0 :: alcohol < 14.71 & chd == 0 & typea > 57 → class 0 || masses: 0.048816, 0.146955, 0.804230
+class 0 :: alcohol < 14.71 & ldl < 5.08 & typea < 57 → class 0 || masses: 0.045271, 0.150486, 0.804243
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & tobacco < 4.2 → class 1 || masses: 0.100115, 0.095640, 0.804245
+class 0 :: age > 38 & alcohol > 2.06 & ldl < 5.08 → class 0 || masses: 0.035474, 0.160236, 0.804291
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & sbp < 142 → class 1 || masses: 0.155710, 0.039955, 0.804335
+class 1 :: alcohol < 14.71 & chd == 1 & typea > 49 → class 1 || masses: 0.157334, 0.038323, 0.804343
+class 0 :: alcohol < 14.71 & chd == 0 & typea < 57 → class 0 || masses: 0.052954, 0.142573, 0.804473
+class 0 :: alcohol > 2.06 & obesity > 23.76 & sbp < 142 → class 0 || masses: 0.165474, 0.030011, 0.804515
+class 0 :: adiposity < 29.26 & alcohol > 2.06 & sbp > 128 → class 0 || masses: 0.093474, 0.102000, 0.804526
+class 0 :: alcohol < 14.71 & obesity > 23.76 & typea < 57 → class 0 || masses: 0.026091, 0.169368, 0.804541
+class 0 :: alcohol > 2.06 & chd == 0 & typea > 49 → class 0 || masses: 0.060118, 0.135317, 0.804566
+class 1 :: alcohol < 2.06 & chd == 1 & typea > 57 → class 1 || masses: 0.138706, 0.056704, 0.804590
+class 1 :: alcohol < 14.71 & chd == 1 & sbp < 128 → class 1 || masses: 0.141109, 0.054234, 0.804658
+class 0 :: adiposity > 21.93 & age < 38 & alcohol < 2.06 → class 0 || masses: 0.071281, 0.124058, 0.804660
+class 0 :: adiposity < 21.93 & alcohol < 2.06 & typea > 57 → class 0 || masses: 0.064455, 0.130873, 0.804672
+class 0 :: alcohol < 14.71 & chd == 0 → class 0 || masses: 0.067463, 0.127857, 0.804680
+class 1 :: alcohol < 14.71 & chd == 1 & sbp > 128 → class 1 || masses: 0.123731, 0.071571, 0.804699
+class 0 :: alcohol < 2.06 & sbp > 128 & typea < 57 → class 0 || masses: 0.059202, 0.136082, 0.804715
+class 1 :: adiposity > 21.93 & alcohol > 2.06 & sbp < 142 → class 1 || masses: 0.133128, 0.062093, 0.804779
+class 0 :: tobacco < 4.2 → class 0 || masses: 0.191857, 0.003260, 0.804883
+class 0 :: alcohol > 2.06 & chd == 0 & typea < 57 → class 0 || masses: 0.088754, 0.106295, 0.804951
+class 1 :: alcohol > 2.06 & chd == 1 → class 1 || masses: 0.116176, 0.078750, 0.805074
+class 0 :: alcohol > 2.06 & chd == 0 → class 0 || masses: 0.079597, 0.115270, 0.805132
+class 0 :: alcohol > 2.06 & chd == 0 & sbp > 128 → class 0 || masses: 0.063494, 0.131353, 0.805153
+class 0 :: age < 38 & alcohol > 2.06 & chd == 1 → class 0 || masses: 0.098845, 0.095991, 0.805164
+class 1 :: alcohol > 2.06 & chd == 1 & sbp > 128 → class 1 || masses: 0.113474, 0.081302, 0.805224
+class 1 :: alcohol > 2.06 & chd == 1 & typea < 57 → class 1 || masses: 0.142231, 0.052536, 0.805233
+class 1 :: alcohol < 14.71 & ldl > 5.08 & tobacco < 4.2 → class 1 || masses: 0.134467, 0.060254, 0.805279
+class 1 :: alcohol < 14.71 & chd == 1 & typea > 57 → class 1 || masses: 0.122197, 0.072511, 0.805292
+class 1 :: adiposity > 21.93 & alcohol < 14.71 & chd == 1 → class 1 || masses: 0.159169, 0.035506, 0.805325
+class 0 :: alcohol < 14.71 & obesity > 23.76 & typea > 49 → class 0 || masses: 0.061668, 0.132966, 0.805366
+class 0 :: age < 38 & alcohol < 14.71 & ldl > 3.58 → class 0 || masses: 0.036803, 0.157831, 0.805366
+class 1 :: alcohol < 14.71 & ldl > 5.08 & sbp < 128 → class 1 || masses: 0.136347, 0.058178, 0.805475
+class 1 :: age > 38 & alcohol < 14.71 & tobacco < 4.2 → class 1 || masses: 0.106911, 0.087605, 0.805484
+class 0 :: age > 38 & alcohol > 2.06 & chd == 0 → class 0 || masses: 0.069271, 0.124746, 0.805983

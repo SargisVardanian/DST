@@ -16,7 +16,8 @@ If torch is unavailable, numpy code paths are used.
 
 from __future__ import annotations
 
-from typing import Iterable, List, Sequence, Tuple, Union, overload
+from collections.abc import Iterable, Sequence
+from typing import overload
 import math
 import numpy as np
 
@@ -30,8 +31,6 @@ except Exception:
     F = None      # type: ignore
     Tensor = np.ndarray  # type: ignore
     _HAS_TORCH = False
-
-ArrayLike = Union[np.ndarray, 'Tensor']
 
 
 # ----------------------------- Helpers -----------------------------
@@ -134,25 +133,28 @@ def ds_combine_pair(mA: ArrayLike, mB: ArrayLike) -> ArrayLike:
       Normalize by (1 - κ).
     """
     if _HAS_TORCH and isinstance(mA, torch.Tensor):
+        eps = 1e-9
         K = mA.shape[-1] - 1
         a_s, a_o = mA[..., :K], mA[..., K:K+1]
         b_s, b_o = mB[..., :K], mB[..., K:K+1]
-        # contributions
         same = a_s * b_s
         cross = a_s * b_o + a_o * b_s
         num_s = same + cross
         num_o = a_o * b_o
-        # conflict
-        # (sum over all pairs i!=j): we can compute total outer sum minus diagonal
         tot = torch.sum(a_s, dim=-1, keepdim=True) * torch.sum(b_s, dim=-1, keepdim=True)
         diag = torch.sum(a_s * b_s, dim=-1, keepdim=True)
-        kappa = torch.clamp(tot - diag, min=0.0)
-        denom = (1.0 - kappa).clamp_min(1e-12)
+        kappa_raw = torch.clamp(tot - diag, min=0.0)
+        kappa = torch.clamp(kappa_raw, max=1.0 - eps)
+        denom = (1.0 - kappa).clamp_min(eps)
         mC_s = num_s / denom
         mC_o = num_o / denom
-        return torch.cat([mC_s, mC_o], dim=-1)
+        out = torch.cat([mC_s, mC_o], dim=-1)
+        # safety renorm to simplex
+        out = out / out.sum(dim=-1, keepdim=True).clamp_min(eps)
+        return out
 
     # numpy path
+    eps = 1e-9
     a = _to_numpy(mA).astype(np.float32, copy=False)
     b = _to_numpy(mB).astype(np.float32, copy=False)
     K = a.shape[-1] - 1
@@ -164,12 +166,13 @@ def ds_combine_pair(mA: ArrayLike, mB: ArrayLike) -> ArrayLike:
     num_o = a_o * b_o
     tot = np.sum(a_s, axis=-1, keepdims=True) * np.sum(b_s, axis=-1, keepdims=True)
     diag = np.sum(a_s * b_s, axis=-1, keepdims=True)
-    kappa = np.clip(tot - diag, 0.0, None)
-    denom = (1.0 - kappa)
-    denom = np.where(denom <= 1e-12, 1e-12, denom)
+    kappa_raw = np.clip(tot - diag, 0.0, None)
+    kappa = np.clip(kappa_raw, None, 1.0 - eps)
+    denom = np.clip(1.0 - kappa, eps, None)
     mC_s = num_s / denom
     mC_o = num_o / denom
     out = np.concatenate([mC_s, mC_o], axis=-1)
+    out = out / np.clip(out.sum(axis=-1, keepdims=True), eps, None)
     return _to_same_backend(out, mA)
 
 
@@ -208,7 +211,7 @@ def dempster_rule_kt(m1: np.ndarray, m2: np.ndarray, return_conflict: bool = Fal
 
 
 # ----------------------------- Misc helpers -----------------------------
-def unique_rules(rules: Sequence) -> List:
+def unique_rules(rules: Sequence) -> list:
     """Deduplicate rule objects by their .caption (case-insensitive)."""
     seen = {}
     for r in rules:

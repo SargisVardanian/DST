@@ -1,0 +1,614 @@
+class 0 :: age < 34 & capital.gain < 5054.25 & fnlwgt < 284760 & hours.per.week < 50 & occupation == Prof-specialty & relationship == Not-in-family & sex == Female → class 0 || masses: 1.000000, 0.000000, 0.000000
+class 0 :: capital.gain < 5054.25 & education == 5th-6th & fnlwgt > 130061 & workclass == Private → class 0 || masses: 1.000000, 0.000000, 0.000000
+class 0 :: age < 28 & capital.gain < 5054.25 & hours.per.week > 40 & marital.status == Never-married & relationship == Own-child → class 0 || masses: 0.999795, 0.000000, 0.000205
+class 0 :: capital.gain < 5054.25 & education == 11th & hours.per.week < 42 & occupation == Machine-op-inspct & workclass == Private → class 0 || masses: 0.999779, 0.000000, 0.000221
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 178419 & hours.per.week < 42 & sex == Female → class 0 || masses: 0.999557, 0.000000, 0.000443
+class 0 :: age < 53 & capital.gain < 5054.25 & education == 7th-8th & fnlwgt < 280946 & hours.per.week < 50 → class 0 || masses: 0.997711, 0.001751, 0.000538
+class 0 :: capital.gain < 5054.25 & hours.per.week < 45 & occupation == Machine-op-inspct & relationship == Not-in-family & sex == Male → class 0 || masses: 0.999312, 0.000000, 0.000688
+class 1 :: age < 62 & capital.gain > 5054.25 & marital.status == Married-civ-spouse & relationship == Husband → class 1 || masses: 0.000000, 0.999291, 0.000709
+class 0 :: age < 32 & capital.gain < 5054.25 & fnlwgt > 125469 & native.country > Mexico & relationship == Other-relative → class 0 || masses: 0.999148, 0.000000, 0.000852
+class 0 :: age < 33 & capital.gain < 5054.25 & education == Bachelors & fnlwgt > 126569 & hours.per.week < 44 & race == White & relationship == Not-in-family & sex == Male → class 0 || masses: 0.999107, 0.000000, 0.000893
+class 0 :: age > 45 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Separated & relationship == Unmarried → class 0 || masses: 0.998995, 0.000000, 0.001005
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & race == Black & sex == Male → class 0 || masses: 0.997802, 0.000000, 0.002198
+class 0 :: capital.gain < 5054.25 & education == Assoc-voc & hours.per.week < 45 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.997792, 0.000000, 0.002208
+class 0 :: age < 40 & capital.gain < 5054.25 & fnlwgt < 176090 & hours.per.week < 45 & occupation == Craft-repair & relationship == Not-in-family → class 0 || masses: 0.996753, 0.000000, 0.003247
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt < 375536 & hours.per.week < 50 & occupation == Adm-clerical & relationship == Unmarried & sex == Female → class 0 || masses: 0.996538, 0.000000, 0.003462
+class 0 :: age < 49 & capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 178419 & hours.per.week < 50 & relationship == Not-in-family → class 0 || masses: 0.996214, 0.000000, 0.003786
+class 0 :: age < 56 & capital.gain < 5054.25 & fnlwgt > 214824 & hours.per.week < 42 & occupation == Machine-op-inspct & sex == Female → class 0 || masses: 0.996032, 0.000000, 0.003968
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 214725 & marital.status == Never-married & sex == Male → class 0 || masses: 0.995930, 0.000000, 0.004070
+class 0 :: age < 47 & capital.gain < 5054.25 & fnlwgt > 126849 & hours.per.week < 45 & marital.status == Divorced & occupation == Craft-repair & relationship == Not-in-family → class 0 || masses: 0.995924, 0.000000, 0.004076
+class 0 :: capital.gain < 5054.25 & fnlwgt < 178419 & hours.per.week < 42 & marital.status == Divorced & relationship == Own-child → class 0 || masses: 0.994867, 0.000000, 0.005133
+class 0 :: capital.gain < 6401.1 & education == Assoc-acdm & fnlwgt > 181265 & relationship == Unmarried → class 0 || masses: 0.994561, 0.000000, 0.005439
+class 1 :: age > 30 & capital.gain > 5054.25 & fnlwgt > 90127 & marital.status == Never-married & relationship == Not-in-family → class 1 || masses: 0.000000, 0.993727, 0.006273
+class 0 :: capital.gain < 5054.25 & education == 7th-8th & hours.per.week < 42 & occupation == Craft-repair & workclass == Private → class 0 || masses: 0.993630, 0.000000, 0.006370
+class 1 :: age < 55 & education == Masters & fnlwgt < 210862 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == White & workclass == Private → class 1 || masses: 0.000000, 0.992631, 0.007369
+class 0 :: age < 55 & capital.gain < 5054.25 & hours.per.week < 50 & native.country > Mexico & occupation == Other-service & relationship == Unmarried & sex == Female → class 0 || masses: 0.992453, 0.000000, 0.007547
+class 0 :: age < 26 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & occupation == Craft-repair → class 0 || masses: 0.990081, 0.000000, 0.009919
+class 0 :: age > 36 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Divorced & relationship == Own-child → class 0 || masses: 0.990046, 0.000000, 0.009954
+class 0 :: age < 53 & capital.gain < 5054.25 & fnlwgt < 175812 & occupation == Machine-op-inspct & race == Black → class 0 || masses: 0.989460, 0.000000, 0.010540
+class 0 :: capital.gain < 5054.25 & fnlwgt > 39581 & hours.per.week < 42 & marital.status == Married-spouse-absent & relationship == Unmarried → class 0 || masses: 0.989176, 0.000000, 0.010824
+class 0 :: age < 47 & capital.gain < 5054.25 & hours.per.week < 42 & occupation == Sales & relationship == Not-in-family & sex == Female → class 0 || masses: 0.988617, 0.000000, 0.011383
+class 0 :: age > 56 & capital.gain < 6849 & education == 5th-6th → class 0 || masses: 0.986394, 0.000000, 0.013606
+class 1 :: age < 47 & capital.gain > 5054.25 & hours.per.week > 25 & marital.status == Married-civ-spouse → class 1 || masses: 0.000000, 0.983216, 0.016784
+class 0 :: age < 45 & capital.gain < 5054.25 & education == 10th & hours.per.week < 42 & occupation == Craft-repair & workclass == Private → class 0 || masses: 0.983071, 0.000000, 0.016929
+class 0 :: capital.gain < 5054.25 & fnlwgt > 216837 & hours.per.week < 45 & race == Black & relationship == Not-in-family & sex == Male → class 0 || masses: 0.982310, 0.000000, 0.017690
+class 0 :: age < 30 & capital.gain < 5054.25 & hours.per.week < 60 & occupation == Tech-support & relationship == Not-in-family → class 0 || masses: 0.981876, 0.000000, 0.018124
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 126094 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.981449, 0.000000, 0.018551
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt < 289180 & hours.per.week < 60 & occupation == Prof-specialty & race == White & relationship == Not-in-family & sex == Male → class 0 || masses: 0.980381, 0.000000, 0.019619
+class 0 :: age < 30 & capital.gain < 5054.25 & education == 10th & workclass == Private → class 0 || masses: 0.979712, 0.000000, 0.020288
+class 0 :: age > 62 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 220010 & workclass == Private → class 0 || masses: 0.979468, 0.000000, 0.020532
+class 1 :: age > 33 & education == Prof-school & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.978315, 0.021685
+class 0 :: age < 29 & capital.gain < 5054.25 & fnlwgt > 284792 & hours.per.week < 60 & race == White & relationship == Not-in-family & sex == Male → class 0 || masses: 0.977233, 0.000000, 0.022767
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 45 & relationship == Not-in-family & workclass == Self-emp-not-inc → class 0 || masses: 0.976312, 0.000000, 0.023688
+class 0 :: age < 29 & capital.gain < 5054.25 & fnlwgt < 178419 & occupation == Sales & relationship == Not-in-family → class 0 || masses: 0.974268, 0.000000, 0.025732
+class 0 :: education == 1st-4th & fnlwgt > 128532 & native.country > Mexico → class 0 || masses: 0.974231, 0.000000, 0.025769
+class 0 :: age < 37 & capital.gain < 5054.25 & education == 9th & fnlwgt > 175339 → class 0 || masses: 0.972599, 0.000000, 0.027401
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 39 & occupation == Craft-repair & sex == Male & workclass == Self-emp-not-inc → class 0 || masses: 0.972146, 0.000000, 0.027854
+class 0 :: age < 33 & capital.gain < 5054.25 & fnlwgt < 374764 & hours.per.week < 43 & marital.status == Divorced & relationship == Not-in-family → class 0 || masses: 0.972100, 0.000000, 0.027900
+class 0 :: capital.gain < 5054.25 & education == Bachelors & fnlwgt < 220010 & hours.per.week < 42 & relationship == Not-in-family & workclass == State-gov → class 0 || masses: 0.971147, 0.000000, 0.028853
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Bachelors & fnlwgt > 87247.2 & hours.per.week < 43 & occupation == Exec-managerial & relationship == Not-in-family & sex == Female → class 0 || masses: 0.968911, 0.000000, 0.031089
+class 0 :: age > 64 & capital.gain < 5054.25 & fnlwgt < 220010 & occupation == Farming-fishing & workclass == Self-emp-not-inc → class 0 || masses: 0.967283, 0.000000, 0.032717
+class 0 :: age > 53 & capital.gain < 5054.25 & fnlwgt < 283254 & hours.per.week < 42 & marital.status == Divorced & relationship == Unmarried & sex == Female → class 0 || masses: 0.965794, 0.000000, 0.034206
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Separated & relationship == Own-child & sex == Female → class 0 || masses: 0.961208, 0.000000, 0.038792
+class 0 :: age > 56 & capital.gain < 5054.25 & fnlwgt < 91281 & hours.per.week < 42 & workclass == Local-gov → class 0 || masses: 0.960066, 0.000000, 0.039934
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt > 178383 & hours.per.week < 42 & occupation == Tech-support & relationship == Not-in-family → class 0 || masses: 0.959997, 0.000000, 0.040003
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 214713 & occupation == Machine-op-inspct → class 0 || masses: 0.959572, 0.000000, 0.040428
+class 0 :: age < 45 & capital.gain < 5054.25 & education == HS-grad & hours.per.week > 42 & marital.status == Never-married & relationship == Own-child → class 0 || masses: 0.955196, 0.000000, 0.044804
+class 0 :: age < 56 & capital.gain < 5054.25 & hours.per.week < 40 & occupation == Handlers-cleaners → class 0 || masses: 0.953888, 0.000000, 0.046112
+class 1 :: age < 55 & capital.loss > 0 & education == Bachelors & fnlwgt < 176319 & hours.per.week < 55 & marital.status == Married-civ-spouse & workclass == Private → class 1 || masses: 0.000000, 0.951853, 0.048147
+class 0 :: capital.gain < 5054.25 & education == HS-grad & marital.status == Divorced & relationship == Own-child & sex == Male → class 0 || masses: 0.951610, 0.000000, 0.048390
+class 1 :: age > 27 & capital.loss > 1755 & education == Assoc-acdm & fnlwgt > 130794 & marital.status == Married-civ-spouse → class 1 || masses: 0.001327, 0.947496, 0.051177
+class 0 :: age > 24 & capital.gain < 5054.25 & marital.status == Never-married & occupation == Handlers-cleaners → class 0 || masses: 0.946494, 0.000000, 0.053506
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week > 40 & relationship == Own-child → class 0 || masses: 0.945987, 0.000000, 0.054013
+class 0 :: age < 47 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & relationship == Unmarried & sex == Male → class 0 || masses: 0.944489, 0.000000, 0.055511
+class 0 :: capital.gain < 5054.25 & fnlwgt < 178419 & hours.per.week < 45 & occupation == Machine-op-inspct & relationship == Not-in-family & sex == Female → class 0 || masses: 0.942353, 0.000000, 0.057647
+class 0 :: age < 53 & capital.gain < 5054.25 & fnlwgt < 130794 & hours.per.week < 50 & occupation == Prof-specialty & race == White & relationship == Not-in-family & sex == Female → class 0 || masses: 0.942127, 0.000000, 0.057874
+class 0 :: age > 62 & capital.gain < 5054.25 & fnlwgt < 176136 & hours.per.week < 42 & occupation == Transport-moving → class 0 || masses: 0.940030, 0.000000, 0.059970
+class 0 :: capital.gain < 5054.25 & fnlwgt > 216701 & hours.per.week < 32 & sex == Male & workclass == Local-gov → class 0 || masses: 0.933354, 0.000000, 0.066646
+class 0 :: age < 48 & capital.gain < 5054.25 & fnlwgt > 218810 & hours.per.week < 42 & marital.status == Divorced & relationship == Own-child → class 0 || masses: 0.930178, 0.000000, 0.069822
+class 0 :: age < 48 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Divorced & occupation == Sales & sex == Female → class 0 || masses: 0.928443, 0.000000, 0.071557
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 50 & marital.status == Separated & relationship == Unmarried & sex == Female → class 0 || masses: 0.926255, 0.000000, 0.073745
+class 0 :: age < 32 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Never-married & native.country < United-States & workclass == Private → class 0 || masses: 0.925252, 0.000000, 0.074748
+class 0 :: capital.gain < 5054.25 & education == Masters & fnlwgt < 127098 & relationship == Not-in-family & workclass == State-gov → class 0 || masses: 0.923546, 0.000000, 0.076454
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & occupation == Handlers-cleaners & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.919624, 0.000000, 0.080376
+class 0 :: capital.gain < 5054.25 & education == Masters & hours.per.week < 40 & marital.status == Divorced & relationship == Not-in-family → class 0 || masses: 0.918516, 0.000000, 0.081484
+class 0 :: age > 35 & capital.gain < 5054.25 & hours.per.week < 42 & occupation == Farming-fishing & relationship == Not-in-family → class 0 || masses: 0.918452, 0.000000, 0.081548
+class 0 :: age < 36 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 130794 & occupation == Handlers-cleaners → class 0 || masses: 0.917954, 0.000000, 0.082046
+class 0 :: age < 27 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 42 & occupation == Protective-serv → class 0 || masses: 0.917099, 0.000000, 0.082901
+class 1 :: age < 45 & fnlwgt < 91281 & hours.per.week > 60 & marital.status == Married-civ-spouse & occupation == Transport-moving → class 1 || masses: 0.000000, 0.910434, 0.089566
+class 1 :: age > 33 & capital.loss > 0 & education == Doctorate & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.907750, 0.092250
+class 1 :: age > 36 & capital.loss > 0 & marital.status == Married-civ-spouse & occupation == Tech-support → class 1 || masses: 0.000000, 0.905662, 0.094338
+class 1 :: age < 34 & capital.loss > 1811 & education == HS-grad & fnlwgt > 130794 & marital.status == Married-civ-spouse → class 1 || masses: 0.007193, 0.897418, 0.095389
+class 0 :: age > 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 218493 & hours.per.week < 40 & workclass == Private → class 0 || masses: 0.892424, 0.010444, 0.097132
+class 1 :: age > 37 & capital.loss > 1887 & education == Masters & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.901867, 0.098133
+class 0 :: age > 45 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 50 & occupation == Adm-clerical & relationship == Unmarried & sex == Female & workclass == Private → class 0 || masses: 0.900219, 0.000000, 0.099781
+class 0 :: age < 32 & capital.gain < 5054.25 & education == 11th & fnlwgt < 211820 & hours.per.week < 50 → class 0 || masses: 0.896182, 0.003375, 0.100443
+class 0 :: age < 37 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Never-married & native.country > Mexico & relationship == Other-relative → class 0 || masses: 0.898684, 0.000000, 0.101316
+class 0 :: capital.gain < 5054.25 & education == HS-grad & marital.status == Never-married & relationship == Other-relative & workclass == Private → class 0 || masses: 0.895684, 0.000000, 0.104316
+class 0 :: age > 30 & capital.gain < 5054.25 & education == Some-college & hours.per.week > 50 & relationship == Own-child → class 0 || masses: 0.894620, 0.000000, 0.105380
+class 0 :: age > 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 126119 & hours.per.week < 44 & occupation == Adm-clerical & relationship == Not-in-family → class 0 || masses: 0.891882, 0.000000, 0.108118
+class 0 :: age > 45 & capital.gain < 5054.25 & fnlwgt > 85437.3 & hours.per.week < 45 & occupation == Other-service & relationship == Not-in-family → class 0 || masses: 0.889017, 0.000000, 0.110983
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 126240 & hours.per.week < 60 & marital.status == Never-married & relationship == Unmarried → class 0 || masses: 0.887252, 0.000000, 0.112748
+class 0 :: age < 28 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 176504 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.887103, 0.000000, 0.112897
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & marital.status == Never-married & relationship == Unmarried & sex == Female → class 0 || masses: 0.885678, 0.000000, 0.114322
+class 1 :: age > 33 & capital.loss > 0 & education == Masters & fnlwgt > 178419 & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.884882, 0.115118
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 40 & occupation == Farming-fishing & relationship == Husband & workclass == Self-emp-not-inc → class 0 || masses: 0.884556, 0.000000, 0.115444
+class 0 :: capital.gain < 5054.25 & fnlwgt > 127086 & hours.per.week < 42 & occupation == Transport-moving & relationship == Not-in-family → class 0 || masses: 0.884552, 0.000000, 0.115448
+class 0 :: age > 53 & capital.gain < 5054.25 & hours.per.week < 42 & occupation == Other-service & sex == Female & workclass == Private → class 0 || masses: 0.883087, 0.000000, 0.116913
+class 0 :: age > 42 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 42 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.877778, 0.004368, 0.117854
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 216932 & hours.per.week < 42 & occupation == Handlers-cleaners → class 0 || masses: 0.882000, 0.000000, 0.118000
+class 0 :: age < 32 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & marital.status == Never-married & occupation == Prof-specialty & sex == Male → class 0 || masses: 0.879672, 0.000000, 0.120328
+class 0 :: age < 33 & capital.gain < 5054.25 & fnlwgt < 176490 & hours.per.week < 50 & marital.status == Never-married & occupation == Exec-managerial & relationship == Own-child → class 0 || masses: 0.878496, 0.000000, 0.121504
+class 1 :: age > 37 & capital.loss > 0 & fnlwgt < 91281 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.870880, 0.129120
+class 0 :: age < 37 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Separated & relationship == Own-child → class 0 || masses: 0.865809, 0.000000, 0.134191
+class 0 :: age < 43 & capital.gain < 5054.25 & relationship == Unmarried & sex == Female & workclass == Local-gov → class 0 || masses: 0.865521, 0.000000, 0.134479
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt > 289180 & hours.per.week > 40 & occupation == Machine-op-inspct → class 0 || masses: 0.865328, 0.000000, 0.134672
+class 1 :: marital.status == Married-civ-spouse & native.country < United-States & occupation == Transport-moving & workclass == Self-emp-not-inc → class 1 || masses: 0.000000, 0.864266, 0.135734
+class 0 :: age < 33 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 38357.2 & hours.per.week < 43 & marital.status == Never-married → class 0 || masses: 0.863012, 0.000000, 0.136989
+class 1 :: age > 37 & capital.gain > 5054.25 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.862982, 0.137018
+class 0 :: age < 47 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 218249 & hours.per.week < 45 & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.860248, 0.000000, 0.139752
+class 0 :: age > 32 & capital.gain < 5054.25 & fnlwgt > 128314 & hours.per.week < 42 & relationship == Other-relative → class 0 || masses: 0.850449, 0.009414, 0.140137
+class 1 :: age > 37 & capital.loss > 1887 & education == Some-college & fnlwgt > 130794 & hours.per.week > 40 & marital.status == Married-civ-spouse & workclass == Private → class 1 || masses: 0.000000, 0.858320, 0.141680
+class 1 :: age > 32 & education == Masters & fnlwgt < 129588 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.856908, 0.143092
+class 0 :: capital.gain < 5054.25 & fnlwgt > 177277 & hours.per.week < 42 & native.country < United-States & relationship == Unmarried & sex == Female → class 0 || masses: 0.853264, 0.000000, 0.146736
+class 0 :: age > 30 & capital.gain < 5054.25 & fnlwgt < 375204 & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child → class 0 || masses: 0.841946, 0.004151, 0.153904
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 50 & marital.status == Never-married & relationship == Not-in-family & sex == Female → class 0 || masses: 0.845956, 0.000000, 0.154044
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 130794 & hours.per.week < 50 & marital.status == Never-married & relationship == Own-child & sex == Male & workclass == Private → class 0 || masses: 0.844073, 0.000000, 0.155927
+class 0 :: age > 30 & capital.gain < 5054.25 & fnlwgt < 178419 & hours.per.week < 42 & native.country > Mexico & occupation == Other-service & relationship == Not-in-family → class 0 || masses: 0.840046, 0.000000, 0.159954
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 126836 & hours.per.week < 42 & occupation == Adm-clerical & relationship == Own-child → class 0 || masses: 0.838821, 0.000000, 0.161179
+class 0 :: age < 33 & capital.gain < 5054.25 & fnlwgt > 126076 & hours.per.week < 42 & relationship == Not-in-family & workclass == Local-gov → class 0 || masses: 0.837175, 0.000000, 0.162825
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 130794 & hours.per.week > 40 & marital.status == Divorced & relationship == Unmarried → class 0 || masses: 0.834635, 0.000000, 0.165365
+class 0 :: capital.gain < 5054.25 & race == Black & relationship == Other-relative & sex == Female → class 0 || masses: 0.831065, 0.000000, 0.168935
+class 0 :: capital.gain < 5054.25 & education == HS-grad & marital.status == Never-married & occupation == Adm-clerical & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.826585, 0.000000, 0.173415
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 43 & race == Black & relationship == Not-in-family → class 0 || masses: 0.825778, 0.000000, 0.174222
+class 0 :: education == Preschool & native.country < United-States → class 0 || masses: 0.823094, 0.000000, 0.176906
+class 0 :: age < 30 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Married-spouse-absent & relationship == Own-child → class 0 || masses: 0.822523, 0.000000, 0.177477
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 176910 & hours.per.week < 50 & workclass == State-gov → class 0 || masses: 0.818914, 0.000000, 0.181086
+class 0 :: age < 55 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 217502 & hours.per.week < 45 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.817849, 0.000000, 0.182151
+class 0 :: education == 12th & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 0 || masses: 0.817252, 0.000000, 0.182748
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt > 220010 & hours.per.week < 42 & native.country < United-States & occupation == Other-service → class 0 || masses: 0.815745, 0.000000, 0.184255
+class 1 :: age > 31 & capital.loss > 0 & education == HS-grad & fnlwgt > 281519 & hours.per.week > 40 & marital.status == Married-civ-spouse → class 1 || masses: 0.000000, 0.815358, 0.184642
+class 0 :: age < 42 & capital.gain < 5054.25 & education == 11th & fnlwgt > 177331 & hours.per.week < 42 & occupation == Craft-repair → class 0 || masses: 0.812936, 0.000000, 0.187064
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 41.6 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.812826, 0.000000, 0.187174
+class 0 :: age > 64 & capital.gain < 5054.25 & fnlwgt < 130794 & hours.per.week < 44.4 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.812137, 0.000000, 0.187863
+class 1 :: age > 36 & capital.gain > 5054.25 & fnlwgt < 209101 & hours.per.week > 32 & marital.status == Married-civ-spouse & workclass == Private → class 1 || masses: 0.000000, 0.811773, 0.188227
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & occupation == Machine-op-inspct & relationship == Unmarried & sex == Female → class 0 || masses: 0.811622, 0.000000, 0.188378
+class 1 :: age > 26 & education == Prof-school & hours.per.week > 40 & workclass == Self-emp-not-inc → class 1 || masses: 0.000000, 0.811182, 0.188818
+class 0 :: age < 45 & capital.gain < 5054.25 & education == 11th & fnlwgt > 91281 & hours.per.week < 42 & occupation == Transport-moving → class 0 || masses: 0.811137, 0.000000, 0.188863
+class 0 :: age < 30 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 288408 & hours.per.week < 42 & occupation == Machine-op-inspct → class 0 || masses: 0.810227, 0.000000, 0.189773
+class 0 :: age > 56 & capital.gain < 5054.25 & education == 11th & workclass == Self-emp-not-inc → class 0 || masses: 0.808728, 0.000000, 0.191272
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 40 & workclass == State-gov → class 0 || masses: 0.806777, 0.000000, 0.193223
+class 0 :: age > 53 & capital.gain < 5054.25 & education == 10th & fnlwgt < 282077 & hours.per.week > 42 → class 0 || masses: 0.800299, 0.005255, 0.194447
+class 0 :: age > 50 & capital.gain < 6849 & education == 11th & occupation == Transport-moving → class 0 || masses: 0.805422, 0.000000, 0.194577
+class 0 :: age > 64 & capital.gain < 5054.25 & fnlwgt > 216867 & hours.per.week < 45 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.804864, 0.000000, 0.195136
+class 0 :: age > 30 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child & sex == Male & workclass == Private → class 0 || masses: 0.802808, 0.000000, 0.197192
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Assoc-acdm & fnlwgt < 124505 & occupation == Craft-repair → class 0 || masses: 0.799797, 0.000000, 0.200203
+class 0 :: age < 42 & capital.gain < 5054.25 & education == 9th & hours.per.week < 42 & occupation == Craft-repair & race == White → class 0 || masses: 0.797825, 0.000000, 0.202175
+class 0 :: age < 40 & capital.gain < 5054.25 & fnlwgt > 176910 & hours.per.week < 42 & occupation == Prof-specialty & race == White & relationship == Unmarried & sex == Female → class 0 || masses: 0.795800, 0.000000, 0.204200
+class 1 :: education == Bachelors & marital.status == Married-civ-spouse & occupation == Tech-support & relationship == Wife → class 1 || masses: 0.000000, 0.795606, 0.204395
+class 1 :: age < 45 & capital.loss > 1804 & fnlwgt > 127202 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.794718, 0.205282
+class 0 :: age < 55 & capital.gain < 5054.25 & education == 10th & fnlwgt < 282922 & hours.per.week > 42 → class 0 || masses: 0.790342, 0.003135, 0.206523
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & occupation == Sales & sex == Female → class 0 || masses: 0.793390, 0.000000, 0.206610
+class 0 :: age > 49 & capital.gain < 5054.25 & fnlwgt > 177189 & hours.per.week < 42 & occupation == Craft-repair & workclass == Self-emp-not-inc → class 0 || masses: 0.789407, 0.002900, 0.207693
+class 0 :: age < 32 & capital.gain < 5054.25 & education == 12th & fnlwgt < 121057 → class 0 || masses: 0.791611, 0.000000, 0.208389
+class 1 :: age > 31 & education == Assoc-voc & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.000000, 0.790932, 0.209068
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Divorced & occupation == Adm-clerical & race == Black → class 0 || masses: 0.787821, 0.000000, 0.212180
+class 1 :: age > 36 & capital.loss > 1887 & fnlwgt < 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.781830, 0.218170
+class 1 :: age > 36 & fnlwgt < 208785 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Tech-support & workclass == Federal-gov → class 1 || masses: 0.000000, 0.781050, 0.218950
+class 1 :: age > 32 & education == Masters & fnlwgt > 378428 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & sex == Male → class 1 || masses: 0.000000, 0.780675, 0.219325
+class 0 :: education == Doctorate & hours.per.week > 50 & race == Asian-Pac-Islander → class 0 || masses: 0.779665, 0.000000, 0.220335
+class 0 :: age < 43 & capital.gain < 5054.25 & occupation == Adm-clerical & relationship == Not-in-family & sex == Female → class 0 || masses: 0.773816, 0.005706, 0.220478
+class 0 :: age < 43 & capital.gain < 5054.25 & education == 7th-8th & hours.per.week > 65 → class 0 || masses: 0.778696, 0.000000, 0.221304
+class 0 :: age < 37 & capital.gain < 5054.25 & marital.status == Never-married & race == Black & relationship == Own-child → class 0 || masses: 0.777800, 0.000000, 0.222200
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & marital.status == Never-married & workclass == State-gov → class 0 || masses: 0.777644, 0.000000, 0.222356
+class 1 :: age > 26.85 & education == Prof-school & fnlwgt < 126706 & marital.status == Married-civ-spouse & workclass == State-gov → class 1 || masses: 0.000000, 0.774493, 0.225507
+class 0 :: capital.gain < 5054.25 & education == 9th & fnlwgt < 121526 & relationship == Husband → class 0 || masses: 0.769104, 0.004712, 0.226184
+class 0 :: capital.gain > 5054.25 & fnlwgt > 178419 & relationship == Own-child & workclass == Private → class 0 || masses: 0.773699, 0.000000, 0.226301
+class 0 :: age > 43 & capital.gain < 5054.25 & hours.per.week < 32 & occupation == Craft-repair & sex == Male → class 0 || masses: 0.768060, 0.005090, 0.226850
+class 1 :: age > 27 & education == Assoc-acdm & hours.per.week > 42 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.012886, 0.759061, 0.228052
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & native.country < United-States & occupation == Machine-op-inspct → class 0 || masses: 0.771907, 0.000000, 0.228093
+class 0 :: age < 43 & capital.gain < 5054.25 & fnlwgt < 176716 & hours.per.week < 32 & sex == Male → class 0 || masses: 0.759847, 0.011177, 0.228976
+class 1 :: age > 29 & education == Prof-school & hours.per.week > 40 & relationship == Not-in-family → class 1 || masses: 0.008155, 0.762736, 0.229110
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 40 & relationship == Own-child → class 0 || masses: 0.768499, 0.000000, 0.231501
+class 0 :: age > 53 & capital.gain < 5054.25 & hours.per.week < 40 & sex == Male & workclass == Local-gov → class 0 || masses: 0.764166, 0.004236, 0.231598
+class 1 :: age > 37 & education == Bachelors & fnlwgt > 287730 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.765620, 0.234380
+class 0 :: age < 29 & hours.per.week < 40 & marital.status == Never-married & sex == Female → class 0 || masses: 0.764516, 0.000000, 0.235484
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 216218 & hours.per.week > 50 & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.764401, 0.000000, 0.235599
+class 1 :: age > 33 & education == Bachelors & fnlwgt > 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales & race == White & workclass == Private → class 1 || masses: 0.006861, 0.756088, 0.237051
+class 0 :: age < 53 & capital.gain < 5054.25 & education == HS-grad & marital.status == Married-civ-spouse & occupation == Farming-fishing & workclass == Private → class 0 || masses: 0.755030, 0.007896, 0.237075
+class 0 :: age < 45 & capital.gain < 5054.25 & hours.per.week < 45 & marital.status == Never-married & occupation == Adm-clerical & relationship == Not-in-family & sex == Female → class 0 || masses: 0.761085, 0.000000, 0.238915
+class 0 :: age < 38 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 42 & relationship == Unmarried & sex == Female & workclass == Private → class 0 || masses: 0.760990, 0.000000, 0.239010
+class 1 :: age > 30 & capital.gain > 5054.25 & hours.per.week > 40 & occupation == Sales → class 1 || masses: 0.000000, 0.759978, 0.240022
+class 1 :: age > 37 & education == Doctorate & fnlwgt > 91281 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & workclass == State-gov → class 1 || masses: 0.000000, 0.757439, 0.242561
+class 0 :: age > 53 & capital.gain < 5054.25 & fnlwgt > 173005 & hours.per.week > 60 & occupation == Transport-moving → class 0 || masses: 0.755036, 0.000000, 0.244964
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 176826 & hours.per.week < 42 & occupation == Adm-clerical & sex == Male & workclass == Private → class 0 || masses: 0.753639, 0.000000, 0.246361
+class 0 :: age > 24 & education == 7th-8th & fnlwgt > 289180 & workclass == Self-emp-not-inc → class 0 || masses: 0.751845, 0.000000, 0.248156
+class 0 :: age < 56 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 178419 & hours.per.week < 45 & marital.status == Never-married & occupation == Craft-repair & relationship == Not-in-family → class 0 || masses: 0.751760, 0.000000, 0.248240
+class 0 :: age < 55 & capital.gain < 5054.25 & fnlwgt > 130794 & hours.per.week < 45 & marital.status == Widowed & relationship == Not-in-family & sex == Female → class 0 || masses: 0.751164, 0.000000, 0.248836
+class 0 :: capital.gain < 5054.25 & education == Bachelors & hours.per.week > 50 & relationship == Own-child → class 0 || masses: 0.751155, 0.000000, 0.248845
+class 0 :: capital.gain < 5054.25 & education == HS-grad & marital.status == Divorced & relationship == Other-relative & sex == Female → class 0 || masses: 0.748206, 0.000000, 0.251794
+class 0 :: capital.gain < 6849 & education == Masters & fnlwgt < 39581 & native.country < United-States → class 0 || masses: 0.747885, 0.000000, 0.252115
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 126802 & hours.per.week > 40 & sex == Female → class 0 || masses: 0.746746, 0.000000, 0.253254
+class 0 :: education == 12th & fnlwgt > 176596 & occupation == Adm-clerical → class 0 || masses: 0.746722, 0.000000, 0.253278
+class 0 :: capital.gain > 5054.25 & occupation == Machine-op-inspct & relationship == Unmarried → class 0 || masses: 0.744883, 0.000000, 0.255117
+class 1 :: age < 54.25 & education == Prof-school & hours.per.week < 32 & marital.status == Married-civ-spouse → class 1 || masses: 0.000000, 0.742479, 0.257521
+class 1 :: age > 33 & capital.loss > 0 & education == Bachelors & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country > Mexico & occupation == Prof-specialty & workclass == Private → class 1 || masses: 0.000000, 0.742366, 0.257634
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 176867 & hours.per.week < 42 & occupation == Sales → class 0 || masses: 0.742172, 0.000000, 0.257828
+class 0 :: age < 53 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 178419 & hours.per.week > 40 & relationship == Unmarried → class 0 || masses: 0.733944, 0.007031, 0.259025
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Bachelors & hours.per.week < 42 & marital.status == Never-married & occupation == Other-service → class 0 || masses: 0.740129, 0.000000, 0.259871
+class 0 :: capital.gain < 5054.25 & education == 7th-8th & fnlwgt < 130794 & occupation == Farming-fishing → class 0 || masses: 0.739613, 0.000000, 0.260387
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt > 127702 & hours.per.week < 42 & relationship == Other-relative → class 0 || masses: 0.738585, 0.000000, 0.261415
+class 1 :: age > 36 & fnlwgt > 210242 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Adm-clerical & relationship == Wife → class 1 || masses: 0.005456, 0.732943, 0.261600
+class 1 :: age > 37 & education == Bachelors & hours.per.week > 42 & marital.status == Widowed → class 1 || masses: 0.006335, 0.730377, 0.263288
+class 0 :: age < 42 & capital.gain < 5054.25 & education == Prof-school & occupation == Sales → class 0 || masses: 0.735943, 0.000000, 0.264057
+class 0 :: age < 30 & capital.gain < 5054.25 & education == Bachelors & fnlwgt < 130794 & occupation == Prof-specialty & relationship == Not-in-family → class 0 || masses: 0.735716, 0.000000, 0.264284
+class 1 :: age > 30 & capital.loss > 0 & fnlwgt > 209083 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.005454, 0.728582, 0.265964
+class 1 :: age > 33 & education == Bachelors & hours.per.week > 40 & marital.status == Married-civ-spouse & native.country < Mexico & occupation == Prof-specialty & workclass == Private → class 1 || masses: 0.000000, 0.733660, 0.266340
+class 0 :: age < 42 & capital.gain < 5054.25 & education == HS-grad & hours.per.week > 42 & marital.status == Divorced & occupation == Craft-repair → class 0 || masses: 0.733274, 0.000000, 0.266726
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt < 178419 & hours.per.week < 42 & occupation == Other-service & sex == Male → class 0 || masses: 0.715321, 0.017356, 0.267323
+class 0 :: capital.gain < 5054.25 & education == 12th & fnlwgt < 122752 & occupation == Exec-managerial → class 0 || masses: 0.732653, 0.000000, 0.267347
+class 1 :: age < 43 & education == Masters & hours.per.week < 40 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife → class 1 || masses: 0.000000, 0.732038, 0.267962
+class 1 :: age > 37 & education == Masters & fnlwgt < 38807 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == State-gov → class 1 || masses: 0.000000, 0.730807, 0.269193
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt < 288431 & hours.per.week < 42 & marital.status == Divorced & relationship == Unmarried → class 0 || masses: 0.726692, 0.003854, 0.269454
+class 0 :: age > 42 & education == 12th & fnlwgt < 178419 & occupation == Transport-moving → class 0 || masses: 0.729547, 0.000000, 0.270453
+class 1 :: age < 53 & marital.status == Married-civ-spouse & native.country < United-States & workclass == Local-gov → class 1 || masses: 0.004331, 0.722263, 0.273406
+class 1 :: age > 37 & education == Masters & hours.per.week > 40 & occupation == Exec-managerial & relationship == Not-in-family → class 1 || masses: 0.000871, 0.724569, 0.274560
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt < 178419 & occupation == Machine-op-inspct & relationship == Husband → class 0 || masses: 0.724391, 0.000435, 0.275174
+class 1 :: capital.loss > 0 & education == Bachelors & fnlwgt < 130794 & hours.per.week > 40 & marital.status == Married-civ-spouse → class 1 || masses: 0.000000, 0.724715, 0.275285
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & marital.status == Never-married & occupation == Adm-clerical & sex == Female → class 0 || masses: 0.719899, 0.000000, 0.280101
+class 0 :: capital.gain < 5054.25 & education == Some-college & fnlwgt > 130690 & hours.per.week < 50 & relationship == Unmarried & sex == Female → class 0 || masses: 0.717889, 0.001295, 0.280817
+class 0 :: age < 33 & education == 9th & fnlwgt < 87209 → class 0 || masses: 0.719051, 0.000000, 0.280949
+class 1 :: age < 35 & capital.loss > 0 & education == Bachelors & fnlwgt > 174096 & marital.status == Married-civ-spouse → class 1 || masses: 0.007857, 0.710863, 0.281281
+class 0 :: capital.gain < 5054.25 & education == 9th & fnlwgt > 178419 & hours.per.week < 42 & occupation == Machine-op-inspct → class 0 || masses: 0.718583, 0.000000, 0.281417
+class 0 :: age > 53 & capital.gain < 5054.25 & fnlwgt < 220010 & occupation == Transport-moving & race == Black → class 0 || masses: 0.717715, 0.000000, 0.282285
+class 0 :: capital.gain < 5054.25 & fnlwgt > 86301 & hours.per.week < 42 & marital.status == Divorced & occupation == Adm-clerical & relationship == Not-in-family & sex == Female → class 0 || masses: 0.716970, 0.000000, 0.283030
+class 1 :: age > 33 & education == Prof-school & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Local-gov → class 1 || masses: 0.000000, 0.715683, 0.284317
+class 0 :: age < 37 & capital.gain < 5054.25 & education == 11th & fnlwgt < 130794 & hours.per.week < 42 → class 0 || masses: 0.712940, 0.000000, 0.287060
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 38621.8 & hours.per.week < 50 & marital.status == Never-married → class 0 || masses: 0.712062, 0.000000, 0.287938
+class 0 :: capital.gain < 5054.25 & fnlwgt < 128255 & hours.per.week < 42 & occupation == Transport-moving & workclass == Local-gov → class 0 || masses: 0.711498, 0.000000, 0.288502
+class 0 :: capital.gain < 5054.25 & education == 7th-8th & hours.per.week < 42 & occupation == Transport-moving & workclass == Private → class 0 || masses: 0.711006, 0.000000, 0.288994
+class 1 :: age < 45 & capital.gain > 5054.25 & hours.per.week > 40 & occupation == Prof-specialty & sex == Male → class 1 || masses: 0.000000, 0.710535, 0.289465
+class 0 :: age < 39 & capital.gain < 5054.25 & fnlwgt < 175986 & hours.per.week < 42 & marital.status == Never-married & occupation == Sales & relationship == Own-child → class 0 || masses: 0.707982, 0.000000, 0.292018
+class 0 :: capital.gain < 6849 & education == Masters & hours.per.week > 60 & workclass == Self-emp-not-inc → class 0 || masses: 0.707743, 0.000000, 0.292257
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 130794 & hours.per.week > 40 & relationship == Not-in-family → class 0 || masses: 0.706144, 0.000000, 0.293856
+class 0 :: age < 47 & capital.gain < 5054.25 & fnlwgt < 289180 & hours.per.week < 42 & marital.status == Divorced & race == White & relationship == Unmarried & workclass == Local-gov → class 0 || masses: 0.705870, 0.000000, 0.294130
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & occupation == Other-service & relationship == Not-in-family → class 0 || masses: 0.705467, 0.000000, 0.294533
+class 0 :: education == Masters & fnlwgt < 128038 & hours.per.week > 40 & occupation == Adm-clerical → class 0 || masses: 0.704951, 0.000000, 0.295049
+class 0 :: age > 30 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child → class 0 || masses: 0.701830, 0.000000, 0.298170
+class 0 :: capital.gain < 5054.25 & education == 11th & fnlwgt > 177305 & hours.per.week > 50 → class 0 || masses: 0.699936, 0.001781, 0.298283
+class 0 :: age < 45 & capital.gain < 5054.25 & education == 11th & fnlwgt < 173730 & marital.status == Married-civ-spouse → class 0 || masses: 0.699492, 0.000000, 0.300508
+class 0 :: age > 43 & capital.gain < 5054.25 & education == 11th & fnlwgt > 289180 → class 0 || masses: 0.698047, 0.000000, 0.301953
+class 1 :: age > 36 & fnlwgt > 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Tech-support & workclass == Local-gov → class 1 || masses: 0.000000, 0.696465, 0.303535
+class 0 :: capital.gain < 6849 & education == 1st-4th & fnlwgt > 178419 & native.country < United-States → class 0 || masses: 0.689553, 0.005578, 0.304868
+class 1 :: age > 37 & education == Masters & fnlwgt < 220010 & hours.per.week > 55 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.694139, 0.305861
+class 0 :: age > 49 & capital.gain < 5054.25 & fnlwgt > 177649 & hours.per.week < 42 & occupation == Other-service & sex == Male → class 0 || masses: 0.688715, 0.005068, 0.306217
+class 1 :: age > 36 & education == Doctorate & fnlwgt > 209675 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.693405, 0.306595
+class 1 :: age > 33 & education == Prof-school & fnlwgt < 211069 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Husband & workclass == Private → class 1 || masses: 0.001285, 0.689954, 0.308761
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & marital.status == Divorced & sex == Male → class 0 || masses: 0.688655, 0.000000, 0.311345
+class 1 :: age < 31 & education == Bachelors & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Wife → class 1 || masses: 0.000000, 0.686853, 0.313147
+class 0 :: age > 53 & capital.gain < 5054.25 & hours.per.week < 32 & occupation == Prof-specialty & workclass == Private → class 0 || masses: 0.684156, 0.002659, 0.313185
+class 0 :: capital.gain < 5054.25 & fnlwgt < 178419 & marital.status == Never-married & relationship == Unmarried & sex == Female → class 0 || masses: 0.675102, 0.010547, 0.314351
+class 0 :: age < 36 & capital.gain < 5054.25 & fnlwgt > 215008 & native.country < United-States & occupation == Machine-op-inspct → class 0 || masses: 0.685380, 0.000000, 0.314620
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week > 60 & marital.status == Never-married & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.685207, 0.000000, 0.314793
+class 0 :: age < 42 & capital.gain < 5054.25 & fnlwgt > 130794 & hours.per.week < 42 & occupation == Other-service & sex == Male → class 0 || masses: 0.673650, 0.011205, 0.315145
+class 0 :: capital.gain < 5054.25 & education == Some-college & hours.per.week > 50 & occupation == Farming-fishing & workclass == Self-emp-not-inc → class 0 || masses: 0.681026, 0.000528, 0.318446
+class 0 :: capital.gain < 6497 & fnlwgt < 220010 & relationship == Unmarried & workclass == Local-gov → class 0 || masses: 0.675066, 0.005629, 0.319305
+class 0 :: capital.gain < 5054.25 & education == 9th & fnlwgt > 129782 & hours.per.week < 50 → class 0 || masses: 0.661655, 0.013603, 0.324742
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & hours.per.week > 42 & marital.status == Divorced & relationship == Not-in-family → class 0 || masses: 0.673066, 0.001909, 0.325025
+class 1 :: age > 36 & capital.loss > 0 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Sales → class 1 || masses: 0.003459, 0.669588, 0.326954
+class 1 :: age > 28 & education == Bachelors & fnlwgt > 212864 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Husband & workclass == Private → class 1 || masses: 0.009371, 0.663068, 0.327561
+class 0 :: age < 64 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 60 & occupation == Farming-fishing → class 0 || masses: 0.661098, 0.010401, 0.328501
+class 1 :: age > 42 & education == Masters & occupation == Exec-managerial & relationship == Unmarried → class 1 || masses: 0.004845, 0.665614, 0.329541
+class 0 :: age > 57 & capital.gain < 5054.25 & education == 10th & fnlwgt < 373226 & hours.per.week < 42 → class 0 || masses: 0.668261, 0.002146, 0.329593
+class 1 :: age > 33 & capital.loss > 0 & education == Masters & fnlwgt < 130091 & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.668257, 0.331744
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 220010 & hours.per.week < 42 & marital.status == Never-married & sex == Male & workclass == Private → class 0 || masses: 0.666484, 0.000000, 0.333516
+class 1 :: age > 27 & hours.per.week > 50 & marital.status == Married-civ-spouse & occupation == Protective-serv & workclass == Local-gov → class 1 || masses: 0.004239, 0.660912, 0.334849
+class 0 :: age > 45 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 45 & marital.status == Divorced & relationship == Not-in-family & sex == Female & workclass == Private → class 0 || masses: 0.661305, 0.000000, 0.338695
+class 1 :: age > 28 & capital.loss > 0 & education == Bachelors & fnlwgt > 129910 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.660958, 0.339042
+class 0 :: age > 53 & education == 10th & workclass == Local-gov → class 0 || masses: 0.660309, 0.000000, 0.339691
+class 0 :: age > 56 & capital.gain < 5054.25 & fnlwgt < 286313 & hours.per.week < 42 & native.country > Mexico & occupation == Machine-op-inspct → class 0 || masses: 0.653806, 0.005944, 0.340250
+class 1 :: age > 37 & education == Bachelors & fnlwgt > 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Local-gov → class 1 || masses: 0.000000, 0.654315, 0.345685
+class 0 :: age < 34 & capital.gain < 5054.25 & fnlwgt > 177596 & marital.status == Never-married & relationship == Own-child & workclass == Private → class 0 || masses: 0.649861, 0.003527, 0.346612
+class 1 :: age > 30 & education == Assoc-acdm & fnlwgt > 209237 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.651275, 0.348725
+class 0 :: age > 32 & capital.gain < 5054.25 & hours.per.week > 40 & occupation == Other-service & race == White → class 0 || masses: 0.636711, 0.012416, 0.350873
+class 0 :: capital.gain < 5054.25 & fnlwgt > 126250 & hours.per.week < 42 & occupation == Craft-repair & relationship == Not-in-family & sex == Female → class 0 || masses: 0.645751, 0.000000, 0.354249
+class 0 :: education == 5th-6th & hours.per.week < 42 & workclass == Self-emp-not-inc → class 0 || masses: 0.644784, 0.000000, 0.355216
+class 1 :: age > 36 & education == Assoc-acdm & fnlwgt < 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000427, 0.644040, 0.355533
+class 0 :: age < 34 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 176969 & hours.per.week > 40 & marital.status == Divorced & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.644295, 0.000000, 0.355705
+class 1 :: age > 41 & education == Doctorate & marital.status == Never-married & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.644104, 0.355896
+class 1 :: age > 32 & education == Some-college & fnlwgt > 133695 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Husband & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.643976, 0.356024
+class 1 :: age > 26 & education == Doctorate & hours.per.week > 40 & relationship == Not-in-family → class 1 || masses: 0.001102, 0.642827, 0.356071
+class 0 :: age > 42 & education == 10th & fnlwgt > 289180 & hours.per.week > 50 → class 0 || masses: 0.642886, 0.000000, 0.357114
+class 0 :: age > 32 & capital.gain < 5054.25 & education == HS-grad & hours.per.week > 42 & sex == Female → class 0 || masses: 0.630367, 0.010351, 0.359282
+class 1 :: age > 36 & fnlwgt > 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country < United-States & occupation == Tech-support → class 1 || masses: 0.000000, 0.640420, 0.359580
+class 0 :: age < 39 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & race == Black & relationship == Unmarried & sex == Female & workclass == Private → class 0 || masses: 0.640193, 0.000000, 0.359807
+class 0 :: age < 26 & capital.gain < 5054.25 & education == Bachelors & fnlwgt > 178419 & hours.per.week < 42 → class 0 || masses: 0.635992, 0.003980, 0.360028
+class 0 :: age > 62 & capital.gain < 5054.25 & hours.per.week < 50 & occupation == Adm-clerical & relationship == Not-in-family & sex == Female → class 0 || masses: 0.639553, 0.000000, 0.360447
+class 1 :: capital.gain > 5054.25 & education == Masters & fnlwgt < 176722 & hours.per.week > 40 → class 1 || masses: 0.000000, 0.639397, 0.360603
+class 0 :: native.country < United-States & occupation == Sales & relationship == Other-relative → class 0 || masses: 0.638861, 0.000000, 0.361139
+class 0 :: education == Prof-school & fnlwgt < 86970.6 & relationship == Own-child → class 0 || masses: 0.637705, 0.000000, 0.362295
+class 0 :: age > 30 & capital.gain < 5054.25 & fnlwgt < 130794 & hours.per.week < 42 & occupation == Handlers-cleaners → class 0 || masses: 0.630934, 0.005934, 0.363132
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 176839 & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child → class 0 || masses: 0.607674, 0.025927, 0.366399
+class 0 :: age > 43 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 130794 & relationship == Not-in-family & workclass == Self-emp-not-inc → class 0 || masses: 0.633114, 0.000000, 0.366886
+class 1 :: age > 36 & education == Assoc-voc & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country < Mexico & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.632882, 0.367118
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 289180 & hours.per.week > 45 & marital.status == Never-married & relationship == Not-in-family → class 0 || masses: 0.613026, 0.016783, 0.370191
+class 1 :: age > 28 & education == Bachelors & fnlwgt > 212955 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Wife & workclass == Private → class 1 || masses: 0.000000, 0.628851, 0.371149
+class 0 :: age > 45 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week > 40 & occupation == Machine-op-inspct → class 0 || masses: 0.620930, 0.007879, 0.371191
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Assoc-acdm & fnlwgt < 178419 & hours.per.week < 42 → class 0 || masses: 0.612706, 0.014609, 0.372685
+class 1 :: education == Some-college & fnlwgt < 91281 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Adm-clerical → class 1 || masses: 0.000000, 0.624593, 0.375407
+class 1 :: age > 36 & capital.loss > 0 & fnlwgt < 130794 & hours.per.week < 42 & marital.status == Married-civ-spouse → class 1 || masses: 0.010522, 0.613271, 0.376206
+class 0 :: capital.gain < 5054.25 & fnlwgt > 213212 & hours.per.week < 42 & occupation == Handlers-cleaners & workclass == Local-gov → class 0 || masses: 0.623542, 0.000000, 0.376458
+class 0 :: age < 29 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 216932 & hours.per.week < 60 & race == White & relationship == Not-in-family & sex == Male → class 0 || masses: 0.623445, 0.000000, 0.376555
+class 1 :: age > 26.6 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Protective-serv & workclass == Local-gov → class 1 || masses: 0.008726, 0.612891, 0.378383
+class 0 :: capital.gain < 5054.25 & education == 12th & fnlwgt < 218867 & hours.per.week < 50 → class 0 || masses: 0.604299, 0.013308, 0.382393
+class 1 :: fnlwgt > 215445 & hours.per.week > 42 & marital.status == Married-civ-spouse & occupation == Adm-clerical & workclass == Federal-gov → class 1 || masses: 0.000000, 0.616359, 0.383641
+class 0 :: age > 36 & capital.gain < 5054.25 & fnlwgt < 214613 & hours.per.week > 50 & occupation == Sales & relationship == Not-in-family → class 0 || masses: 0.616315, 0.000000, 0.383685
+class 0 :: capital.gain < 5054.25 & education == Some-college & occupation == Exec-managerial & race == White & workclass == State-gov → class 0 || masses: 0.604127, 0.008545, 0.387328
+class 0 :: age < 55 & education == 7th-8th & fnlwgt > 289180 & occupation == Sales → class 0 || masses: 0.611857, 0.000000, 0.388143
+class 0 :: age < 55 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 45 & occupation == Sales & relationship == Not-in-family & sex == Female → class 0 || masses: 0.610534, 0.000000, 0.389466
+class 0 :: age > 45 & capital.gain < 5054.25 & hours.per.week < 42 & marital.status == Widowed & relationship == Unmarried & sex == Female → class 0 || masses: 0.608830, 0.001204, 0.389966
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt > 126814 & hours.per.week < 45 & occupation == Transport-moving & relationship == Not-in-family → class 0 || masses: 0.608077, 0.000000, 0.391923
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt < 85341 & hours.per.week < 45 & marital.status == Never-married & native.country > Mexico & relationship == Not-in-family & sex == Female → class 0 || masses: 0.608033, 0.000000, 0.391967
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 178272 & hours.per.week < 42 & occupation == Craft-repair → class 0 || masses: 0.605391, 0.002110, 0.392499
+class 0 :: age > 62 & capital.gain < 5054.25 & fnlwgt > 175127 & hours.per.week > 30 & workclass == Self-emp-not-inc → class 0 || masses: 0.606711, 0.000000, 0.393289
+class 1 :: age > 37 & education == Assoc-voc & fnlwgt < 176683 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.000000, 0.603606, 0.396394
+class 1 :: age > 37 & education == Masters & fnlwgt > 91281 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Husband & workclass == Private → class 1 || masses: 0.000000, 0.602648, 0.397352
+class 0 :: age > 62 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 220010 & hours.per.week < 40 & relationship == Husband → class 0 || masses: 0.600182, 0.001608, 0.398210
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 175897 & hours.per.week < 42 & marital.status == Never-married & occupation == Adm-clerical & sex == Female → class 0 || masses: 0.596699, 0.000000, 0.403301
+class 1 :: age > 41 & education == Masters & occupation == Craft-repair & relationship == Husband → class 1 || masses: 0.000000, 0.594331, 0.405669
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & occupation == Farming-fishing → class 0 || masses: 0.593476, 0.000000, 0.406524
+class 0 :: age > 43 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 178419 & workclass == Self-emp-not-inc → class 0 || masses: 0.586756, 0.004771, 0.408473
+class 0 :: age > 56 & capital.gain < 5054.25 & hours.per.week < 42 & native.country < United-States & occupation == Craft-repair → class 0 || masses: 0.591435, 0.000000, 0.408565
+class 0 :: age < 45 & capital.gain < 5054.25 & education == Assoc-voc & hours.per.week < 42 & relationship == Unmarried → class 0 || masses: 0.587952, 0.002650, 0.409398
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt > 215392 & hours.per.week < 42 & occupation == Craft-repair & workclass == Self-emp-not-inc → class 0 || masses: 0.576142, 0.012718, 0.411140
+class 0 :: age < 33 & capital.gain < 5054.25 & education == Some-college & fnlwgt > 217460 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.587448, 0.000000, 0.412552
+class 0 :: capital.gain < 5054.25 & fnlwgt > 216734 & hours.per.week > 40 & relationship == Unmarried & sex == Female → class 0 || masses: 0.583987, 0.003178, 0.412835
+class 0 :: age > 37 & education == 9th & hours.per.week > 45 & workclass == Self-emp-not-inc → class 0 || masses: 0.585205, 0.000000, 0.414795
+class 0 :: age < 45 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 130794 & hours.per.week > 42 & occupation == Transport-moving → class 0 || masses: 0.582312, 0.000667, 0.417021
+class 0 :: age < 32 & capital.gain < 5054.25 & education == 11th & hours.per.week < 42 & marital.status == Never-married → class 0 || masses: 0.582204, 0.000000, 0.417796
+class 0 :: capital.gain < 6849 & education == 11th & fnlwgt > 201456 & hours.per.week < 42 → class 0 || masses: 0.563544, 0.018435, 0.418021
+class 0 :: age < 39 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 220010 & hours.per.week < 42 & relationship == Unmarried & sex == Female → class 0 || masses: 0.581811, 0.000000, 0.418189
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt > 216930 & hours.per.week > 50 & marital.status == Divorced & relationship == Not-in-family → class 0 || masses: 0.578702, 0.001818, 0.419480
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 178419 & hours.per.week < 42 & occupation == Sales → class 0 || masses: 0.574605, 0.004451, 0.420944
+class 0 :: age < 64 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 38309.8 & hours.per.week < 50 & relationship == Not-in-family & sex == Female & workclass == Local-gov → class 0 || masses: 0.578827, 0.000000, 0.421173
+class 1 :: age > 36 & fnlwgt < 173699 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Federal-gov → class 1 || masses: 0.001731, 0.576325, 0.421944
+class 1 :: age > 29 & capital.gain > 5054.25 & hours.per.week < 42 & relationship == Not-in-family → class 1 || masses: 0.000000, 0.573421, 0.426579
+class 0 :: age < 49 & capital.gain < 5054.25 & education == Bachelors & fnlwgt < 125784 & hours.per.week < 50 & relationship == Not-in-family → class 0 || masses: 0.565870, 0.006839, 0.427291
+class 1 :: age > 26 & capital.gain > 5054.25 & fnlwgt > 91281 & hours.per.week > 40 & sex == Male → class 1 || masses: 0.009583, 0.562954, 0.427463
+class 1 :: age > 37 & capital.loss > 1887 & education == HS-grad & fnlwgt > 95434.9 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.569885, 0.430115
+class 0 :: age > 56 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 39581 & occupation == Farming-fishing & workclass == Self-emp-not-inc → class 0 || masses: 0.564979, 0.004186, 0.430835
+class 1 :: education == Assoc-acdm & fnlwgt < 89703.5 & marital.status == Married-civ-spouse & occupation == Adm-clerical → class 1 || masses: 0.000000, 0.568711, 0.431289
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & marital.status == Never-married & relationship == Other-relative → class 0 || masses: 0.566652, 0.000000, 0.433348
+class 1 :: age > 27 & fnlwgt < 178419 & marital.status == Married-civ-spouse & occupation == Adm-clerical & relationship == Wife → class 1 || masses: 0.020223, 0.545877, 0.433900
+class 1 :: age > 33 & education == Masters & fnlwgt < 128750 & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == Asian-Pac-Islander & workclass == State-gov → class 1 || masses: 0.000000, 0.564507, 0.435493
+class 0 :: age > 49 & capital.gain < 5054.25 & hours.per.week > 42 & occupation == Other-service & relationship == Not-in-family → class 0 || masses: 0.564448, 0.000000, 0.435552
+class 1 :: age > 37 & education == Bachelors & fnlwgt < 176037 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife & workclass == Private → class 1 || masses: 0.000000, 0.562403, 0.437597
+class 0 :: age > 45 & capital.gain < 5054.25 & fnlwgt < 220010 & hours.per.week < 42 & marital.status == Divorced & relationship == Unmarried → class 0 || masses: 0.555101, 0.005860, 0.439039
+class 1 :: age > 28 & capital.loss > 0 & education == Bachelors & fnlwgt > 214351 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.000000, 0.560431, 0.439569
+class 1 :: age > 37 & education == Doctorate & fnlwgt < 176683 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.559934, 0.440066
+class 0 :: capital.gain < 5054.25 & fnlwgt < 178419 & hours.per.week < 40 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.534927, 0.024043, 0.441030
+class 0 :: age < 43 & education == HS-grad & hours.per.week < 42 & relationship == Unmarried → class 0 || masses: 0.543172, 0.014962, 0.441866
+class 0 :: age > 53 & capital.gain < 5054.25 & education == 7th-8th & fnlwgt > 39581 → class 0 || masses: 0.543568, 0.014261, 0.442171
+class 0 :: age < 32 & capital.gain < 5054.25 & education == 10th & hours.per.week < 43 & marital.status == Never-married → class 0 || masses: 0.556809, 0.000000, 0.443191
+class 1 :: age > 27 & education == Assoc-voc & hours.per.week > 55 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.555824, 0.444176
+class 1 :: age > 30 & education == Bachelors & fnlwgt < 220010 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == White & relationship == Husband → class 1 || masses: 0.005003, 0.549762, 0.445235
+class 0 :: capital.gain < 5054.25 & education == 11th & occupation == Craft-repair & workclass == Private → class 0 || masses: 0.543911, 0.009799, 0.446290
+class 0 :: capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 39462.2 & workclass == Self-emp-not-inc → class 0 || masses: 0.547989, 0.005499, 0.446512
+class 1 :: age > 28 & education == Bachelors & fnlwgt > 129683 & hours.per.week < 60 & marital.status == Married-civ-spouse & native.country < United-States & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.553275, 0.446725
+class 1 :: age < 49 & education == Bachelors & fnlwgt < 89534 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.000000, 0.552535, 0.447465
+class 1 :: age > 36 & capital.loss > 0 & education == Bachelors & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Machine-op-inspct → class 1 || masses: 0.000000, 0.552271, 0.447729
+class 1 :: age > 36 & fnlwgt > 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Tech-support & race == White → class 1 || masses: 0.001828, 0.549340, 0.448832
+class 1 :: age > 36 & capital.loss > 0 & fnlwgt < 174528 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Sales → class 1 || masses: 0.003927, 0.547200, 0.448874
+class 0 :: capital.gain < 5054.25 & fnlwgt > 128469 & hours.per.week < 42 & native.country < United-States & relationship == Not-in-family & sex == Female → class 0 || masses: 0.546397, 0.004267, 0.449336
+class 0 :: capital.gain < 6849 & education == Prof-school & hours.per.week < 42 & workclass == State-gov → class 0 || masses: 0.546340, 0.003904, 0.449756
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 289180 & hours.per.week < 42 & occupation == Machine-op-inspct & relationship == Not-in-family → class 0 || masses: 0.549978, 0.000000, 0.450022
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 177120 & hours.per.week < 42 & sex == Male → class 0 || masses: 0.537620, 0.010930, 0.451450
+class 0 :: capital.gain < 5054.25 & education == 7th-8th & hours.per.week < 42 & occupation == Machine-op-inspct & workclass == Private → class 0 || masses: 0.542971, 0.004849, 0.452179
+class 0 :: age < 28 & capital.gain < 5054.25 & fnlwgt > 86622 & hours.per.week < 32 & marital.status == Never-married → class 0 || masses: 0.547470, 0.000000, 0.452530
+class 1 :: age > 37 & fnlwgt > 377988 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Federal-gov → class 1 || masses: 0.000000, 0.546516, 0.453484
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 176185 & hours.per.week > 40 & occupation == Handlers-cleaners → class 0 || masses: 0.545259, 0.000000, 0.454741
+class 0 :: age < 36 & capital.gain < 5054.25 & fnlwgt > 287079 & hours.per.week > 42 & occupation == Craft-repair & workclass == Private → class 0 || masses: 0.544303, 0.000000, 0.455697
+class 0 :: education == 9th & relationship == Other-relative → class 0 || masses: 0.543977, 0.000000, 0.456023
+class 0 :: capital.gain < 5054.25 & education == Bachelors & marital.status == Separated & relationship == Unmarried → class 0 || masses: 0.539000, 0.003318, 0.457682
+class 1 :: age > 36 & education == Some-college & fnlwgt > 124864 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Protective-serv → class 1 || masses: 0.002097, 0.538771, 0.459132
+class 0 :: capital.gain < 5054.25 & education == Masters & hours.per.week > 48 & occupation == Prof-specialty & relationship == Not-in-family & sex == Female → class 0 || masses: 0.539958, 0.000000, 0.460043
+class 1 :: education == Doctorate & fnlwgt < 121912 & marital.status == Married-civ-spouse & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.539297, 0.460703
+class 1 :: age > 37 & education == Masters & fnlwgt > 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == White & workclass == Private → class 1 || masses: 0.008298, 0.530581, 0.461121
+class 1 :: age > 37 & education == Doctorate & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.537168, 0.462832
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt < 125789 & hours.per.week > 40 & marital.status == Never-married → class 0 || masses: 0.526736, 0.005927, 0.467337
+class 1 :: age > 37 & education == Bachelors & fnlwgt < 176716 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Husband & workclass == Private → class 1 || masses: 0.006696, 0.520752, 0.472552
+class 0 :: capital.gain < 6849 & education == Bachelors & fnlwgt > 178419 & relationship == Unmarried → class 0 || masses: 0.519665, 0.001851, 0.478484
+class 0 :: age < 55 & capital.gain < 5054.25 & education == 10th & hours.per.week < 42 → class 0 || masses: 0.508435, 0.012970, 0.478595
+class 1 :: age > 31 & fnlwgt > 130794 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Self-emp-inc → class 1 || masses: 0.001835, 0.517460, 0.480704
+class 1 :: fnlwgt > 213192 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Adm-clerical & relationship == Wife → class 1 || masses: 0.003191, 0.514738, 0.482071
+class 1 :: age > 31 & education == Some-college & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Wife → class 1 || masses: 0.003992, 0.513504, 0.482505
+class 0 :: age < 37 & capital.gain < 5054.25 & fnlwgt < 127102 & hours.per.week < 42 & marital.status == Never-married & occupation == Prof-specialty & relationship == Own-child & sex == Male → class 0 || masses: 0.517330, 0.000000, 0.482670
+class 0 :: capital.gain < 5054.25 & fnlwgt > 176665 & hours.per.week < 42 & marital.status == Divorced & occupation == Adm-clerical & relationship == Not-in-family & sex == Female → class 0 || masses: 0.516419, 0.000000, 0.483581
+class 1 :: age > 41 & capital.gain > 5054.25 & hours.per.week > 40 & relationship == Not-in-family & sex == Male → class 1 || masses: 0.007569, 0.506163, 0.486268
+class 1 :: age > 30 & education == Prof-school & fnlwgt < 173929 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.000000, 0.511516, 0.488484
+class 0 :: age < 49 & capital.gain < 5054.25 & education == Assoc-acdm & fnlwgt > 178419 & hours.per.week < 50 & relationship == Not-in-family → class 0 || masses: 0.500932, 0.010422, 0.488645
+class 0 :: age < 37 & capital.gain < 6849 & education == Masters & workclass == State-gov → class 0 || masses: 0.501631, 0.009244, 0.489125
+class 0 :: capital.gain < 5054.25 & fnlwgt > 176280 & hours.per.week < 42 & marital.status == Divorced & relationship == Other-relative → class 0 || masses: 0.510280, 0.000000, 0.489720
+class 1 :: age > 33 & education == Doctorate & fnlwgt < 208334 & occupation == Exec-managerial → class 1 || masses: 0.001890, 0.508260, 0.489850
+class 0 :: age > 45 & capital.gain < 5054.25 & fnlwgt > 292360 & marital.status == Divorced & sex == Female → class 0 || masses: 0.502665, 0.005636, 0.491699
+class 1 :: age > 36 & education == Bachelors & fnlwgt > 124985 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Protective-serv → class 1 || masses: 0.000000, 0.503919, 0.496081
+class 1 :: age > 34 & education == Bachelors & marital.status == Married-civ-spouse & occupation == Machine-op-inspct & race == White → class 1 || masses: 0.000368, 0.502848, 0.496785
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & race == White & workclass == State-gov → class 0 || masses: 0.490854, 0.007006, 0.502140
+class 1 :: age > 28 & education == Bachelors & fnlwgt > 213208 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == Black & workclass == Private → class 1 || masses: 0.000000, 0.497436, 0.502564
+class 1 :: age > 32 & fnlwgt > 130794 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife → class 1 || masses: 0.000979, 0.496432, 0.502590
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 289180 & hours.per.week < 50 & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.481540, 0.015339, 0.503121
+class 1 :: age > 36 & education == Some-college & marital.status == Married-civ-spouse & occupation == Sales & workclass == Private → class 1 || masses: 0.002828, 0.493592, 0.503580
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt > 289180 & hours.per.week > 50 & marital.status == Never-married → class 0 || masses: 0.495991, 0.000000, 0.504009
+class 1 :: age > 33 & education == Masters & fnlwgt < 128796 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country > Mexico & occupation == Prof-specialty & workclass == Private → class 1 || masses: 0.007453, 0.484424, 0.508123
+class 1 :: age > 36 & fnlwgt < 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Adm-clerical & workclass == Federal-gov → class 1 || masses: 0.009224, 0.482354, 0.508422
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 220010 & hours.per.week > 42 → class 0 || masses: 0.480633, 0.010908, 0.508458
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 177705 & hours.per.week < 42 & native.country < United-States & occupation == Machine-op-inspct → class 0 || masses: 0.488290, 0.000000, 0.511710
+class 1 :: age > 27 & education == Masters & hours.per.week > 48 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.014975, 0.470413, 0.514612
+class 1 :: age > 36 & education == Bachelors & hours.per.week < 50 & marital.status == Married-civ-spouse & occupation == Adm-clerical → class 1 || masses: 0.007176, 0.477865, 0.514959
+class 0 :: capital.gain < 6849 & fnlwgt > 165088 & hours.per.week > 45 & occupation == Handlers-cleaners → class 0 || masses: 0.482568, 0.002188, 0.515244
+class 1 :: age > 36 & fnlwgt < 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Self-emp-inc → class 1 || masses: 0.000176, 0.484213, 0.515611
+class 1 :: age > 38 & education == Bachelors & fnlwgt < 213202 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == White & workclass == Private → class 1 || masses: 0.009703, 0.474206, 0.516091
+class 1 :: age < 48 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife → class 1 || masses: 0.029299, 0.450598, 0.520102
+class 0 :: capital.gain < 5054.25 & education == Assoc-acdm & fnlwgt < 177176 & hours.per.week > 40 → class 0 || masses: 0.465471, 0.003689, 0.530840
+class 1 :: age > 37 & education == Prof-school & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Federal-gov → class 1 || masses: 0.000000, 0.468919, 0.531081
+class 0 :: capital.gain < 4017.2 & occupation == Farming-fishing & race == Asian-Pac-Islander & workclass == Private → class 0 || masses: 0.467189, 0.000000, 0.532811
+class 1 :: capital.gain > 5054.25 & education == Bachelors & marital.status == Married-civ-spouse & relationship == Wife → class 1 || masses: 0.000000, 0.464134, 0.535866
+class 1 :: age > 37 & education == Bachelors & fnlwgt > 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & workclass == Federal-gov → class 1 || masses: 0.000775, 0.462217, 0.537008
+class 1 :: age > 37 & education == Doctorate & fnlwgt > 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & workclass == State-gov → class 1 || masses: 0.000000, 0.462844, 0.537156
+class 0 :: age < 45 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 283355 & hours.per.week > 42 & occupation == Craft-repair → class 0 || masses: 0.462111, 0.000000, 0.537889
+class 0 :: age < 37 & capital.gain < 6455.9 & education == Masters & workclass == Local-gov → class 0 || masses: 0.453930, 0.008044, 0.538026
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 216535 & hours.per.week < 42 & relationship == Own-child & sex == Female → class 0 || masses: 0.461532, 0.000000, 0.538468
+class 1 :: age < 49 & education == Prof-school & hours.per.week > 50 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Self-emp-not-inc → class 1 || masses: 0.000000, 0.458606, 0.541394
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt > 215554 & hours.per.week < 42 & occupation == Transport-moving & workclass == Private → class 0 || masses: 0.450987, 0.007006, 0.542007
+class 1 :: education == Assoc-acdm & fnlwgt > 130101 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.002461, 0.454564, 0.542975
+class 1 :: age > 33 & education == Bachelors & fnlwgt > 175726 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Husband & workclass == Private → class 1 || masses: 0.003593, 0.451985, 0.544422
+class 0 :: age < 45 & capital.gain < 5054.25 & fnlwgt < 285631 & hours.per.week < 60 & occupation == Transport-moving → class 0 || masses: 0.423559, 0.031340, 0.545101
+class 1 :: age > 37 & education == Masters & fnlwgt < 213995 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == Black & workclass == Local-gov → class 1 || masses: 0.000000, 0.451705, 0.548295
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Assoc-voc & hours.per.week < 42 & sex == Male → class 0 || masses: 0.410165, 0.039360, 0.550475
+class 0 :: age > 50 & capital.gain < 5054.25 & education == HS-grad & workclass == Local-gov → class 0 || masses: 0.445106, 0.003945, 0.550949
+class 1 :: age > 48 & education == Some-college & marital.status == Married-civ-spouse & occupation == Transport-moving & race == White → class 1 || masses: 0.001390, 0.447628, 0.550982
+class 1 :: education == Bachelors & fnlwgt < 220010 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Private → class 1 || masses: 0.007216, 0.441514, 0.551269
+class 0 :: age < 30 & capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 220010 & hours.per.week < 42 → class 0 || masses: 0.441988, 0.005561, 0.552451
+class 1 :: age > 36 & education == HS-grad & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.004072, 0.441959, 0.553969
+class 1 :: age > 37 & education == HS-grad & fnlwgt > 287848 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.445775, 0.554225
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 127440 & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child & sex == Male → class 0 || masses: 0.444272, 0.000000, 0.555728
+class 1 :: age > 27 & hours.per.week > 42 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife → class 1 || masses: 0.010537, 0.433117, 0.556345
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 220010 & hours.per.week < 42 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.443364, 0.000000, 0.556636
+class 0 :: education == Assoc-voc & fnlwgt > 178419 & hours.per.week > 45 & workclass == Self-emp-not-inc → class 0 || masses: 0.440328, 0.001634, 0.558038
+class 0 :: age > 32 & capital.gain < 5054.25 & education == Assoc-acdm & fnlwgt < 178419 & relationship == Not-in-family → class 0 || masses: 0.433591, 0.006837, 0.559571
+class 1 :: age > 37 & education == Masters & fnlwgt > 91281 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == Black & workclass == State-gov → class 1 || masses: 0.000000, 0.438596, 0.561404
+class 0 :: age < 56 & capital.gain < 5054.25 & education == Assoc-acdm & hours.per.week < 42 & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.432547, 0.004772, 0.562681
+class 0 :: age < 30 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 125461 & hours.per.week < 50 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.436597, 0.000000, 0.563403
+class 1 :: age > 36 & education == Assoc-acdm & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Adm-clerical & workclass == Federal-gov → class 1 || masses: 0.004011, 0.432474, 0.563515
+class 1 :: age < 31 & education == Bachelors & fnlwgt > 91281 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales → class 1 || masses: 0.004580, 0.429361, 0.566059
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 176280 & hours.per.week < 50 & occupation == Handlers-cleaners → class 0 || masses: 0.425901, 0.007034, 0.567065
+class 0 :: age < 45 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 285335 & hours.per.week < 42 & occupation == Craft-repair → class 0 || masses: 0.419942, 0.005608, 0.574450
+class 0 :: age < 37 & capital.gain < 5054.25 & education == 9th & fnlwgt < 127345 & hours.per.week < 42 & marital.status == Never-married & relationship == Own-child & sex == Male → class 0 || masses: 0.423885, 0.000000, 0.576115
+class 1 :: age > 37 & education == HS-grad & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.008208, 0.413316, 0.578476
+class 0 :: capital.gain < 5054.25 & education == Bachelors & fnlwgt > 216967 & hours.per.week < 42 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.416580, 0.004304, 0.579117
+class 1 :: age > 30 & education == Some-college & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.007558, 0.412261, 0.580181
+class 0 :: age < 35 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 178419 & occupation == Machine-op-inspct & workclass == Private → class 0 || masses: 0.403175, 0.009357, 0.587468
+class 1 :: age > 27 & education == Masters & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales → class 1 || masses: 0.000000, 0.412045, 0.587955
+class 0 :: age < 49 & capital.gain < 5054.25 & fnlwgt > 175029 & hours.per.week < 42 & occupation == Handlers-cleaners → class 0 || masses: 0.397733, 0.014203, 0.588063
+class 1 :: age > 27 & education == Some-college & hours.per.week > 48 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.020618, 0.388293, 0.591089
+class 1 :: age > 36 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country < United-States & occupation == Adm-clerical & workclass == Federal-gov → class 1 || masses: 0.000000, 0.408879, 0.591121
+class 1 :: age > 33 & capital.loss > 0 & education == Prof-school & fnlwgt > 176992 & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.407753, 0.592247
+class 0 :: age > 53 & capital.gain < 5054.25 & fnlwgt > 220010 & hours.per.week < 42 & occupation == Transport-moving → class 0 || masses: 0.399873, 0.005951, 0.594176
+class 0 :: fnlwgt > 220010 & hours.per.week < 42 & race == Black & sex == Female → class 0 || masses: 0.379646, 0.025906, 0.594447
+class 1 :: age > 36 & capital.loss > 0 & education == Some-college & hours.per.week > 32 & marital.status == Married-civ-spouse & workclass == Local-gov → class 1 || masses: 0.003108, 0.400830, 0.596062
+class 0 :: age < 45 & education == Some-college & fnlwgt < 220010 & sex == Female → class 0 || masses: 0.398575, 0.003363, 0.598062
+class 1 :: age > 30 & fnlwgt < 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Tech-support & workclass == Private → class 1 || masses: 0.000625, 0.400750, 0.598626
+class 0 :: age < 49 & capital.gain < 5054.25 & fnlwgt > 289180 & hours.per.week < 42 & occupation == Machine-op-inspct → class 0 || masses: 0.394880, 0.004582, 0.600538
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt > 126234 & hours.per.week < 45 & occupation == Handlers-cleaners & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.399296, 0.000000, 0.600704
+class 0 :: age < 49 & capital.gain < 5054.25 & education == Bachelors & fnlwgt > 178419 & hours.per.week < 50 & relationship == Not-in-family → class 0 || masses: 0.387494, 0.011714, 0.600792
+class 1 :: age > 32 & education == Masters & fnlwgt > 178419 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Wife & workclass == State-gov → class 1 || masses: 0.000000, 0.398240, 0.601760
+class 0 :: education == 11th & fnlwgt < 178419 & hours.per.week > 40 & workclass == Private → class 0 || masses: 0.390263, 0.006849, 0.602888
+class 1 :: education == Some-college & fnlwgt > 176729 & marital.status == Married-civ-spouse & occupation == Adm-clerical & sex == Female → class 1 || masses: 0.013502, 0.382567, 0.603931
+class 1 :: age > 31 & education == HS-grad & hours.per.week > 40 & marital.status == Married-civ-spouse & workclass == Private → class 1 || masses: 0.007598, 0.386551, 0.605851
+class 1 :: age > 36 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Adm-clerical & relationship == Wife & workclass == Federal-gov → class 1 || masses: 0.000000, 0.392851, 0.607149
+class 1 :: age > 42 & education == Bachelors & fnlwgt > 210789 & occupation == Exec-managerial → class 1 || masses: 0.002081, 0.388976, 0.608943
+class 1 :: education == Bachelors & hours.per.week > 40 & marital.status == Divorced & workclass == Private → class 1 || masses: 0.002043, 0.386310, 0.611646
+class 1 :: age > 33 & capital.gain > 0 & education == Masters & fnlwgt < 130126 & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.388042, 0.611958
+class 1 :: age < 33 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Transport-moving → class 1 || masses: 0.010799, 0.374945, 0.614256
+class 0 :: age < 42 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 39581 & hours.per.week < 55 & occupation == Farming-fishing → class 0 || masses: 0.381163, 0.003906, 0.614932
+class 1 :: age > 32 & education == Doctorate & fnlwgt < 220010 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country > Mexico & occupation == Prof-specialty & workclass == Private → class 1 || masses: 0.000000, 0.385057, 0.614943
+class 0 :: fnlwgt < 130794 & hours.per.week < 42 & marital.status == Divorced & sex == Male → class 0 || masses: 0.381086, 0.003054, 0.615860
+class 1 :: age > 37 & education == Assoc-acdm & fnlwgt > 95471.8 & hours.per.week > 40 & marital.status == Married-civ-spouse & native.country > Mexico & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.043251, 0.339789, 0.616960
+class 1 :: age > 32 & capital.gain > 0 & education == Masters & fnlwgt > 178419 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Prof-specialty & sex == Female → class 1 || masses: 0.000000, 0.380941, 0.619059
+class 0 :: age > 53 & capital.gain < 5054.25 & fnlwgt > 176136 & hours.per.week < 50 & relationship == Not-in-family & sex == Male → class 0 || masses: 0.370859, 0.008736, 0.620406
+class 0 :: age < 40 & capital.gain < 5054.25 & fnlwgt > 177432 & hours.per.week < 42 & occupation == Sales & race == White & relationship == Unmarried & sex == Female → class 0 || masses: 0.374748, 0.000000, 0.625252
+class 1 :: age > 36 & education == Prof-school & fnlwgt > 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial → class 1 || masses: 0.003934, 0.369888, 0.626178
+class 0 :: capital.gain < 5054.25 & hours.per.week > 40 & marital.status == Divorced & relationship == Unmarried & sex == Female → class 0 || masses: 0.296932, 0.075500, 0.627568
+class 1 :: age > 43 & education == Bachelors & fnlwgt > 213019 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country < Mexico & occupation == Exec-managerial & workclass == Private → class 1 || masses: 0.000000, 0.371726, 0.628274
+class 0 :: age > 43 & capital.gain < 5054.25 & hours.per.week < 55 & occupation == Sales & relationship == Not-in-family → class 0 || masses: 0.366602, 0.004548, 0.628850
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & occupation == Adm-clerical & sex == Male & workclass == Private → class 0 || masses: 0.350147, 0.020944, 0.628909
+class 0 :: capital.gain < 5054.25 & education == Some-college & fnlwgt < 88029.9 & hours.per.week > 44 → class 0 || masses: 0.361357, 0.006446, 0.632197
+class 1 :: age > 37 & education == Assoc-voc & fnlwgt > 287737 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.366133, 0.633867
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week < 42 & occupation == Handlers-cleaners & sex == Male → class 0 || masses: 0.350947, 0.014925, 0.634128
+class 1 :: age > 37 & education == Some-college & fnlwgt > 130794 & hours.per.week > 40 & marital.status == Married-civ-spouse & workclass == Private → class 1 || masses: 0.002948, 0.358426, 0.638627
+class 1 :: age > 37 & capital.loss > 0 & education == Bachelors & fnlwgt > 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.360947, 0.639053
+class 1 :: age > 30 & education == Bachelors & fnlwgt > 173938 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Adm-clerical → class 1 || masses: 0.003693, 0.356097, 0.640210
+class 1 :: fnlwgt < 122103 & marital.status == Married-civ-spouse & occupation == Transport-moving & workclass == Self-emp-inc → class 1 || masses: 0.001061, 0.354546, 0.644393
+class 0 :: fnlwgt > 239006 & hours.per.week < 42 & marital.status == Widowed & sex == Female → class 0 || masses: 0.347072, 0.008120, 0.644807
+class 0 :: age < 30 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 50 & occupation == Exec-managerial → class 0 || masses: 0.348625, 0.006492, 0.644883
+class 1 :: age < 40 & fnlwgt > 178140 & marital.status == Married-civ-spouse & occupation == Tech-support → class 1 || masses: 0.036458, 0.313516, 0.650025
+class 0 :: age < 34 & education == Doctorate & fnlwgt > 178419 & workclass == Self-emp-inc → class 0 || masses: 0.347635, 0.000000, 0.652365
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt > 222040 & relationship == Husband → class 0 || masses: 0.333966, 0.012443, 0.653591
+class 0 :: age > 43 & capital.gain < 5054.25 & occupation == Adm-clerical & sex == Female → class 0 || masses: 0.323957, 0.021456, 0.654588
+class 0 :: age > 56 & capital.gain < 5054.25 & hours.per.week < 42 & occupation == Sales & workclass == Private → class 0 || masses: 0.332825, 0.009902, 0.657273
+class 0 :: capital.gain < 5054.25 & education == 5th-6th & fnlwgt > 127118 & native.country < United-States & occupation == Machine-op-inspct → class 0 || masses: 0.342056, 0.000000, 0.657944
+class 0 :: age < 33 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 130794 & hours.per.week < 60 & marital.status == Never-married & sex == Female → class 0 || masses: 0.341169, 0.000000, 0.658831
+class 1 :: age > 33 & capital.loss > 0 & education == Bachelors & fnlwgt > 178419 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Private → class 1 || masses: 0.000000, 0.339754, 0.660246
+class 0 :: capital.gain < 5054.25 & fnlwgt < 130794 & native.country > Mexico & occupation == Other-service & sex == Female → class 0 || masses: 0.318031, 0.018879, 0.663090
+class 0 :: education == Bachelors & fnlwgt < 130794 & hours.per.week < 45 & marital.status == Never-married → class 0 || masses: 0.237170, 0.099265, 0.663565
+class 1 :: fnlwgt > 220010 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Self-emp-not-inc → class 1 || masses: 0.004204, 0.330168, 0.665628
+class 0 :: age < 36 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 214811 & hours.per.week > 42 → class 0 || masses: 0.329468, 0.003892, 0.666640
+class 0 :: age < 30 & capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & marital.status == Never-married & workclass == Private → class 0 || masses: 0.331769, 0.000000, 0.668231
+class 0 :: capital.gain < 7034.85 & education == Prof-school & hours.per.week < 42 & occupation == Exec-managerial → class 0 || masses: 0.328173, 0.002382, 0.669445
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 48 & marital.status == Divorced & occupation == Adm-clerical & relationship == Unmarried → class 0 || masses: 0.297950, 0.031867, 0.670183
+class 0 :: age < 37 & capital.gain < 5054.25 & hours.per.week < 42 & native.country < United-States & race == White → class 0 || masses: 0.317683, 0.010874, 0.671443
+class 0 :: age > 36 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 285739 & workclass == Self-emp-not-inc → class 0 || masses: 0.312176, 0.015472, 0.672353
+class 1 :: age > 36 & education == Masters & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Self-emp-inc → class 1 || masses: 0.002191, 0.324875, 0.672934
+class 1 :: age > 37 & fnlwgt > 284313 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.326164, 0.673836
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 178419 & hours.per.week > 45 → class 0 || masses: 0.308155, 0.017911, 0.673934
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Some-college & hours.per.week < 50 & sex == Female → class 0 || masses: 0.317911, 0.008128, 0.673962
+class 1 :: age > 36 & fnlwgt < 220010 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Tech-support → class 1 || masses: 0.006046, 0.319549, 0.674405
+class 0 :: age < 30 & capital.gain < 7406.55 & relationship == Not-in-family & workclass == Local-gov → class 0 || masses: 0.254904, 0.070621, 0.674475
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt < 120962 & sex == Female → class 0 || masses: 0.313900, 0.009617, 0.676483
+class 1 :: age > 27 & fnlwgt > 178419 & hours.per.week < 42 & marital.status == Married-civ-spouse & workclass == Federal-gov → class 1 || masses: 0.002718, 0.319807, 0.677475
+class 0 :: age < 43 & capital.gain < 5054.25 & education == Masters & relationship == Not-in-family & sex == Female → class 0 || masses: 0.285342, 0.036021, 0.678636
+class 1 :: age > 32 & fnlwgt > 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & relationship == Husband → class 1 || masses: 0.000000, 0.320703, 0.679297
+class 1 :: age > 28 & capital.gain > 0 & education == Bachelors & sex == Female → class 1 || masses: 0.000000, 0.319503, 0.680497
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 220010 & hours.per.week > 42 → class 0 || masses: 0.291916, 0.025768, 0.682316
+class 1 :: age > 43 & education == Bachelors & fnlwgt < 174533 & marital.status == Married-spouse-absent → class 1 || masses: 0.002261, 0.314679, 0.683060
+class 0 :: capital.gain < 5054.25 & education == Some-college & hours.per.week < 50 & sex == Male → class 0 || masses: 0.305596, 0.009868, 0.684536
+class 0 :: capital.gain < 5054.25 & hours.per.week < 42 & occupation == Other-service & sex == Female & workclass == Private → class 0 || masses: 0.273630, 0.040004, 0.686366
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 220010 & hours.per.week < 50 → class 0 || masses: 0.308261, 0.004701, 0.687038
+class 0 :: age < 50 & capital.gain < 6849 & marital.status == Widowed & relationship == Unmarried → class 0 || masses: 0.269509, 0.042071, 0.688421
+class 1 :: fnlwgt < 130794 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Local-gov → class 1 || masses: 0.000000, 0.309043, 0.690957
+class 1 :: age > 37 & education == Masters & fnlwgt < 287422 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & workclass == Local-gov → class 1 || masses: 0.022219, 0.286205, 0.691577
+class 0 :: capital.gain < 6849 & education == Doctorate & marital.status == Married-civ-spouse & workclass == Self-emp-not-inc → class 0 || masses: 0.302271, 0.004957, 0.692773
+class 0 :: age > 37 & capital.gain < 6849 & education == Assoc-voc & fnlwgt > 178419 → class 0 || masses: 0.296540, 0.007770, 0.695690
+class 1 :: age > 36 & education == Assoc-voc & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.014463, 0.289790, 0.695747
+class 0 :: capital.gain < 5054.25 & education == Assoc-voc & fnlwgt < 172106 & hours.per.week < 50 → class 0 || masses: 0.286734, 0.016750, 0.696515
+class 0 :: age < 37 & capital.gain < 6849 & education == Assoc-acdm & fnlwgt > 178419 → class 0 || masses: 0.288995, 0.012547, 0.698458
+class 0 :: education == HS-grad & fnlwgt > 178419 & hours.per.week > 45 & workclass == Self-emp-inc → class 0 || masses: 0.119995, 0.180172, 0.699834
+class 0 :: age > 32 & capital.gain < 5054.25 & fnlwgt > 130794 & relationship == Not-in-family → class 0 || masses: 0.288934, 0.010477, 0.700589
+class 1 :: age > 27 & education == Bachelors & marital.status == Married-civ-spouse & occupation == Exec-managerial & race == Asian-Pac-Islander → class 1 || masses: 0.005493, 0.293808, 0.700699
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Bachelors & hours.per.week < 42 → class 0 || masses: 0.284038, 0.014157, 0.701806
+class 0 :: education == Doctorate & fnlwgt > 178419 & native.country < India & workclass == Private → class 0 || masses: 0.295575, 0.000000, 0.704425
+class 1 :: age > 32 & capital.gain > 5054.25 & education == Bachelors & fnlwgt < 220010 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Sales & workclass == Private → class 1 || masses: 0.000000, 0.293016, 0.706984
+class 0 :: age > 53 & education == 10th & hours.per.week < 42 & occupation == Sales → class 0 || masses: 0.280177, 0.010936, 0.708887
+class 1 :: fnlwgt > 132798 & hours.per.week < 50 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Wife → class 1 || masses: 0.011952, 0.278299, 0.709749
+class 0 :: age > 53 & fnlwgt > 138628 & relationship == Wife & workclass == Private → class 0 || masses: 0.284574, 0.004015, 0.711412
+class 1 :: age < 37 & education == Bachelors & fnlwgt < 173941 & hours.per.week > 30 & marital.status == Married-civ-spouse → class 1 || masses: 0.031099, 0.256156, 0.712745
+class 1 :: age > 42 & education == HS-grad & hours.per.week > 30 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.017134, 0.267976, 0.714889
+class 1 :: age > 32 & education == Masters & fnlwgt > 178419 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == White & relationship == Wife → class 1 || masses: 0.000000, 0.285077, 0.714923
+class 1 :: age > 36 & education == Masters & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Local-gov → class 1 || masses: 0.011064, 0.270849, 0.718087
+class 0 :: capital.gain < 5054.25 & education == HS-grad & hours.per.week < 42 & occupation == Craft-repair & workclass == Private → class 0 || masses: 0.269689, 0.011110, 0.719202
+class 0 :: age < 33 & capital.gain < 5054.25 & fnlwgt < 130794 & hours.per.week < 45 & occupation == Prof-specialty & relationship == Not-in-family & sex == Female → class 0 || masses: 0.279792, 0.000000, 0.720208
+class 1 :: age > 27 & education == Some-college & fnlwgt > 220010 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.009236, 0.268770, 0.721994
+class 0 :: age < 37 & education == HS-grad & fnlwgt > 178419 & hours.per.week > 45 → class 0 || masses: 0.271182, 0.006749, 0.722070
+class 0 :: capital.gain < 5054.25 & education == HS-grad & fnlwgt < 282135 & occupation == Sales & workclass == Private → class 0 || masses: 0.276499, 0.000000, 0.723501
+class 0 :: age < 30 & capital.gain < 5054.25 & fnlwgt > 178419 & hours.per.week > 50 & relationship == Husband → class 0 || masses: 0.268618, 0.007121, 0.724261
+class 1 :: age < 49 & education == Prof-school & fnlwgt > 215957 & hours.per.week < 55 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.273387, 0.726613
+class 1 :: age > 30 & education == Bachelors & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Craft-repair & workclass == Private → class 1 || masses: 0.001402, 0.267088, 0.731509
+class 0 :: capital.gain < 6849 & education == Prof-school & occupation == Prof-specialty & workclass == Private → class 0 || masses: 0.087741, 0.176884, 0.735375
+class 0 :: age < 47 & capital.gain < 5054.25 & education == HS-grad & fnlwgt > 91281 & hours.per.week < 45 & marital.status == Divorced & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.208770, 0.047344, 0.743886
+class 0 :: age > 45 & capital.gain < 5054.25 & hours.per.week > 55 & relationship == Not-in-family & workclass == Private → class 0 || masses: 0.250253, 0.004774, 0.744973
+class 0 :: capital.gain < 6849 & education == Assoc-voc & fnlwgt < 162354 & hours.per.week > 50 → class 0 || masses: 0.247485, 0.004775, 0.747740
+class 1 :: age > 43 & education == Bachelors & fnlwgt < 175485 & occupation == Protective-serv → class 1 || masses: 0.002138, 0.246929, 0.750933
+class 0 :: age > 56 & capital.gain < 4032.8 & education == Prof-school & hours.per.week < 32 → class 0 || masses: 0.156411, 0.092382, 0.751207
+class 0 :: age > 37 & capital.gain < 5054.25 & education == Some-college & fnlwgt < 178419 & relationship == Not-in-family → class 0 || masses: 0.139680, 0.108574, 0.751746
+class 0 :: capital.gain < 6849 & education == Doctorate & fnlwgt < 130794 & occupation == Prof-specialty → class 0 || masses: 0.179391, 0.067955, 0.752654
+class 0 :: age < 37 & capital.gain < 5054.25 & education == Bachelors & hours.per.week > 42 → class 0 || masses: 0.230968, 0.015210, 0.753822
+class 0 :: age > 45 & fnlwgt > 178419 & hours.per.week > 45 & occupation == Transport-moving → class 0 || masses: 0.238095, 0.006276, 0.755628
+class 0 :: capital.gain < 6742.8 & education == Some-college & fnlwgt > 178419 & hours.per.week > 45 → class 0 || masses: 0.220541, 0.023124, 0.756334
+class 1 :: age > 28 & capital.gain > 0 & education == Bachelors & fnlwgt > 129961 & hours.per.week < 60 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == Self-emp-inc → class 1 || masses: 0.000000, 0.243440, 0.756560
+class 0 :: age < 37 & capital.gain < 5054.25 & education == HS-grad & fnlwgt < 176810 & hours.per.week < 42 & occupation == Craft-repair & sex == Male & workclass == Private → class 0 || masses: 0.191879, 0.048876, 0.759245
+class 1 :: age > 33 & capital.gain > 0 & education == Prof-school & hours.per.week > 35 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.000000, 0.239560, 0.760440
+class 0 :: age > 56 & capital.gain < 6849 & education == Masters & workclass == Self-emp-not-inc → class 0 || masses: 0.237441, 0.000784, 0.761774
+class 0 :: age > 37 & capital.gain < 5054.25 & education == Bachelors & relationship == Husband → class 0 || masses: 0.229549, 0.004727, 0.765724
+class 1 :: education == Prof-school & fnlwgt < 130794 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Self-emp-inc → class 1 || masses: 0.008556, 0.224406, 0.767038
+class 0 :: age < 42 & fnlwgt > 235334 & hours.per.week < 42 & sex == Female → class 0 || masses: 0.177342, 0.055511, 0.767147
+class 1 :: age > 32 & capital.loss > 0 & education == Prof-school & fnlwgt < 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & workclass == Self-emp-not-inc → class 1 || masses: 0.000000, 0.229756, 0.770244
+class 0 :: education == 7th-8th & fnlwgt < 130794 & hours.per.week > 45 & workclass == Self-emp-not-inc → class 0 || masses: 0.217474, 0.006866, 0.775660
+class 0 :: age < 49 & capital.gain < 5054.25 & education == Some-college & hours.per.week > 40 & relationship == Not-in-family & sex == Female → class 0 || masses: 0.203767, 0.018586, 0.777647
+class 1 :: fnlwgt > 130794 & hours.per.week < 50 & marital.status == Married-civ-spouse & occupation == Exec-managerial & relationship == Husband → class 1 || masses: 0.018853, 0.202725, 0.778422
+class 1 :: age > 24 & fnlwgt > 130794 & marital.status == Married-civ-spouse & occupation == Handlers-cleaners → class 1 || masses: 0.137120, 0.082880, 0.780000
+class 0 :: age > 37 & capital.gain < 5054.25 & education == Bachelors & workclass == Self-emp-not-inc → class 0 || masses: 0.219973, 0.000000, 0.780027
+class 1 :: age > 34 & education == Bachelors & hours.per.week > 40 & marital.status == Married-civ-spouse → class 1 || masses: 0.010241, 0.204726, 0.785033
+class 1 :: age > 35 & fnlwgt < 130794 & hours.per.week > 30 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.024842, 0.187723, 0.787435
+class 1 :: age > 27 & fnlwgt > 127202 & marital.status == Married-civ-spouse & occupation == Exec-managerial & workclass == State-gov → class 1 || masses: 0.004641, 0.198311, 0.797047
+class 1 :: age < 40 & education == Assoc-voc & fnlwgt > 213870 & marital.status == Married-civ-spouse → class 1 || masses: 0.089615, 0.109505, 0.800880
+class 1 :: education == Bachelors & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Craft-repair & workclass == Private → class 1 || masses: 0.000000, 0.198727, 0.801273
+class 1 :: age > 34 & capital.gain > 5054.25 & hours.per.week < 40 & sex == Female → class 1 || masses: 0.000569, 0.197218, 0.802213
+class 1 :: fnlwgt < 178419 & hours.per.week > 48.7 & marital.status == Married-civ-spouse & workclass == Self-emp-not-inc → class 1 || masses: 0.080953, 0.108460, 0.810587
+class 0 :: education == Masters & hours.per.week > 40 & marital.status == Divorced & occupation == Prof-specialty → class 0 || masses: 0.182513, 0.006051, 0.811436
+class 1 :: age > 32 & education == Prof-school & fnlwgt < 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & native.country < United-States & occupation == Prof-specialty & workclass == Self-emp-not-inc → class 1 || masses: 0.094895, 0.093306, 0.811800
+class 1 :: age > 37 & education == Prof-school & fnlwgt < 178419 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == Other & workclass == Self-emp-not-inc → class 1 || masses: 0.078620, 0.109186, 0.812194
+class 0 :: age > 37 & capital.gain < 5054.25 & education == Assoc-voc & occupation == Craft-repair → class 0 || masses: 0.114018, 0.063813, 0.822169
+class 1 :: age > 27 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Sales & race == White → class 1 || masses: 0.000000, 0.176536, 0.823464
+class 1 :: age > 29 & hours.per.week < 42 & occupation == Prof-specialty & sex == Male → class 1 || masses: 0.000000, 0.173498, 0.826502
+class 0 :: age > 37 & capital.gain < 6849 & education == Assoc-acdm & hours.per.week < 43 → class 0 || masses: 0.164093, 0.007670, 0.828237
+class 0 :: capital.gain < 5054.25 & education == Some-college & fnlwgt < 289180 & hours.per.week < 42 & occupation == Machine-op-inspct → class 0 || masses: 0.122527, 0.044588, 0.832885
+class 1 :: age > 37 & education == Bachelors & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Transport-moving → class 1 || masses: 0.064405, 0.101253, 0.834342
+class 0 :: capital.gain < 6849 & education == Masters & fnlwgt < 124724 & relationship == Not-in-family → class 0 || masses: 0.124725, 0.040534, 0.834742
+class 1 :: age > 37 & hours.per.week > 42 & relationship == Unmarried & sex == Male → class 1 || masses: 0.000000, 0.165219, 0.834781
+class 0 :: age > 37 & capital.gain < 5054.25 & fnlwgt < 282785 & hours.per.week < 42 & occupation == Machine-op-inspct → class 0 || masses: 0.084612, 0.078022, 0.837367
+class 1 :: age > 27 & education == Some-college & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Craft-repair → class 1 || masses: 0.003687, 0.158590, 0.837723
+class 0 :: capital.gain < 5054.25 & education == Some-college & fnlwgt < 125157 & hours.per.week < 50 & occupation == Prof-specialty → class 0 || masses: 0.136745, 0.022844, 0.840411
+class 0 :: capital.gain < 6849 & education == Some-college & fnlwgt < 267876 & hours.per.week > 45 → class 0 || masses: 0.123798, 0.031493, 0.844709
+class 1 :: age > 41 & education == Masters & hours.per.week > 32 & sex == Female → class 1 || masses: 0.105305, 0.047293, 0.847403
+class 1 :: age > 37 & education == Prof-school & fnlwgt > 130794 & hours.per.week > 32 & marital.status == Married-civ-spouse & occupation == Prof-specialty & race == Asian-Pac-Islander & workclass == Self-emp-not-inc → class 1 || masses: 0.029986, 0.119674, 0.850339
+class 1 :: age > 34 & hours.per.week < 42 & marital.status == Married-civ-spouse & occupation == Machine-op-inspct → class 1 || masses: 0.054820, 0.087644, 0.857535
+class 1 :: age > 27 & education == Masters & fnlwgt < 130794 & hours.per.week < 42 & marital.status == Married-civ-spouse → class 1 || masses: 0.000542, 0.138137, 0.861321
+class 1 :: age > 43 & education == Bachelors & fnlwgt < 175938 & marital.status == Never-married → class 1 || masses: 0.087115, 0.046657, 0.866228
+class 0 :: capital.gain < 6849 & education == Masters & fnlwgt > 128336 & relationship == Husband → class 0 || masses: 0.121965, 0.008597, 0.869438
+class 1 :: education == Some-college & marital.status == Married-civ-spouse & occupation == Adm-clerical & sex == Male → class 1 || masses: 0.023931, 0.103194, 0.872875
+class 1 :: age > 48 & education == HS-grad & marital.status == Married-civ-spouse & occupation == Transport-moving → class 1 || masses: 0.003123, 0.113610, 0.883267
+class 1 :: age < 45 & education == HS-grad & hours.per.week > 32 & marital.status == Married-civ-spouse → class 1 || masses: 0.074168, 0.040733, 0.885099
+class 1 :: age > 24 & education == Assoc-acdm & marital.status == Married-civ-spouse & native.country > Peru → class 1 || masses: 0.066961, 0.020598, 0.912440
+class 1 :: age < 34 & hours.per.week > 40 & marital.status == Married-civ-spouse & occupation == Prof-specialty → class 1 || masses: 0.034833, 0.016759, 0.948408
+class 0 :: capital.gain < 6849 & education == Masters & fnlwgt < 176596 & occupation == Prof-specialty → class 0 || masses: 0.000000, 0.051590, 0.948410
+class 1 :: age > 29 & hours.per.week > 40 & relationship == Not-in-family & sex == Male → class 1 || masses: 0.027308, 0.001420, 0.971272

@@ -1,0 +1,18 @@
+class 1 :: clump_thickness == 7 → class 1 || masses: 0.000000, 0.453046, 0.546954
+class 1 :: bare_nucleoli == 10 → class 1 || masses: 0.000000, 0.444080, 0.555920
+class 0 :: bare_nucleoli == 2 & marginal_adhesion == 3 → class 0 || masses: 0.396687, 0.000000, 0.603313
+class 0 :: bare_nucleoli == 1 & epithelial_size == 2 → class 0 || masses: 0.353867, 0.000000, 0.646133
+class 1 :: clump_thickness == 9 → class 1 || masses: 0.000000, 0.351764, 0.648236
+class 0 :: shape_uniformity == 1 → class 0 || masses: 0.348820, 0.000000, 0.651180
+class 1 :: clump_thickness == 10 → class 1 || masses: 0.000000, 0.344409, 0.655591
+class 0 :: shape_uniformity == 2 → class 0 || masses: 0.340009, 0.000000, 0.659991
+class 0 :: bare_nucleoli == 1 & size_uniformity == 1 → class 0 || masses: 0.328000, 0.000000, 0.672000
+class 1 :: bare_nucleoli == 8 → class 1 || masses: 0.000000, 0.300596, 0.699404
+class 1 :: epithelial_size == 5 & shape_uniformity == 4 → class 1 || masses: 0.000000, 0.295838, 0.704162
+class 1 :: size_uniformity == 10 → class 1 || masses: 0.000000, 0.289814, 0.710186
+class 1 :: clump_thickness == 8 → class 1 || masses: 0.000000, 0.284035, 0.715965
+class 0 :: epithelial_size == 2 & normal_nucleoli == 1 & shape_uniformity == 1 → class 0 || masses: 0.267010, 0.000000, 0.732990
+class 1 :: normal_nucleoli == 10 → class 1 || masses: 0.000000, 0.256216, 0.743784
+class 0 :: marginal_adhesion == 1 → class 0 || masses: 0.226817, 0.000000, 0.773183
+class 1 :: marginal_adhesion == 4 → class 1 || masses: 0.000000, 0.225756, 0.774244
+class 0 :: size_uniformity == 4 → class 0 || masses: 0.054353, 0.108434, 0.837213

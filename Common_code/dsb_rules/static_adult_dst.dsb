@@ -1,0 +1,348 @@
+class 0 :: relationship == Wife → class 0 || masses: 0.004733, 0.761701, 0.233566
+class 0 :: education == 7th-8th → class 0 || masses: 0.668623, 0.005185, 0.326192
+class 0 :: education == 9th → class 0 || masses: 0.659378, 0.001825, 0.338798
+class 0 :: relationship == Own-child → class 0 || masses: 0.649196, 0.005077, 0.345727
+class 0 :: workclass == Without-pay → class 0 || masses: 0.643344, 0.000000, 0.356656
+class 0 :: occupation == Other-service → class 0 || masses: 0.620093, 0.001336, 0.378572
+class 0 :: relationship == Other-relative → class 0 || masses: 0.587486, 0.002422, 0.410092
+class 0 :: education.num == 4 → class 0 || masses: 0.581561, 0.004871, 0.413567
+class 0 :: occupation == Farming-fishing → class 0 || masses: 0.568072, 0.006214, 0.425714
+class 0 :: marital.status == Never-married → class 0 || masses: 0.549962, 0.002935, 0.447103
+class 0 :: education.num == 7 → class 0 || masses: 0.534528, 0.007428, 0.458044
+class 0 :: occupation == Handlers-cleaners → class 0 || masses: 0.526949, 0.010012, 0.463039
+class 1 :: education == Prof-school → class 1 || masses: 0.011631, 0.518850, 0.469519
+class 0 :: education.num == 6 → class 0 || masses: 0.529675, 0.000753, 0.469571
+class 0 :: native.country == Puerto-Rico → class 0 || masses: 0.517247, 0.002720, 0.480033
+class 0 :: education.num == 5 → class 0 || masses: 0.508440, 0.001758, 0.489802
+class 0 :: education == 10th → class 0 || masses: 0.501656, 0.000727, 0.497616
+class 0 :: marital.status == Married-AF-spouse → class 0 || masses: 0.002908, 0.488264, 0.508828
+class 0 :: occupation == Tech-support → class 0 || masses: 0.000019, 0.465630, 0.534351
+class 0 :: relationship == Unmarried → class 0 || masses: 0.449506, 0.009069, 0.541425
+class 0 :: education == 12th → class 0 || masses: 0.443144, 0.001927, 0.554929
+class 1 :: education.num == 15 → class 1 || masses: 0.011366, 0.426530, 0.562104
+class 0 :: race == Amer-Indian-Eskimo → class 0 || masses: 0.435530, 0.000547, 0.563923
+class 0 :: education == 11th → class 0 || masses: 0.420120, 0.007248, 0.572631
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & marital.status == Divorced → class 0 || masses: 0.419584, 0.005201, 0.575215
+class 0 :: fnlwgt > 140915 & native.country == Mexico → class 0 || masses: 0.413921, 0.010240, 0.575839
+class 0 :: marital.status == Separated → class 0 || masses: 0.410142, 0.007725, 0.582133
+class 0 :: workclass == Self-emp-not-inc → class 0 || masses: 0.415043, 0.000978, 0.583979
+class 0 :: education.num == 8 → class 0 || masses: 0.411311, 0.001919, 0.586770
+class 0 :: occupation == Protective-serv → class 0 || masses: 0.006226, 0.402946, 0.590828
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & relationship == Not-in-family → class 0 || masses: 0.000266, 0.403029, 0.596705
+class 0 :: marital.status == Married-civ-spouse → class 0 || masses: 0.005729, 0.397391, 0.596880
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & race == Black → class 0 || masses: 0.401244, 0.000000, 0.598756
+class 0 :: native.country == Mexico → class 0 || masses: 0.388440, 0.012462, 0.599097
+class 0 :: native.country == South → class 0 || masses: 0.395969, 0.001399, 0.602632
+class 0 :: native.country == Canada → class 0 || masses: 0.004822, 0.392157, 0.603021
+class 0 :: marital.status == Married-spouse-absent → class 0 || masses: 0.386354, 0.004232, 0.609414
+class 0 :: native.country == El-Salvador → class 0 || masses: 0.385741, 0.001765, 0.612494
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & race == Black → class 0 || masses: 0.004201, 0.381122, 0.614677
+class 0 :: marital.status == Divorced → class 0 || masses: 0.370621, 0.008057, 0.621322
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & native.country == Mexico → class 0 || masses: 0.375997, 0.000000, 0.624003
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & workclass == Self-emp-not-inc → class 1 || masses: 0.000000, 0.375139, 0.624861
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & occupation == Craft-repair → class 1 || masses: 0.002109, 0.363279, 0.634613
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & marital.status == Divorced → class 0 || masses: 0.358624, 0.004885, 0.636491
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & native.country == Philippines → class 1 || masses: 0.000000, 0.358618, 0.641382
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & race == Asian-Pac-Islander → class 1 || masses: 0.000000, 0.355837, 0.644163
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & race == Black → class 0 || masses: 0.004680, 0.349874, 0.645447
+class 0 :: relationship == Not-in-family → class 0 || masses: 0.340867, 0.008287, 0.650846
+class 0 :: race == Other → class 0 || masses: 0.347755, 0.000865, 0.651380
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & hours.per.week > 40 → class 1 || masses: 0.000000, 0.347844, 0.652156
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & marital.status == Divorced → class 0 || masses: 0.334737, 0.007146, 0.658116
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & native.country == Philippines → class 0 || masses: 0.340375, 0.000000, 0.659625
+class 0 :: sex == Female → class 0 || masses: 0.330873, 0.002957, 0.666170
+class 1 :: age < 44 & capital.gain > 0 & fnlwgt < 140915 → class 1 || masses: 0.005636, 0.326746, 0.667618
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & race == Black → class 1 || masses: 0.013847, 0.314657, 0.671495
+class 0 :: fnlwgt > 140915 & occupation == Prof-specialty → class 0 || masses: 0.009704, 0.311791, 0.678505
+class 0 :: occupation == Machine-op-inspct → class 0 || masses: 0.316014, 0.002099, 0.681887
+class 0 :: hours.per.week < 40 → class 0 || masses: 0.310009, 0.005331, 0.684660
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & sex == Female → class 0 || masses: 0.000000, 0.314920, 0.685080
+class 0 :: age < 31 & fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.308358, 0.000000, 0.691642
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & relationship == Own-child → class 0 || masses: 0.000000, 0.307625, 0.692375
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & native.country == United-States → class 0 || masses: 0.000000, 0.306174, 0.693826
+class 1 :: education.num == 14 → class 1 || masses: 0.013717, 0.291930, 0.694352
+class 0 :: age < 44 & fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.006340, 0.299098, 0.694562
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & occupation == Prof-specialty → class 1 || masses: 0.000184, 0.305198, 0.694618
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & native.country == Philippines → class 1 || masses: 0.000000, 0.304629, 0.695371
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & race == Asian-Pac-Islander → class 1 || masses: 0.000000, 0.304329, 0.695671
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & workclass == Local-gov → class 0 || masses: 0.299065, 0.003793, 0.697142
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & native.country == Mexico → class 0 || masses: 0.298498, 0.000000, 0.701502
+class 0 :: native.country == India → class 0 || masses: 0.293101, 0.004861, 0.702037
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & workclass == Self-emp-not-inc → class 1 || masses: 0.005892, 0.290997, 0.703111
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & sex == Male → class 1 || masses: 0.006646, 0.283472, 0.709882
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & occupation == Craft-repair → class 1 || masses: 0.002303, 0.282954, 0.714743
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & marital.status == Divorced → class 0 || masses: 0.282510, 0.001207, 0.716284
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & workclass == Local-gov → class 0 || masses: 0.279971, 0.000285, 0.719744
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & native.country == Philippines → class 0 || masses: 0.271210, 0.007637, 0.721153
+class 0 :: fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.268917, 0.008725, 0.722358
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & occupation == Craft-repair → class 0 || masses: 0.273770, 0.003414, 0.722817
+class 0 :: education == HS-grad & fnlwgt < 140915 → class 0 || masses: 0.268843, 0.008174, 0.722983
+class 0 :: age < 31 → class 0 || masses: 0.260682, 0.011491, 0.727827
+class 0 :: fnlwgt > 140915 & native.country == Philippines → class 0 || masses: 0.001644, 0.269313, 0.729044
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & native.country == Mexico → class 0 || masses: 0.000000, 0.268348, 0.731652
+class 0 :: fnlwgt > 140915 & occupation == Exec-managerial → class 0 || masses: 0.003082, 0.262399, 0.734519
+class 1 :: capital.gain > 0 & education == Bachelors & fnlwgt > 140915 → class 1 || masses: 0.003759, 0.260515, 0.735725
+class 0 :: native.country == Germany → class 0 || masses: 0.004318, 0.259567, 0.736116
+class 0 :: workclass == State-gov → class 0 || masses: 0.250805, 0.009100, 0.740095
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & relationship == Husband → class 1 || masses: 0.061914, 0.193593, 0.744493
+class 0 :: fnlwgt < 210673 & native.country == Mexico → class 0 || masses: 0.243618, 0.007895, 0.748487
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & marital.status == Never-married → class 0 || masses: 0.005054, 0.246149, 0.748797
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & relationship == Own-child → class 0 || masses: 0.236602, 0.013646, 0.749752
+class 0 :: age < 44 & fnlwgt < 140915 & hours.per.week > 40 → class 0 || masses: 0.005185, 0.244481, 0.750333
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & occupation == Craft-repair → class 1 || masses: 0.004248, 0.244757, 0.750995
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & native.country == United-States → class 1 || masses: 0.011882, 0.237010, 0.751108
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & occupation == Exec-managerial → class 1 || masses: 0.006872, 0.241616, 0.751512
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & relationship == Not-in-family → class 0 || masses: 0.006556, 0.240698, 0.752746
+class 0 :: workclass == Federal-gov → class 0 || masses: 0.003552, 0.241366, 0.755082
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & occupation == Exec-managerial → class 1 || masses: 0.008257, 0.234288, 0.757455
+class 0 :: age < 31 & fnlwgt > 140915 → class 0 || masses: 0.228081, 0.013969, 0.757950
+class 1 :: capital.gain > 0 & education.num == 13 & fnlwgt > 140915 → class 1 || masses: 0.003756, 0.237605, 0.758638
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.000000, 0.240115, 0.759885
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & relationship == Husband → class 1 || masses: 0.009320, 0.230098, 0.760582
+class 0 :: workclass == Local-gov → class 0 || masses: 0.229993, 0.009130, 0.760877
+class 0 :: capital.gain > 0 & education.num == 9 & fnlwgt < 140915 → class 0 || masses: 0.020786, 0.216963, 0.762251
+class 0 :: relationship == Husband → class 0 || masses: 0.027065, 0.209040, 0.763895
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & relationship == Own-child → class 0 || masses: 0.010360, 0.224981, 0.764658
+class 0 :: fnlwgt > 140915 → class 0 || masses: 0.226868, 0.005808, 0.767323
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & native.country == United-States → class 1 || masses: 0.008270, 0.224203, 0.767528
+class 0 :: occupation == Exec-managerial → class 0 || masses: 0.000000, 0.231699, 0.768301
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & workclass == Private → class 0 || masses: 0.026117, 0.205516, 0.768367
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & hours.per.week > 40 → class 1 || masses: 0.012384, 0.218914, 0.768703
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & relationship == Not-in-family → class 0 || masses: 0.013873, 0.217096, 0.769030
+class 0 :: occupation == Transport-moving → class 0 || masses: 0.200824, 0.029861, 0.769316
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & relationship == Own-child → class 0 || masses: 0.147717, 0.082853, 0.769430
+class 0 :: native.country == Jamaica → class 0 || masses: 0.222971, 0.006152, 0.770877
+class 0 :: education.num == 9 & fnlwgt > 140915 → class 0 || masses: 0.224802, 0.003445, 0.771753
+class 0 :: fnlwgt < 210673 & occupation == Exec-managerial → class 0 || masses: 0.015026, 0.213015, 0.771959
+class 0 :: age < 44 & fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.000101, 0.227026, 0.772873
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & race == White → class 1 || masses: 0.013732, 0.212714, 0.773553
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & workclass == Self-emp-not-inc → class 1 || masses: 0.000766, 0.225602, 0.773632
+class 1 :: education == Masters → class 1 || masses: 0.013583, 0.212677, 0.773740
+class 1 :: age > 31 & capital.gain > 0 & fnlwgt > 140915 → class 1 || masses: 0.006568, 0.219522, 0.773910
+class 0 :: race == Black → class 0 || masses: 0.218525, 0.006918, 0.774558
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & race == Black → class 0 || masses: 0.217200, 0.004711, 0.778089
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & marital.status == Divorced → class 0 || masses: 0.032906, 0.188905, 0.778188
+class 1 :: capital.loss > 0 & fnlwgt > 140915 → class 1 || masses: 0.001467, 0.220115, 0.778418
+class 0 :: fnlwgt < 210673 & occupation == Craft-repair → class 0 || masses: 0.216250, 0.005283, 0.778467
+class 0 :: education == HS-grad & fnlwgt < 210673 → class 0 || masses: 0.178785, 0.040617, 0.780598
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & occupation == Prof-specialty → class 1 || masses: 0.015491, 0.203359, 0.781150
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & sex == Male → class 1 || masses: 0.020471, 0.197744, 0.781786
+class 1 :: age > 31 & capital.loss > 0 & fnlwgt < 140915 → class 1 || masses: 0.014863, 0.202805, 0.782332
+class 0 :: education.num == 9 & fnlwgt < 140915 → class 0 || masses: 0.210382, 0.007126, 0.782492
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & sex == Female → class 0 || masses: 0.009054, 0.207128, 0.783818
+class 1 :: age > 31 & capital.gain > 0 & fnlwgt < 140915 → class 1 || masses: 0.037381, 0.178740, 0.783879
+class 0 :: fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.212485, 0.003471, 0.784044
+class 1 :: capital.gain > 0 & fnlwgt < 140915 → class 1 || masses: 0.028268, 0.186764, 0.784968
+class 1 :: workclass == Self-emp-inc → class 1 || masses: 0.043368, 0.171094, 0.785538
+class 0 :: age < 31 & fnlwgt < 210673 → class 0 || masses: 0.184688, 0.029551, 0.785761
+class 0 :: fnlwgt < 140915 & native.country == Mexico → class 0 || masses: 0.196429, 0.017195, 0.786376
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & workclass == Local-gov → class 1 || masses: 0.012851, 0.200735, 0.786414
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & occupation == Craft-repair → class 0 || masses: 0.209323, 0.003878, 0.786798
+class 0 :: hours.per.week > 40 → class 0 || masses: 0.009538, 0.203480, 0.786982
+class 1 :: capital.loss > 0 & education.num == 13 & fnlwgt > 140915 → class 1 || masses: 0.020037, 0.192893, 0.787069
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & race == White → class 1 || masses: 0.059830, 0.152420, 0.787750
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & native.country == United-States → class 1 || masses: 0.005958, 0.206155, 0.787887
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & native.country == Mexico → class 0 || masses: 0.195046, 0.017018, 0.787935
+class 0 :: age < 31 & fnlwgt < 140915 → class 0 || masses: 0.184151, 0.027342, 0.788508
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & race == Asian-Pac-Islander → class 1 || masses: 0.006933, 0.204391, 0.788675
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & workclass == Local-gov → class 1 || masses: 0.021225, 0.189749, 0.789026
+class 0 :: race == Asian-Pac-Islander → class 0 || masses: 0.169242, 0.041491, 0.789267
+class 0 :: age > 31 & fnlwgt > 140915 & hours.per.week > 40 → class 0 || masses: 0.016968, 0.193576, 0.789456
+class 0 :: education.num == 13 & fnlwgt < 140915 → class 0 || masses: 0.040523, 0.169331, 0.790146
+class 0 :: education == Bachelors & fnlwgt < 140915 → class 0 || masses: 0.040574, 0.169279, 0.790147
+class 0 :: education.num == 11 → class 0 || masses: 0.195787, 0.013940, 0.790273
+class 0 :: capital.loss > 0 & fnlwgt < 140915 → class 0 || masses: 0.021661, 0.187352, 0.790986
+class 0 :: occupation == Sales → class 0 || masses: 0.009931, 0.198620, 0.791450
+class 0 :: occupation == Prof-specialty → class 0 || masses: 0.012649, 0.195640, 0.791711
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & occupation == Exec-managerial → class 1 || masses: 0.026579, 0.181561, 0.791860
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & marital.status == Married-civ-spouse → class 1 || masses: 0.045796, 0.162101, 0.792103
+class 0 :: education == Bachelors & fnlwgt > 140915 → class 0 || masses: 0.014085, 0.193627, 0.792289
+class 0 :: age > 31 & fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.154850, 0.052789, 0.792361
+class 0 :: age < 31 & capital.loss > 0 & fnlwgt > 140915 → class 0 || masses: 0.009720, 0.197508, 0.792772
+class 0 :: capital.loss > 0 & education == Some-college & fnlwgt > 140915 → class 0 || masses: 0.160112, 0.047024, 0.792864
+class 1 :: age > 31 & capital.loss > 0 & fnlwgt < 210673 → class 1 || masses: 0.045759, 0.161185, 0.793056
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & marital.status == Married-civ-spouse → class 1 || masses: 0.023907, 0.182997, 0.793097
+class 0 :: fnlwgt < 140915 & occupation == Exec-managerial → class 0 || masses: 0.034679, 0.172113, 0.793208
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & occupation == Craft-repair → class 0 || masses: 0.010390, 0.196398, 0.793212
+class 0 :: fnlwgt < 140915 & native.country == Philippines → class 0 || masses: 0.171757, 0.034708, 0.793535
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & marital.status == Married-civ-spouse → class 1 || masses: 0.043453, 0.162918, 0.793629
+class 0 :: marital.status == Widowed → class 0 || masses: 0.108318, 0.098012, 0.793670
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & sex == Female → class 0 || masses: 0.033437, 0.172708, 0.793856
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & marital.status == Never-married → class 0 || masses: 0.136711, 0.069393, 0.793896
+class 0 :: fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.178784, 0.027125, 0.794091
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & sex == Female → class 0 || masses: 0.004240, 0.201259, 0.794500
+class 1 :: capital.gain > 0 & education == Some-college & fnlwgt < 210673 → class 1 || masses: 0.198538, 0.006885, 0.794577
+class 0 :: fnlwgt < 210673 & native.country == Philippines → class 0 || masses: 0.023144, 0.182260, 0.794597
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & workclass == Private → class 1 || masses: 0.039345, 0.165914, 0.794741
+class 1 :: capital.gain > 0 & education.num == 10 & fnlwgt < 210673 → class 1 || masses: 0.184807, 0.020315, 0.794878
+class 0 :: age < 31 & fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.137450, 0.067613, 0.794937
+class 0 :: fnlwgt > 210673 → class 0 || masses: 0.199142, 0.005679, 0.795179
+class 0 :: fnlwgt < 210673 & hours.per.week > 40 → class 0 || masses: 0.158205, 0.046072, 0.795723
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & relationship == Husband → class 1 || masses: 0.163164, 0.041055, 0.795781
+class 0 :: education.num == 9 → class 0 || masses: 0.197806, 0.006076, 0.796118
+class 0 :: fnlwgt < 140915 & occupation == Prof-specialty → class 0 || masses: 0.018728, 0.185088, 0.796183
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & relationship == Not-in-family → class 0 || masses: 0.155288, 0.048452, 0.796260
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & workclass == Local-gov → class 1 || masses: 0.179041, 0.024472, 0.796487
+class 0 :: age < 31 & capital.gain > 0 & fnlwgt < 210673 → class 0 || masses: 0.196603, 0.006778, 0.796620
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & marital.status == Divorced → class 0 || masses: 0.028672, 0.174653, 0.796675
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & occupation == Prof-specialty → class 1 || masses: 0.083631, 0.119679, 0.796690
+class 0 :: education == Some-college & fnlwgt < 140915 → class 0 || masses: 0.189455, 0.013733, 0.796812
+class 0 :: capital.gain > 0 & education == HS-grad & fnlwgt > 140915 → class 0 || masses: 0.166097, 0.037019, 0.796884
+class 0 :: capital.loss > 0 & education.num == 10 & fnlwgt < 140915 → class 0 || masses: 0.049467, 0.153582, 0.796952
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & relationship == Husband → class 1 || masses: 0.086412, 0.116602, 0.796987
+class 0 :: capital.loss > 0 & education == HS-grad & fnlwgt < 210673 → class 0 || masses: 0.180441, 0.022436, 0.797123
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & workclass == Self-emp-not-inc → class 1 || masses: 0.025878, 0.176983, 0.797139
+class 1 :: capital.gain > 0 & education == Bachelors & fnlwgt < 210673 → class 1 || masses: 0.058045, 0.144565, 0.797390
+class 0 :: fnlwgt > 140915 & hours.per.week > 40 → class 0 || masses: 0.047258, 0.155073, 0.797669
+class 0 :: age < 44 & fnlwgt < 210673 → class 0 || masses: 0.154232, 0.048009, 0.797759
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & sex == Male → class 1 || masses: 0.061596, 0.140526, 0.797879
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & sex == Male → class 1 || masses: 0.062850, 0.139042, 0.798108
+class 0 :: age > 31 & fnlwgt < 210673 & hours.per.week > 40 → class 0 || masses: 0.082127, 0.119729, 0.798144
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & occupation == Prof-specialty → class 1 || masses: 0.040146, 0.161474, 0.798380
+class 0 :: age < 31 & capital.gain > 0 & fnlwgt < 140915 → class 0 || masses: 0.024468, 0.177010, 0.798522
+class 1 :: capital.gain > 0 & education == Bachelors & fnlwgt < 140915 → class 1 || masses: 0.058904, 0.142325, 0.798770
+class 0 :: sex == Male → class 0 || masses: 0.001164, 0.199290, 0.799545
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & relationship == Own-child → class 0 || masses: 0.119036, 0.081158, 0.799806
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & native.country == Mexico → class 0 || masses: 0.052698, 0.147355, 0.799947
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & hours.per.week > 40 → class 1 || masses: 0.070784, 0.129223, 0.799993
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & native.country == Mexico → class 1 || masses: 0.119694, 0.080306, 0.800000
+class 0 :: capital.gain > 0 & education.num == 9 & fnlwgt < 210673 → class 0 || masses: 0.180947, 0.018780, 0.800273
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & occupation == Prof-specialty → class 1 || masses: 0.074903, 0.124598, 0.800499
+class 1 :: age < 44 & capital.gain > 0 & fnlwgt < 210673 → class 1 || masses: 0.167781, 0.031560, 0.800659
+class 0 :: capital.gain > 0 & fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.169483, 0.029832, 0.800685
+class 0 :: native.country == Cuba → class 0 || masses: 0.070056, 0.128801, 0.801142
+class 0 :: age < 31 & capital.loss > 0 & fnlwgt < 140915 → class 0 || masses: 0.033255, 0.165374, 0.801371
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & workclass == Private → class 1 || masses: 0.074238, 0.124346, 0.801416
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & native.country == United-States → class 1 || masses: 0.032335, 0.166143, 0.801522
+class 0 :: age < 44 & capital.loss > 0 & fnlwgt < 210673 → class 0 || masses: 0.053119, 0.145111, 0.801770
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & occupation == Prof-specialty → class 1 || masses: 0.077054, 0.121174, 0.801772
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & marital.status == Never-married → class 0 || masses: 0.032475, 0.165708, 0.801817
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & relationship == Husband → class 1 || masses: 0.157622, 0.040496, 0.801883
+class 1 :: capital.loss > 0 & education.num == 13 & fnlwgt < 210673 → class 1 || masses: 0.030302, 0.167815, 0.801883
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & workclass == Private → class 0 || masses: 0.048697, 0.148980, 0.802323
+class 0 :: fnlwgt < 210673 → class 0 || masses: 0.187440, 0.010021, 0.802539
+class 0 :: education.num == 10 & fnlwgt < 140915 → class 0 || masses: 0.156363, 0.040961, 0.802676
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & workclass == Self-emp-not-inc → class 1 || masses: 0.048378, 0.148926, 0.802696
+class 0 :: education.num == 12 → class 0 || masses: 0.188895, 0.008382, 0.802723
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & race == Asian-Pac-Islander → class 1 || masses: 0.138015, 0.058939, 0.803046
+class 0 :: age < 44 & fnlwgt < 140915 → class 0 || masses: 0.153392, 0.043403, 0.803204
+class 1 :: age > 31 & capital.gain > 0 & fnlwgt < 210673 → class 1 || masses: 0.174927, 0.021769, 0.803304
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & race == White → class 1 || masses: 0.062349, 0.134248, 0.803403
+class 1 :: capital.gain > 0 & education.num == 13 & fnlwgt < 210673 → class 1 || masses: 0.145955, 0.050222, 0.803823
+class 0 :: age > 31 & fnlwgt < 140915 & hours.per.week > 40 → class 0 || masses: 0.030968, 0.165118, 0.803913
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & sex == Male → class 1 || masses: 0.141897, 0.053899, 0.804204
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & marital.status == Married-civ-spouse → class 1 || masses: 0.082065, 0.113264, 0.804671
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & workclass == Local-gov → class 0 || masses: 0.104981, 0.090193, 0.804826
+class 1 :: capital.gain > 0 & fnlwgt > 140915 → class 1 || masses: 0.030475, 0.164506, 0.805020
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & race == White → class 1 || masses: 0.097273, 0.097686, 0.805042
+class 1 :: capital.gain > 0 & fnlwgt < 140915 & occupation == Exec-managerial → class 1 || masses: 0.090816, 0.104010, 0.805174
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & marital.status == Married-civ-spouse → class 1 || masses: 0.090030, 0.104778, 0.805193
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & relationship == Own-child → class 0 || masses: 0.101631, 0.092975, 0.805395
+class 0 :: age > 31 & fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.179277, 0.015052, 0.805672
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & native.country == Philippines → class 1 || masses: 0.139586, 0.054685, 0.805729
+class 1 :: capital.gain > 0 & education == Some-college & fnlwgt > 140915 → class 1 || masses: 0.071032, 0.123157, 0.805812
+class 0 :: education == HS-grad & fnlwgt > 140915 → class 0 || masses: 0.179299, 0.014795, 0.805906
+class 0 :: capital.loss > 0 & education.num == 9 & fnlwgt < 140915 → class 0 || masses: 0.167625, 0.026451, 0.805925
+class 0 :: capital.loss > 0 & fnlwgt < 210673 → class 0 || masses: 0.156231, 0.037732, 0.806037
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & relationship == Husband → class 1 || masses: 0.109501, 0.084094, 0.806406
+class 0 :: capital.loss > 0 & education == Some-college & fnlwgt < 210673 → class 0 || masses: 0.120161, 0.073032, 0.806807
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & marital.status == Married-civ-spouse → class 1 || masses: 0.046000, 0.147019, 0.806980
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & race == White → class 1 || masses: 0.164725, 0.028273, 0.807002
+class 1 :: age < 44 & capital.gain > 0 & fnlwgt > 140915 → class 1 || masses: 0.141973, 0.050694, 0.807333
+class 0 :: age < 31 & fnlwgt > 140915 & hours.per.week > 40 → class 0 || masses: 0.066645, 0.125816, 0.807540
+class 0 :: native.country == Philippines → class 0 || masses: 0.066366, 0.126002, 0.807632
+class 0 :: age < 44 & fnlwgt > 140915 & hours.per.week > 40 → class 0 || masses: 0.086110, 0.106240, 0.807650
+class 0 :: capital.loss > 0 & education == HS-grad & fnlwgt < 140915 → class 0 || masses: 0.136432, 0.055909, 0.807659
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & race == Asian-Pac-Islander → class 1 || masses: 0.000515, 0.191477, 0.808008
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.091784, 0.099919, 0.808298
+class 0 :: age < 31 & fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.128554, 0.063139, 0.808307
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & workclass == Private → class 0 || masses: 0.150176, 0.041494, 0.808330
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & native.country == Philippines → class 1 || masses: 0.011731, 0.179899, 0.808370
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & relationship == Not-in-family → class 0 || masses: 0.116762, 0.074689, 0.808549
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & workclass == Private → class 1 || masses: 0.079544, 0.111734, 0.808723
+class 1 :: capital.loss > 0 & education == Bachelors & fnlwgt < 140915 → class 1 || masses: 0.133048, 0.058159, 0.808793
+class 0 :: education.num == 13 & fnlwgt < 210673 → class 0 || masses: 0.072743, 0.117997, 0.809260
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & marital.status == Never-married → class 0 || masses: 0.080957, 0.109511, 0.809531
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & occupation == Exec-managerial → class 1 || masses: 0.091928, 0.098266, 0.809806
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & race == Black → class 0 || masses: 0.142439, 0.047555, 0.810006
+class 1 :: capital.gain > 0 & fnlwgt < 210673 → class 1 || masses: 0.120717, 0.068831, 0.810452
+class 0 :: capital.gain > 0 & education.num == 9 & fnlwgt > 140915 → class 0 || masses: 0.089165, 0.100047, 0.810788
+class 0 :: education.num == 13 → class 0 || masses: 0.034576, 0.154612, 0.810812
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.116016, 0.073047, 0.810937
+class 0 :: fnlwgt < 140915 & occupation == Craft-repair → class 0 || masses: 0.043553, 0.145501, 0.810946
+class 1 :: capital.loss > 0 → class 1 || masses: 0.052324, 0.136667, 0.811009
+class 0 :: education == Some-college & fnlwgt < 210673 → class 0 || masses: 0.151002, 0.037888, 0.811110
+class 0 :: fnlwgt < 140915 & native.country == United-States → class 0 || masses: 0.173927, 0.014932, 0.811141
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & sex == Female → class 0 || masses: 0.069501, 0.119249, 0.811250
+class 0 :: age < 44 & fnlwgt > 140915 → class 0 || masses: 0.172164, 0.016457, 0.811379
+class 0 :: education == Assoc-voc → class 0 || masses: 0.140584, 0.048012, 0.811404
+class 0 :: capital.loss > 0 & education.num == 10 & fnlwgt > 140915 → class 0 || masses: 0.105029, 0.083566, 0.811405
+class 1 :: capital.loss > 0 & fnlwgt < 210673 & workclass == Self-emp-not-inc → class 1 || masses: 0.059457, 0.129075, 0.811467
+class 0 :: age < 44 & capital.loss > 0 & fnlwgt < 140915 → class 0 || masses: 0.121733, 0.066492, 0.811775
+class 1 :: capital.gain > 0 & education.num == 10 & fnlwgt > 140915 → class 1 || masses: 0.130878, 0.057277, 0.811845
+class 0 :: age < 44 & capital.loss > 0 & fnlwgt > 140915 → class 0 || masses: 0.029944, 0.158076, 0.811980
+class 0 :: capital.loss > 0 & education.num == 9 & fnlwgt < 210673 → class 0 || masses: 0.077835, 0.110008, 0.812157
+class 0 :: education.num == 9 & fnlwgt < 210673 → class 0 || masses: 0.018156, 0.169681, 0.812164
+class 0 :: capital.loss > 0 & fnlwgt > 140915 & hours.per.week < 40 → class 0 || masses: 0.082993, 0.104825, 0.812182
+class 0 :: age > 31 & fnlwgt > 140915 → class 0 || masses: 0.030332, 0.157321, 0.812347
+class 1 :: capital.loss > 0 & fnlwgt < 140915 & hours.per.week > 40 → class 1 || masses: 0.120473, 0.066865, 0.812661
+class 0 :: fnlwgt < 210673 & occupation == Prof-specialty → class 0 || masses: 0.102316, 0.084884, 0.812800
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & race == Asian-Pac-Islander → class 1 || masses: 0.161308, 0.025648, 0.813045
+class 0 :: age < 44 → class 0 || masses: 0.165546, 0.021408, 0.813046
+class 0 :: age < 31 & fnlwgt < 210673 & hours.per.week > 40 → class 0 || masses: 0.056910, 0.129766, 0.813324
+class 0 :: capital.loss > 0 & education == HS-grad & fnlwgt > 140915 → class 0 || masses: 0.116774, 0.069773, 0.813453
+class 0 :: capital.loss > 0 & education.num == 9 & fnlwgt > 140915 → class 0 || masses: 0.080665, 0.105876, 0.813459
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & marital.status == Never-married → class 0 || masses: 0.093267, 0.092773, 0.813960
+class 0 :: native.country == England → class 0 || masses: 0.054147, 0.131660, 0.814193
+class 0 :: age < 31 & fnlwgt < 140915 & hours.per.week > 40 → class 0 || masses: 0.057171, 0.128335, 0.814494
+class 0 :: age < 31 & capital.gain > 0 & fnlwgt > 140915 → class 0 || masses: 0.065620, 0.119769, 0.814611
+class 1 :: age > 31 & capital.loss > 0 & fnlwgt > 140915 → class 1 || masses: 0.083994, 0.101193, 0.814814
+class 1 :: capital.gain > 0 & education == Some-college & fnlwgt < 140915 → class 1 || masses: 0.089379, 0.095742, 0.814878
+class 0 :: age < 44 & fnlwgt < 140915 & hours.per.week < 40 → class 0 || masses: 0.084231, 0.100818, 0.814951
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & native.country == United-States → class 0 || masses: 0.091261, 0.093624, 0.815115
+class 0 :: education == Some-college → class 0 || masses: 0.182334, 0.002544, 0.815121
+class 0 :: capital.loss > 0 & education == Some-college & fnlwgt < 140915 → class 0 || masses: 0.063193, 0.121591, 0.815216
+class 1 :: capital.gain > 0 & education.num == 10 & fnlwgt < 140915 → class 1 || masses: 0.101666, 0.083003, 0.815331
+class 1 :: capital.loss > 0 & education.num == 13 & fnlwgt < 140915 → class 1 || masses: 0.098333, 0.086314, 0.815353
+class 0 :: age > 31 & fnlwgt < 140915 → class 0 || masses: 0.028995, 0.155555, 0.815450
+class 0 :: fnlwgt < 140915 → class 0 || masses: 0.142733, 0.041740, 0.815527
+class 0 :: capital.gain > 0 & fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.082839, 0.100532, 0.816629
+class 1 :: capital.gain > 0 → class 1 || masses: 0.054660, 0.128651, 0.816689
+class 0 :: capital.gain > 0 & fnlwgt < 140915 & sex == Female → class 0 || masses: 0.074470, 0.108789, 0.816741
+class 1 :: capital.gain > 0 & fnlwgt < 210673 & hours.per.week > 40 → class 1 || masses: 0.107048, 0.076167, 0.816785
+class 0 :: capital.loss > 0 & fnlwgt < 140915 & race == White → class 0 || masses: 0.101563, 0.081286, 0.817152
+class 0 :: age < 31 & capital.loss > 0 & fnlwgt < 210673 → class 0 || masses: 0.058362, 0.123886, 0.817752
+class 0 :: capital.loss > 0 & education.num == 10 & fnlwgt < 210673 → class 0 || masses: 0.095122, 0.086755, 0.818124
+class 0 :: fnlwgt < 210673 & native.country == United-States → class 0 || masses: 0.003526, 0.178094, 0.818380
+class 0 :: capital.gain > 0 & education == HS-grad & fnlwgt < 140915 → class 0 || masses: 0.080098, 0.101346, 0.818556
+class 0 :: age < 44 & fnlwgt < 210673 & hours.per.week > 40 → class 0 || masses: 0.070278, 0.110372, 0.819350
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & occupation == Exec-managerial → class 1 || masses: 0.081667, 0.098516, 0.819818
+class 1 :: capital.loss > 0 & education == Bachelors & fnlwgt > 140915 → class 1 || masses: 0.069649, 0.110279, 0.820072
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & marital.status == Never-married → class 0 || masses: 0.094043, 0.084499, 0.821458
+class 1 :: capital.gain > 0 & fnlwgt > 140915 & hours.per.week > 40 → class 1 || masses: 0.072774, 0.105474, 0.821751
+class 0 :: education == Bachelors & fnlwgt < 210673 → class 0 || masses: 0.109654, 0.065379, 0.824967
+class 0 :: occupation == Craft-repair → class 0 || masses: 0.073204, 0.100741, 0.826055
+class 0 :: capital.loss > 0 & fnlwgt < 210673 & relationship == Not-in-family → class 0 || masses: 0.081231, 0.092495, 0.826275
+class 1 :: capital.loss > 0 & fnlwgt > 140915 & sex == Male → class 1 || masses: 0.093358, 0.080280, 0.826362
+class 0 :: workclass == Private → class 0 || masses: 0.136373, 0.036679, 0.826948
+class 1 :: capital.loss > 0 & education == Bachelors & fnlwgt < 210673 → class 1 || masses: 0.083987, 0.087624, 0.828389
+class 0 :: age > 31 & fnlwgt < 210673 → class 0 || masses: 0.107781, 0.061820, 0.830399
+class 0 :: fnlwgt < 140915 & hours.per.week > 40 → class 0 || masses: 0.085304, 0.083773, 0.830923
+class 0 :: education == Bachelors → class 0 || masses: 0.123237, 0.044836, 0.831927
+class 0 :: education.num == 10 & fnlwgt > 140915 → class 0 || masses: 0.121750, 0.046154, 0.832096
+class 1 :: capital.gain > 0 & education.num == 13 & fnlwgt < 140915 → class 1 || masses: 0.071768, 0.093833, 0.834400
+class 0 :: age > 31 & fnlwgt < 210673 & hours.per.week < 40 → class 0 || masses: 0.084117, 0.080246, 0.835636
+class 0 :: education == Some-college & fnlwgt > 140915 → class 0 || masses: 0.058748, 0.105548, 0.835704
+class 0 :: education.num == 13 & fnlwgt > 140915 → class 0 || masses: 0.122367, 0.041913, 0.835719
+class 0 :: occupation == Adm-clerical → class 0 || masses: 0.084635, 0.079577, 0.835788
+class 0 :: capital.gain > 0 & education == HS-grad & fnlwgt < 210673 → class 0 || masses: 0.088081, 0.075283, 0.836636
+class 0 :: education == HS-grad → class 0 || masses: 0.096519, 0.062914, 0.840567
+class 0 :: age > 44 → class 0 || masses: 0.088058, 0.069751, 0.842191
+class 0 :: education == Assoc-acdm → class 0 || masses: 0.114973, 0.042503, 0.842524
+class 0 :: race == White → class 0 || masses: 0.113319, 0.043436, 0.843245
+class 0 :: fnlwgt > 140915 & native.country == United-States → class 0 || masses: 0.058780, 0.092071, 0.849149
+class 0 :: education.num == 10 & fnlwgt < 210673 → class 0 || masses: 0.072945, 0.077375, 0.849680
+class 0 :: age > 31 → class 0 || masses: 0.052126, 0.098135, 0.849739
+class 0 :: education.num == 10 → class 0 || masses: 0.074048, 0.072160, 0.853792
+class 0 :: native.country == United-States → class 0 || masses: 0.045561, 0.098625, 0.855815
+class 0 :: fnlwgt > 140915 & occupation == Craft-repair → class 0 || masses: 0.058893, 0.068811, 0.872296
