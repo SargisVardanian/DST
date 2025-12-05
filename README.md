@@ -1,221 +1,476 @@
-# DST: Rule-Based Classification with RIPPER/FOIL + Dempster-Shafer Theory
-
-This repository contains the official implementation for the paper **"Applying the Dempster-Shafer theory for a flexible, accurate and interpretable classifier"**, published in *Expert Systems with Applications*. The project provides a robust framework for building interpretable machine learning models by synergizing classic rule-induction algorithms (RIPPER, FOIL) with Dempster-Shafer Theory for intelligent evidence combination.
+# DST: Interpretable Rule-Based Classification via Dempster-Shafer Theory
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_metrics.png" width="700" alt="Benchmark results on the German Credit dataset">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-green" alt="Python">
+  <img src="https://img.shields.io/badge/Framework-PyTorch-orange" alt="PyTorch">
 </p>
 
-> • **Interpretable by Design**: Generates human-readable IF-THEN rules using RIPPER or FOIL, forming a transparent decision model.  
-> • **Robust Evidence Combination**: Leverages Dempster-Shafer Theory to move beyond rigid "first-match" logic, enabling a flexible consensus from multiple rules.  
-> • **Optimized and Compact**: Learns rule confidences via gradient descent and intelligently prunes the model to create classifiers that are small, fast, and accurate.
+## Abstract
+
+This repository implements an interpretable classification framework that combines **symbolic rule-based models** with **Dempster-Shafer Theory (DST)** and gradient-based optimization.
+
+Classic rule learners such as **RIPPER** and **FOIL** produce human-readable IF–THEN rules, but they are rigid and lack calibrated uncertainty. On the other hand, modern probabilistic models are accurate but often opaque.
+
+Our framework bridges this gap:
+
+- Logical rules are treated as **sources of evidence**
+- Each rule has a learnable **mass function** over classes + uncertainty
+- Evidence from multiple rules is aggregated via **Dempster's rule**
+- Masses are optimized by **Dempster-Shafer Gradient Descent (DSGD)**
+
+We support three rule generation strategies — **RIPPER**, **FOIL**, and **STATIC** — and show how DST turns them into robust, differentiable classifiers with explicit epistemic uncertainty.
+
+A **representation-based mass initialization** is provided as an option: rule masses can be initialized using **class centroids, representativeness of samples, and rule purity**, which accelerates convergence and reduces initial uncertainty compared to purely random initialization.
 
 ---
 
-## 1 · Quick Start
+## 1. Theoretical Framework
 
-Clone the repository and run the main benchmark script to replicate the core experiments.
+### 1.1 Dempster-Shafer Theory of Evidence
+
+For a classification task with classes $\Theta = \{C_1, C_2, \dots, C_K\}$, DST defines a **mass assignment function** $m$ over subsets of $\Theta$:
+
+$$\sum_{A \subseteq \Theta} m(A) = 1, \qquad m(\emptyset) = 0$$
+
+Unlike Bayesian probability, DST allows mass on **non-singleton** sets:
+
+- Mass on $\{C_1\}$ is belief specifically in class $C_1$
+- Mass on $\Theta$ (denoted $\Omega$) models **pure ignorance**
+
+In this project we follow a common simplification — we only assign masses to **singletons** and the **universal set** $\Omega$:
+
+$$\mathbf{m} = [m_1, m_2, \dots, m_K, m_\Omega]$$
+
+where $m_k = m(\{C_k\})$ and $m_\Omega = m(\Theta)$. For each rule $r_i$ we maintain such a vector $\mathbf{m}^{(i)}$ — these are the parameters the model learns.
+
+### 1.2 Dempster's Rule of Combination
+
+Given two rules with mass functions $m^{(1)}$ and $m^{(2)}$, Dempster's rule combines them:
+
+$$(m^{(1)} \oplus m^{(2)})(A) = \frac{1}{1 - K} \sum_{B \cap C = A} m^{(1)}(B) \, m^{(2)}(C)$$
+
+where the **conflict** $K$ is:
+
+$$K = \sum_{B \cap C = \emptyset} m^{(1)}(B) \, m^{(2)}(C)$$
+
+In our singletons+Ω setting:
+
+- Mass on each class $C_k$ is proportional to both rules supporting $C_k$, or one rule supporting $C_k$ while the other is ignorant (Ω)
+- Mass on Ω is proportional to both rules being ignorant
+- Conflict $K$ arises when rules support **different classes simultaneously**; normalization by $1 - K$ redistributes this conflict
+
+The code for batched pairwise combination is in `core.py` (`ds_combine_pair`), with a vectorized wrapper `_combine_active_masses` in `DSModelMultiQ`.
+
+### 1.3 From Masses to Probabilities
+
+We convert masses $\mathbf{m}$ to probabilities $p$ using:
+
+1. **Pignistic transform** (uniformly spreading $m_\Omega$ across classes):
+   $$p_k = m_k + \frac{m_\Omega}{K}$$
+
+2. **Class-prior-based redistribution** (optional): distribute ignorance proportionally to class priors $\pi$:
+   $$p_k = m_k + m_\Omega \cdot \frac{\pi_k}{\sum_j \pi_j}$$
+
+This is implemented in `DSModelMultiQ._mass_to_prob` and `core.masses_to_pignistic`.
+
+---
+
+## 2. Model Architecture
+
+The end-to-end classifier has three layers:
+
+1. **Rule Generation** (`rule_generator.py`) — RIPPER / FOIL / STATIC learn symbolic rules from `(X, y)`
+2. **DST Model** (`DSModelMultiQ.py`) — stores rules, evaluates activations, maintains per-rule mass vectors, combines masses via Dempster's rule, outputs class probabilities
+3. **Training Loop** (`DSClassifierMultiQ.py`) — splits data, calls rule generator, initializes masses, trains via projected gradient descent
+
+### 2.1 Rule Generation Strategies
+
+All strategies operate on a shared representation:
+
+- A **literal** is a simple condition `(feature, operator, threshold/value)`: numeric (`Vj < t`, `Vj > t`) or categorical (`Vj == value`)
+- A **rule** is a conjunction of literals: IF $\ell_1 \land \ell_2 \land \dots \land \ell_L$ THEN class $c$
+
+#### 2.1.1 FOIL (First Order Inductive Learner)
+
+FOIL is a classic **top-down** rule learner (Quinlan, 1990):
+
+1. Start with an empty rule (covers everything)
+2. Iteratively add literals to maximize **FOIL-Gain**:
+   $$Gain = t \cdot \left(\log_2\frac{p_1}{p_1 + n_1} - \log_2\frac{p_0}{p_0 + n_0}\right)$$
+   where $p_0, n_0$ are positives/negatives before, $p_1, n_1$ after, and $t$ is covered positives
+3. Stop when rule covers zero negatives
+4. Remove covered positives; repeat
+
+**Characteristics:**
+- ✅ Generates **specific** rules with high precision
+- ✅ Good at catching "edge cases"
+- ❌ No pruning phase → prone to overfitting
+
+#### 2.1.2 RIPPER (Repeated Incremental Pruning)
+
+RIPPER (Cohen, 1995) adds critical **pruning**:
+
+1. **Grow Phase:** On Grow Set, add literals with FOIL-gain until rule is pure
+2. **Prune Phase:** On Prune Set, remove literals from end if it improves:
+   $$Score = \frac{p - n}{p + n}$$
+3. **Optimization Phase:** Rewrite/replace rules using MDL criterion
+
+**Our Extension: Tiered Precision RIPPER**
+
+```python
+precision_tiers = [
+    {"min_precision": 0.80, "max_literals": 8},
+    {"min_precision": 0.60, "max_literals": 6},
+    {"min_precision": 0.40, "max_literals": 5},
+    {"min_precision": 0.20, "max_literals": 4},
+]
+```
+
+- First grow very precise (but narrow) rules
+- Then allow less precise rules with limited length
+- For DST: high-precision rules provide strong evidence; lower-precision rules add weak but useful signals
+
+#### 2.1.3 STATIC (Exhaustive Heuristic Search)
+
+STATIC casts a "wide net" by combining simple candidates:
+
+1. **Single literals:** Quantile thresholds for numeric, frequent values for categorical
+2. **Pairs and triples:** Combine best literals into 2-3 condition rules
+3. **Diversity filter:** Remove highly overlapping rules (Jaccard similarity)
+
+**Result:** Hundreds (sometimes 1000+) rules including feature interactions. Noisy rules are naturally suppressed by DST — they learn high $m_\Omega \approx 1$ and contribute little.
+
+#### 2.1.4 Strategy Comparison
+
+| Aspect | RIPPER | FOIL | STATIC |
+|:-------|:-------|:-----|:-------|
+| **Strategy** | Grow-Prune-Optimize | Greedy FOIL-gain | Exhaustive heuristic |
+| **Rule Count** | Low (20-150) | Medium (100-400) | High (400-1200) |
+| **Overfitting** | Resistant | Prone | N/A |
+| **Best For** | Clean, high-signal | Balanced data | Noisy, interaction-heavy |
+
+### 2.2 DST Layer (DSModelMultiQ)
+
+`DSModelMultiQ.py` implements:
+
+1. **Feature encoding:** Numeric as-is, categorical via internal encoders
+2. **Literal evaluation:** `_eval_literals(X)` → boolean masks for all literals
+3. **Rule activation:** `_activation_matrix(X)` → matrix $A[n,r] = 1$ if rule $r$ fires on sample $n$
+4. **Mass parameterization:** `rule_mass_params` matrix $[N_{rules}, K+1]$, projected to simplex via `params_to_mass`
+5. **Combination:** `_combine_active_masses` applies Dempster's rule to active rules only
+6. **Probabilities:** `_mass_to_prob` applies pignistic transform or class-prior redistribution
+
+### 2.3 Mass Initialization: Random vs Representation-Based
+
+**Random initialization** (`reset_masses`):
+- Random masses on classes, normalized
+- Fixed base uncertainty (e.g., 0.8) goes to Ω
+
+**Representation-based initialization** (`init_masses_dsgdpp`):
+1. Build class centroids from training data
+2. Compute representativeness for each sample:
+   $$R(x) = \frac{1}{1 + \|x - \mu_y\|}$$
+3. For each rule:
+   - Find covered samples
+   - Calculate purity (majority class fraction)
+   - Average representativeness of covered samples
+   - Confidence: $Conf(r) = purity \times \mathbb{E}[R(x) \mid x \in D_r]$
+   - Assign: $m(\text{majority class}) = Conf$, $m(\Omega) = 1 - Conf$
+
+---
+
+## 3. Training Loop (DSClassifierMultiQ)
+
+### 3.1 Main Steps in `fit(X, y, ...)`
+
+1. **Data preparation:** Convert X, y to numpy; set feature names and decoders
+2. **Rule generation:** If `model.rules` empty, call `model.generate_rules(X, y, algo=...)`
+3. **Train/Val split:** Stratified random split with `val_split`
+4. **Mass initialization:** Try `init_masses_dsgdpp`, fallback to `reset_masses`
+5. **Class weights:** Inverse-frequency weighting for imbalanced data
+6. **Training loop:**
+   - Optimize only `rule_mass_params` via AdamW
+   - Each epoch: `probs = model.forward(xb)` → loss (MSE or CE) → backward → clip gradients → step → `project_rules_to_simplex()`
+7. **Validation & early stopping:** Track val_loss, save best state, stop after `patience` epochs without improvement
+
+### 3.2 Projected Gradient Descent vs. Softmax
+
+To ensure valid masses ($\sum m = 1$, $m \ge 0$), we tested two approaches:
+
+| Dataset | PGD F1 | Softmax F1 | Winner |
+|:--------|:-------|:-----------|:-------|
+| Adult | 0.846 | 0.846 | TIE |
+| German | **0.706** | 0.699 | PGD |
+| Breast Cancer | 0.946 | 0.946 | TIE |
+| Wine | 0.703 | 0.705 | TIE |
+
+**Conclusion:** PGD performs equally or better. We use explicit projection (clamp + normalize) for:
+- No vanishing gradients
+- Direct interpretability of mass weights
+- Simpler debugging
+
+### 3.3 No Explicit Uncertainty Penalties
+
+The loss function contains **no penalty for high Ω**. Uncertainty decreases only where it helps classification; in noisy regions, high Ω correctly reflects model ignorance.
+
+---
+
+## 4. Interpretability: Rule Inspection & H-Score
+
+### 4.1 Rule Inspection
+
+`sample_rule_inspector.py` allows interactive exploration:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/SargisVardanian/DST.git
-cd DST
-
-# 2. (Optional) Create and activate a virtual environment
-# python -m venv venv
-# source venv/bin/activate 
-
-# 3. Install dependencies
-# pip install -r requirements.txt # Assuming you create a requirements.txt
-
-# 4. Navigate to the main code directory
-cd Common_code
-
-# 5. Run the full experiment pipeline
-python test_Ripper_DST.py
+python sample_rule_inspector.py --algo RIPPER --dataset german --idx 10
 ```
 
+Output includes:
+- Original features of the sample
+- All fired rules with conditions
+- Mass vectors $[m_1, ..., m_K, m_\Omega]$
+- Rule statistics (precision, coverage, support)
+- Final DST prediction, probabilities, and Ω
 
-This script will automatically execute the full pipeline for the German Credit dataset:
-1.  Induce rule sets using both **RIPPER** and **FOIL**.
-2.  Train the Dempster-Shafer mass assignments for the rules.
-3.  Prune the models to enhance simplicity and efficiency.
-4.  Generate performance plots and save detailed metrics to CSV files in the `results/` folder.
+### 4.2 H-Score: Ranking Rules
+
+Raw uncertainty $m_\Omega$ isn't enough — a rule with $m_\Omega = 0$ but masses $[0.5, 0.5, 0, ...]$ isn't discriminative.
+
+**H-Score** balances certainty and class separation:
+
+1. Certainty: $U' = 1 - m_\Omega$
+2. Class ratio: $R = \frac{m_{max_1}}{m_{max_2} + \varepsilon}$, normalized via $R' = \text{Norm}(\log(1+R))$
+3. H-Score: $H = \frac{2 \cdot U' \cdot R'}{U' + R' + \varepsilon}$
+
+High H-Score = rule is both **certain** (low Ω) and **discriminative** (prefers one class).
 
 ---
 
-## 2 · The Three-Stage Method: From Raw Data to a Refined Classifier
+## 5. Empirical Results
 
-Our method transforms data into an accurate and interpretable classifier through a systematic, three-stage process.
+Full results in `Common_code/results/benchmark_dataset_*_metrics.csv`.
 
-### Stage 1: Rule Induction (RIPPER vs. FOIL)
+### 5.0 RAW Rules vs DST-Enhanced: The Key Improvement
 
-The foundation of our model is a set of simple **IF-THEN rules** automatically discovered from the data. We employ two well-established algorithms, RIPPER and FOIL, which differ in their rule-building philosophy:
+DST transforms rigid rules into "soft" evidence sources. The table below shows how DST improves upon raw rule-based predictions:
 
-*   **RIPPER: The Careful Generalist**
-    RIPPER (Repeated Incremental Pruning to Produce Error Reduction) constructs rules by iteratively adding conditions (`age > 30`, `status = 'single'`) to maximize information gain. After growing a rule, it immediately prunes it, removing any conditions that have become redundant. This "grow-then-prune" cycle produces rules that are concise and general.
+| Dataset | Algorithm | RAW Acc | DST Acc | RAW Recall | DST Recall | Improvement |
+|:--------|:----------|:--------|:--------|:-----------|:-----------|:------------|
+| **Bank Marketing** | RIPPER | 0.89 | **0.89** | 0.25 | **0.58** | +132% Recall |
+| **Bank Marketing** | FOIL | 0.88 | **0.90** | 0.30 | **0.46** | +53% Recall |
+| **Adult** | RIPPER | 0.83 | **0.85** | 0.55 | **0.68** | +24% Recall |
+| **German Credit** | FOIL | 0.70 | **0.73** | 0.35 | **0.44** | +26% Recall |
 
-*   **FOIL: The Greedy Specialist**
-    FOIL (First-Order Inductive Learner) also adds conditions one by one, but without an immediate pruning step. It greedily seeks the best literal to add until the rule achieves high precision. This can result in more specific and numerous rules than RIPPER, capturing fine-grained patterns in the data.
+**Key insight:** DST allows weaker rules to contribute evidence. Even if no single rule fires with high confidence, the **combination** of multiple partial signals produces accurate predictions with appropriate uncertainty.
 
-**Initial Prediction Model:** At this stage, the model is a simple **decision list**. When classifying a new sample, the rules are checked in a fixed order. The prediction is made by the *first rule that matches*, and all other potentially matching rules are ignored. This is a fast but rigid baseline. An example rule:
-`IF ('credit_history' == 'A34') AND ('duration' < 24) THEN Class = 1`
+### Why RIPPER/FOIL outperform STATIC:
 
-### Stage 2: Evidence Combination with Dempster-Shafer Theory (DST)
-
-A decision list is inflexible. It cannot handle cases where multiple rules fire with conflicting advice, nor can it weigh the confidence of each rule. To overcome this, we introduce a **Dempster-Shafer Theory (DST)** layer.
-
-Instead of a binary "yes/no" vote, each rule $R_i$ is assigned a learnable **mass vector** $\mathbf{m}^{(i)}$. This vector distributes the rule's belief across the $K$ possible classes and, crucially, includes a term for **uncertainty**, $m_{\text{unc}}^{(i)}$:
-
-$$
-\mathbf m^{(i)}= \bigl(m_1^{(i)}, \dots, m_K^{(i)}, m_{\text{unc}}^{(i)}\bigr), \qquad \text{where} \quad \sum_{j=1}^K m_j^{(i)} + m_{\text{unc}}^{(i)} = 1.
-$$
-
-When a new sample $\mathbf x$ is presented, **all matching rules** "cast their votes." We combine these votes using Dempster's rule of combination. Our implementation performs this efficiently in the **commonality space**, where evidence fusion becomes a simple element-wise product:
-
-$$
-q_k(\mathbf x) = \prod_{i \in \mathcal{R}(\mathbf{x})} \left( m_k^{(i)} + m_{\text{unc}}^{(i)} \right)
-$$
-
-The key innovation is that these mass vectors $\mathbf{m}^{(i)}$ are **trainable parameters**. We use an optimizer (e.g., Adam) to adjust them via gradient descent, minimizing the classification error on the training data. This process teaches the model:
-*   **Which rules to trust**: Consistently correct rules learn to have low uncertainty ($m_{\text{unc}}$) and high mass for the correct class.
-*   **Which rules are less reliable**: Ambiguous or noisy rules learn to assign more mass to uncertainty, reducing their influence on the final prediction.
-
-This DST training stage transforms the rigid decision list into a flexible and robust classifier that learns to weigh and synthesize evidence from multiple sources.
-
-### Stage 3: Model Simplification via Pruning
-
-After training, the model may contain rules that are redundant, ambiguous, or irrelevant. The final stage is to **prune** these weak rules to create a model that is smaller, faster, and even easier to interpret.
-
-A rule is removed if it meets **any** of the following criteria, which are derived from the learned masses and data statistics:
-
-1.  **High Uncertainty**: Its learned uncertainty mass $m_{\text{unc}}^{(i)}$ exceeds a threshold (e.g., > 0.6). The model itself has flagged the rule as unreliable.
-2.  **High Ambiguity**: It fails to strongly distinguish between classes. We measure this by the log-ratio of belief in the top class versus the second-best class. If the ratio is low, the rule is not discriminative.
-3.  **Low Coverage**: It fires on very few training samples (e.g., < 10). Such rules are often noise-driven and lack generalizability.
-
-This intelligent filtering process uses insights from the DST training to simplify the model, often achieving a significant reduction in complexity with little to no loss in predictive performance.
+| Aspect | RIPPER/FOIL | STATIC |
+|:-------|:------------|:-------|
+| Rule quality | Few, precise rules | Many noisy rules |
+| Final Ω | Lower (0.3-0.6) | Higher (0.6-0.8) |
+| Interpretation | Each rule meaningful | Many redundant rules |
 
 ---
 
-### Stage 3 — Pruning (Simplify without losing accuracy)
+### 5.1 Brain Tumor MRI (Binary, Near-Separable)
 
-After training, rules with **high uncertainty**, **low discriminative power**, or **tiny coverage** are dropped. You keep the signal, ditch the noise.
+| Model | Accuracy | F1 | Ω |
+|:------|:---------|:---|:--|
+| RIPPER_DST | **0.990** | **0.989** | 0.48 |
+| FOIL_DST | 0.988 | 0.987 | 0.36 |
 
----
-
-## 3 · What the Learned Rules Look Like
-
-After DST training, each rule carries masses for classes and an uncertainty term:
-
-```
-Class 1: age < 58.0 & capital.gain > 5013.0 & marital.status == Married-civ-spouse  ||  mass=[0.007, 0.973, unc=0.020]
-Class 1: capital.loss > 1848.0 & education == Bachelors & marital.status == Married-civ-spouse & occupation == Exec-managerial  ||  mass=[0.028, 0.881, unc=0.091]
-Class 1: education == Bachelors & hours.per.week > 40.0 & marital.status == Married-civ-spouse & workclass == Private  ||  mass=[0.041, 0.789, unc=0.170]
-Class 1: education == Prof-school & hours.per.week > 40.0 & marital.status == Married-civ-spouse & occupation == Prof-specialty  ||  mass=[0.066, 0.585, unc=0.350]
-```
-
-Format:
-`Class c: <conjunctive conditions>  ||  mass=[m0, m1, ..., unc=<u>]`
-
----
-
-## 4 · Systems Compared (legend used in plots)
-
-* `r_raw` / `r_dst` — RIPPER rules as raw decision list vs with DST training
-* `f_raw` / `f_dst` — FOIL rules raw vs with DST training
-* `s_dst` — “STATIC” heuristic rules with DST training
-* `dt` / `rf` / `gb` — Decision Tree / Random Forest / Gradient Boosting baselines
-
----
-
-## 5 · Benchmarks (public datasets)
-
-Each dataset has a **metrics** bar chart (`Accuracy`, `F1`, `Precision`, `Recall`). Files live under `Common_code/results/` with names:
-
-```
-benchmark_dataset_<dataset>_metrics.png
-```
-
-### Adult (UCI Income)
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_metrics.png" width="85%">
-</p>
-
-**Takeaway:** DST materially improves F1/Recall vs raw rule lists and is competitive with tree baselines while staying interpretable.
-
-### Bank Marketing
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_metrics.png" width="85%">
-</p>
-
-**Takeaway:** The DST layer lifts the rule-based models substantially; the final results are balanced across metrics.
-
-### Brain Tumor MRI
+**Interpretation:** Near-perfect separation with simple rules. DST adds minimal refinement.
 
 <p align="center">
   <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_Brain%20Tumor_metrics.png" width="85%">
 </p>
 
-**Takeaway:** Very high recall/accuracy across systems; DST keeps performance strong on a high-signal medical set.
+### 5.2 Breast Cancer Wisconsin
 
-### Breast Cancer (Wisconsin)
+| Model | Accuracy | F1 | Precision | Recall | Ω |
+|:------|:---------|:---|:----------|:-------|:--|
+| RIPPER_DST | **0.964** | **0.949** | 0.925 | 0.974 | 0.70 |
+
+**Interpretation:** Clinically interpretable rules (Bare_Nuclei, Clump_Thickness) achieve near-ceiling performance.
 
 <p align="center">
   <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_breast-cancer-wisconsin_metrics.png" width="85%">
 </p>
 
-**Takeaway:** Already-strong baselines; DST maintains near-ceiling metrics with rule interpretability.
+### 5.3 Adult Income
 
-### Wine Quality (Red)
+| Model | Accuracy | F1 | Precision | Recall | Ω |
+|:------|:---------|:---|:----------|:-------|:--|
+| FOIL_DST | **0.851** | 0.678 | 0.734 | 0.629 | 0.53 |
+| RIPPER_DST | 0.849 | **0.692** | 0.705 | 0.679 | 0.62 |
+
+**Interpretation:** FOIL gives broader coverage (higher recall); RIPPER is more compact (higher precision). DST combines weak signals (education, occupation, capital gain) into confident predictions.
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_metrics.png" width="85%">
+</p>
+
+### 5.4 Bank Marketing (Highly Imbalanced — 11.7% positive)
+
+| Model | Accuracy | F1 | Precision | Recall | Ω |
+|:------|:---------|:---|:----------|:-------|:--|
+| RIPPER_DST | **0.893** | **0.559** | 0.538 | 0.580 | 0.62 |
+| FOIL_DST | 0.896 | 0.509 | 0.569 | 0.461 | 0.49 |
+
+**Key insight:** Without DST, raw rules achieve ~0.25 recall on minority class. With DST combination of weak signals (poutcome, duration, contacts), recall doubles to ~0.58.
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_metrics.png" width="85%">
+</p>
+
+### 5.5 Wine Quality
+
+| Model | Accuracy | F1 | Recall | Ω |
+|:------|:---------|:---|:-------|:--|
+| RIPPER_DST | **0.723** | **0.769** | 0.818 | 0.78 |
+| STATIC_DST | 0.704 | 0.744 | 0.789 | 0.80 |
+
+**Interpretation:** Feature interactions (alcohol × sulphates) are key. High Ω reflects limited data and task complexity.
 
 <p align="center">
   <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_df_wine_metrics.png" width="85%">
 </p>
 
-**Takeaway:** Evidence combination stabilizes performance and lifts recall vs raw rules.
+### 5.6 Gas Drift (126 features, 6 classes)
 
-### German Credit
+| Model | Accuracy | F1 | Ω |
+|:------|:---------|:---|:--|
+| FOIL_DST | **0.982** | **0.982** | **0.03** |
+| RIPPER_DST | 0.979 | 0.979 | 0.19 |
+| STATIC_DST | 0.934 | 0.934 | 0.65 |
+
+**Interpretation:** FOIL generates few but decisive rules → near-deterministic predictions (Ω→0). STATIC's dense rule set creates conflicts → high Ω correctly reflects noise.
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_gas_drift_metrics.png" width="85%">
+</p>
+
+### 5.7 German Credit
+
+| Model | Accuracy | F1 | Ω |
+|:------|:---------|:---|:--|
+| RIPPER_DST | **0.744** | 0.506 | 0.75 |
+| STATIC_DST | 0.731 | **0.574** | 0.80 |
+| FOIL_DST | 0.731 | 0.442 | 0.61 |
+
+**Interpretation:** When rules conflict ("good salary" vs "bad payment history"), DST outputs high Ω — a natural signal for manual review of borderline cases.
 
 <p align="center">
   <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_metrics.png" width="85%">
 </p>
 
-**Takeaway:** DST improves F1/Recall over raw rule lists; pruning (when applied) keeps the model compact.
+### 5.8 SAheart (Cardiovascular Risk)
+
+| Model | Accuracy | F1 | Ω |
+|:------|:---------|:---|:--|
+| FOIL_DST | **0.649** | **0.552** | 0.71 |
+| STATIC_DST | 0.608 | 0.525 | 0.80 |
+
+**Interpretation:** Small dataset with high noise. FOIL_DST achieves best F1 while maintaining appropriate uncertainty.
+
+<p align="center">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_SAheart_metrics.png" width="85%">
+</p>
 
 ---
 
-## 6 · Repo layout (key files)
+## 6. Usage
 
+### 6.1 Installation
+
+```bash
+git clone https://github.com/SargisVardanian/DST.git
+cd DST
+pip install numpy pandas scikit-learn matplotlib seaborn torch
 ```
-Common_code/
-  ├─ test_Ripper_DST.py      # main entry: end-to-end pipeline
-  ├─ DSClassifierMultiQ.py   # training loop, optimizer, pruning logic
-  ├─ DSModelMultiQ.py        # rule activation + DST fusion forward pass
-  ├─ Datasets_loader.py      # dataset loading utilities
-  └─ results/                # PNG plots + CSV metrics
+
+### 6.2 Running Benchmarks
+
+```bash
+cd Common_code
+
+# Run experiment on gas_drift
+python test_Ripper_DST.py --dataset gas_drift --experiment stable
+
+# Other datasets: adult, bank-full, german, df_wine, SAheart, breast-cancer-wisconsin
+python test_Ripper_DST.py --dataset adult --experiment stable
+
+# Specify device and epochs
+python test_Ripper_DST.py --dataset gas_drift --device cuda --epochs 100
 ```
 
-**Outputs:**
+Results saved to `Common_code/results/`.
 
-* Bar charts per dataset in `results/benchmark_dataset_<name>_metrics.png`
-* (If enabled) CSVs with per-system metrics in `results/`
+### 6.3 Inspecting Individual Predictions
+
+```bash
+# Inspect sample #5 on gas_drift with RIPPER rules
+python sample_rule_inspector.py --algo RIPPER --dataset gas_drift --idx 5
+
+# Same with FOIL
+python sample_rule_inspector.py --algo FOIL --dataset gas_drift --idx 5
+```
+
+### 6.4 Programmatic API
+
+```python
+from Common_code.DSClassifierMultiQ import DSClassifierMultiQ
+from Common_code.Datasets_loader import load_dataset
+
+# 1. Load dataset
+X, y, feature_names, value_decoders = load_dataset('german.csv')
+
+# 2. Create classifier
+clf = DSClassifierMultiQ(
+    k=len(set(y)),
+    rule_algo="RIPPER",
+    device="cpu",
+    max_iter=50,
+    lr=1e-3,
+)
+
+# 3. Fit: generates rules, initializes masses, trains via DSGD
+clf.fit(X, y, feature_names=feature_names, value_decoders=value_decoders)
+
+# 4. Predict
+y_pred = clf.predict(X)
+print("Train accuracy:", (y_pred == y).mean())
+
+# 5. Inspect rules
+clf.model.print_rules(top_n=5)
+```
+
+### 6.5 Key Files
+
+| File | Purpose |
+|:-----|:--------|
+| `rule_generator.py` | RIPPER/FOIL/STATIC rule induction |
+| `DSModelMultiQ.py` | DST model with mass assignment and Dempster combination |
+| `core.py` | Dempster's rule, pignistic transform |
+| `DSClassifierMultiQ.py` | Sklearn-compatible classifier with training loop |
+| `sample_rule_inspector.py` | Interactive prediction inspection |
+| `test_Ripper_DST.py` | Benchmark script |
 
 ---
 
-## 7 · Citing & Further Reading
+## 7. References & Acknowledgments
 
-If you build on this work, please cite:
+**Core Theory:**
+1. Shafer, G. (1976). *A Mathematical Theory of Evidence*. Princeton University Press.
+2. Peñafiel, S., Baloian, N., et al. *Applying the Dempster-Shafer Theory for Detecting Inconsistencies*. Expert Systems with Applications.
+3. DST + gradient-based optimization inspired by: A. Tarkhanyan, A. Harutyunyan, "DSGD++: Revised Methodology for Gradient-Based Mass Optimization in DST"
 
-* Peñafiel, S., Bleda, A. L., Candelas, F., & Sempere, J. M. (2020). *Applying the Dempster-Shafer theory for a flexible, accurate and interpretable classifier*. **Expert Systems with Applications**, 141, 112953.
+**Rule Algorithms:**
+- Cohen, W. W. (1995). *Fast Effective Rule Induction (RIPPER)*. ICML.
+- Quinlan, J. R. (1990). *Learning Logical Definitions from Relations (FOIL)*.
 
-Background:
+**Development:**
+This project was developed by **S. Vardanian**, in collaboration with **A. Tarkhanyan** and **A. Harutyunyan**, extending evidential learning ideas to practical, interpretable rule-based classification.
 
-* G. Shafer (1976). *A Mathematical Theory of Evidence*. Princeton University Press.
-* W. W. Cohen (1995). *Fast Effective Rule Induction (RIPPER)*. ICML.
-* J. R. Quinlan (1990). *Learning Logical Definitions from Relations (FOIL)*. *Machine Learning*, 5(3).
-
-```
-
-**Sources I checked (your repo & result images) to ground the README**: :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2} :contentReference[oaicite:3]{index=3} :contentReference[oaicite:4]{index=4} :contentReference[oaicite:5]{index=5} :contentReference[oaicite:6]{index=6}
+---
