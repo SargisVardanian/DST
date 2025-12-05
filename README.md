@@ -474,3 +474,5 @@ clf.model.print_rules(top_n=5)
 This project was developed by **S. Vardanian**, in collaboration with **A. Tarkhanyan** and **A. Harutyunyan**, extending evidential learning ideas to practical, interpretable rule-based classification.
 
 ---
+
+_Last updated: 2024-12-03_
