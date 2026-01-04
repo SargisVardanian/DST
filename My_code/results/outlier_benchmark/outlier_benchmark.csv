@@ -1,0 +1,5 @@
+dataset,algo,full_f1,inlier_f1,outlier_f1,f1_improvement,final_conf_full,final_conf_inliers,final_conf_outliers
+adult,RIPPER,0.6969,0.7709,0.6496,0.07400000000000007,0.7378,0.8624,0.5144
+adult,FOIL,0.6672,0.749,0.5967,0.08179999999999998,0.7173,0.8486,0.4828
+bank-full,RIPPER,0.5914,0.2213,0.6383,-0.37010000000000004,0.8351,0.9213,0.5904
+bank-full,FOIL,0.5161,0.368,0.5887,-0.1481,0.8338,0.8995,0.6142

@@ -1,0 +1,209 @@
+{
+  "outlier_method": "rule_based",
+  "datasets": {
+    "adult": {
+      "RIPPER": {
+        "n_samples": 6033,
+        "n_outliers": 2161,
+        "n_inliers": 3872,
+        "outlier_percentage": 35.82,
+        "full_metrics": {
+          "accuracy": 0.8584,
+          "f1": 0.6969,
+          "precision": 0.7462,
+          "recall": 0.6538
+        },
+        "avg_omega": {
+          "full": 0.1788,
+          "outliers": 0.2863,
+          "inliers": 0.1188
+        },
+        "avg_final_conf": {
+          "full": 0.7378,
+          "outliers": 0.5144,
+          "inliers": 0.8624
+        },
+        "avg_margin": {
+          "full": 0.874,
+          "outliers": 0.6965,
+          "inliers": 0.9731
+        },
+        "avg_certainty": {
+          "full": 0.8212,
+          "outliers": 0.7137,
+          "inliers": 0.8812
+        },
+        "inlier_metrics": {
+          "accuracy": 0.9349,
+          "f1": 0.7709,
+          "precision": 0.8926,
+          "recall": 0.6784
+        },
+        "outlier_metrics": {
+          "accuracy": 0.7214,
+          "f1": 0.6496,
+          "precision": 0.6635,
+          "recall": 0.6363
+        },
+        "inlier_improvement": {
+          "accuracy": 0.0765,
+          "f1": 0.074,
+          "precision": 0.1464,
+          "recall": 0.0246
+        }
+      },
+      "FOIL": {
+        "n_samples": 6033,
+        "n_outliers": 2165,
+        "n_inliers": 3868,
+        "outlier_percentage": 35.89,
+        "full_metrics": {
+          "accuracy": 0.8493,
+          "f1": 0.6672,
+          "precision": 0.7413,
+          "recall": 0.6065
+        },
+        "avg_omega": {
+          "full": 0.2249,
+          "outliers": 0.3775,
+          "inliers": 0.1395
+        },
+        "avg_final_conf": {
+          "full": 0.7173,
+          "outliers": 0.4828,
+          "inliers": 0.8486
+        },
+        "avg_margin": {
+          "full": 0.8889,
+          "outliers": 0.7222,
+          "inliers": 0.9821
+        },
+        "avg_certainty": {
+          "full": 0.7751,
+          "outliers": 0.6225,
+          "inliers": 0.8605
+        },
+        "inlier_metrics": {
+          "accuracy": 0.918,
+          "f1": 0.749,
+          "precision": 0.8538,
+          "recall": 0.6671
+        },
+        "outlier_metrics": {
+          "accuracy": 0.7266,
+          "f1": 0.5967,
+          "precision": 0.6489,
+          "recall": 0.5523
+        },
+        "inlier_improvement": {
+          "accuracy": 0.0687,
+          "f1": 0.0818,
+          "precision": 0.1125,
+          "recall": 0.0606
+        }
+      }
+    },
+    "bank-full": {
+      "RIPPER": {
+        "n_samples": 9043,
+        "n_outliers": 2356,
+        "n_inliers": 6687,
+        "outlier_percentage": 26.05,
+        "full_metrics": {
+          "accuracy": 0.8984,
+          "f1": 0.5914,
+          "precision": 0.5584,
+          "recall": 0.6285
+        },
+        "avg_omega": {
+          "full": 0.0869,
+          "outliers": 0.1534,
+          "inliers": 0.0635
+        },
+        "avg_final_conf": {
+          "full": 0.8351,
+          "outliers": 0.5904,
+          "inliers": 0.9213
+        },
+        "avg_margin": {
+          "full": 0.8994,
+          "outliers": 0.6674,
+          "inliers": 0.9812
+        },
+        "avg_certainty": {
+          "full": 0.9131,
+          "outliers": 0.8466,
+          "inliers": 0.9365
+        },
+        "inlier_metrics": {
+          "accuracy": 0.9705,
+          "f1": 0.2213,
+          "precision": 0.7368,
+          "recall": 0.1302
+        },
+        "outlier_metrics": {
+          "accuracy": 0.6935,
+          "f1": 0.6383,
+          "precision": 0.5525,
+          "recall": 0.7556
+        },
+        "inlier_improvement": {
+          "accuracy": 0.0721,
+          "f1": -0.3701,
+          "precision": 0.1784,
+          "recall": -0.4983
+        }
+      },
+      "FOIL": {
+        "n_samples": 9043,
+        "n_outliers": 2085,
+        "n_inliers": 6958,
+        "outlier_percentage": 23.06,
+        "full_metrics": {
+          "accuracy": 0.8984,
+          "f1": 0.5161,
+          "precision": 0.5826,
+          "recall": 0.4631
+        },
+        "avg_omega": {
+          "full": 0.1285,
+          "outliers": 0.2811,
+          "inliers": 0.0827
+        },
+        "avg_final_conf": {
+          "full": 0.8338,
+          "outliers": 0.6142,
+          "inliers": 0.8995
+        },
+        "avg_margin": {
+          "full": 0.927,
+          "outliers": 0.7822,
+          "inliers": 0.9704
+        },
+        "avg_certainty": {
+          "full": 0.8715,
+          "outliers": 0.7189,
+          "inliers": 0.9173
+        },
+        "inlier_metrics": {
+          "accuracy": 0.9432,
+          "f1": 0.368,
+          "precision": 0.7667,
+          "recall": 0.2421
+        },
+        "outlier_metrics": {
+          "accuracy": 0.7487,
+          "f1": 0.5887,
+          "precision": 0.5427,
+          "recall": 0.6432
+        },
+        "inlier_improvement": {
+          "accuracy": 0.0448,
+          "f1": -0.1481,
+          "precision": 0.1841,
+          "recall": -0.221
+        }
+      }
+    }
+  }
+}

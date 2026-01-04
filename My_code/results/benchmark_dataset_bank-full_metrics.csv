@@ -1,0 +1,9 @@
+Dataset,Algo,Stage,Accuracy,F1,Precision,Recall,System
+bank-full,STATIC,DST,0.8462,0.5399,0.4153,0.7713,STATIC DST
+bank-full,RIPPER,RAW,0.8867,0.1032,0.6941,0.0558,RIPPER RAW
+bank-full,RIPPER,DST,0.7883,0.4899,0.3411,0.8686,RIPPER DST
+bank-full,FOIL,RAW,0.8867,0.0969,0.7143,0.0520,FOIL RAW
+bank-full,FOIL,DST,0.8050,0.5080,0.3604,0.8601,FOIL DST
+bank-full,DecisionTree,Baseline,0.8769,0.4767,0.4743,0.4792,DecisionTree Baseline
+bank-full,RandomForest,Baseline,0.8980,0.6264,0.5482,0.7306,RandomForest Baseline
+bank-full,GradientBoosting,Baseline,0.8966,0.6103,0.5459,0.6919,GradientBoosting Baseline

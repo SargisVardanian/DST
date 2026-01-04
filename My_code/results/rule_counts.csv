@@ -1,0 +1,13 @@
+file,rules
+Common_code/dsb_rules/foil_adult_dst.dsb,30
+Common_code/dsb_rules/foil_adult_raw.dsb,0
+Common_code/dsb_rules/foil_df_wine_dst.dsb,46
+Common_code/dsb_rules/foil_german_dst.dsb,72
+Common_code/dsb_rules/ripper_adult_dst.dsb,27
+Common_code/dsb_rules/ripper_adult_raw.dsb,0
+Common_code/dsb_rules/ripper_df_wine_dst.dsb,32
+Common_code/dsb_rules/ripper_german_dst.dsb,64
+Common_code/dsb_rules/static_adult_dst.dsb,107
+Common_code/dsb_rules/static_adult_raw.dsb,0
+Common_code/dsb_rules/static_df_wine_dst.dsb,12
+Common_code/dsb_rules/static_german_dst.dsb,72
