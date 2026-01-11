@@ -1,0 +1,9 @@
+Dataset,Kind,STATIC,RIPPER,FOIL
+BrainTumor,dst,853,23,60
+SAheart,dst,796,25,78
+adult,dst,392,304,614
+bank-full,dst,800,267,417
+breast-cancer-wisconsin,dst,559,18,42
+df_wine,dst,542,104,164
+gas_drift,dst,2484,114,169
+german,dst,714,61,141
