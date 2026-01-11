@@ -1,740 +1,1221 @@
+# -*- coding: utf-8 -*-
 """
 Dempster-Shafer Theory (DST) Model with Multi-Q Support.
 
 This module implements a DST-based classification model that uses rule-based reasoning
 with mass functions to handle uncertainty. It supports multiple rule generation algorithms
 (STATIC, RIPPER, FOIL) and provides DSGD++ initialization for confidence-based mass assignment.
+
+Classes:
+    DSModelMultiQ: The core PyTorch module implementing the DST logic.
 """
 
-import copy, math, numpy as np, torch, torch.nn as nn, torch.nn.functional as F
+import copy
 from pathlib import Path
-from typing import Any, Dict, Iterable, Sequence
-from rule_generator import Condition, Literal, RuleGenerator
+from typing import Any, Dict, Optional, List, Union, TYPE_CHECKING
+
+import numpy as np
+import torch
+import torch.nn as nn
+
+from rule_generator import RuleGenerator
 from core import params_to_mass, ds_combine_pair, masses_to_pignistic as core_masses_to_pignistic
 
-# Allowed operators for rule conditions, float formatting, and epsilon for numerical stability
-_ALLOWED_OPS, _FLOAT_FMT, _EPS = {"==", "<", ">"}, "{:.6g}", 1e-9
 
 def _lazy_pickle():
-    """Lazy import pickle or dill for serialization."""
-    try: import dill as pickle
-    except ImportError: import pickle
-    return pickle
+    """Lazy import for dill/pickle."""
+    import pickle
+    try:
+        import dill
+        return dill
+    except ImportError:
+        return pickle
+
 
 def _as_numpy(X):
-    """Convert input to numpy array, ensuring 2D shape."""
-    return np.asarray(X).reshape(1, -1) if np.asarray(X).ndim == 1 else np.asarray(X)
+    """Ensure input is a numpy array, handling scalars."""
+    arr = np.asarray(X)
+    return arr.reshape(1, -1) if arr.ndim == 1 else arr
+
 
 def masses_to_pignistic(masses):
-    """Convert mass functions to pignistic probabilities."""
+    """Convert mass functions to pignistic probabilities via normalization."""
     return core_masses_to_pignistic(masses)
+
 
 class DSModelMultiQ(nn.Module):
     """
     Dempster-Shafer Theory (DST) Multi-Query Model for classification with uncertainty.
-    
-    This model generates and applies rules to data, combining their mass functions
-    using Dempster's combination rule to produce predictions with quantified uncertainty.
+
+    This model treats classification rules as independent sources of evidence.
+    Each rule provides a "mass" assignment over the K classes and an "uncertainty" (Omega) mass.
+    These masses are combined using Dempster's Rule of Combination (or strictly defined alternatives)
+    to produce a final belief state.
+
+    Key Features:
+    - **Rule-based**: Uses logical rules (STATIC, RIPPER, FOIL) as Evidence.
+    - **Uncertainty**: Explicitly models "I don't know" (Omega) vs "Class X".
+    - **Differentiable**: Mass parameters are learnable via PGD.
     """
-    
-    def __init__(self, k: int, algo: str = "STATIC", device: str = "cpu", feature_names=None, value_decoders=None, rule_uncertainty=0.8):
+    # Operator codes and logic
+    OP_EQ, OP_LT, OP_GT = 0, 1, 2
+    OPS = {'==': OP_EQ, '<': OP_LT, '>': OP_GT}
+
+    def __init__(
+        self,
+        k: int,
+        algo: str = "STATIC",
+        device: str = "cpu",
+        feature_names=None,
+        value_decoders=None,
+        rule_uncertainty=0.8,
+        combination_rule: str = "dempster",
+    ):
         """
         Initialize the DST model.
-        
+
         Args:
-            k (int): Number of classes in the classification problem
-            algo (str): Rule generation algorithm ('STATIC', 'RIPPER', or 'FOIL'). Default: 'STATIC'
-            device (str): PyTorch device for computation ('cpu' or 'cuda'). Default: 'cpu'
-            feature_names (list): Names of features in the dataset. If None, will be auto-generated
-            value_decoders (dict): Mapping from feature names to value decoders for categorical features
-            rule_uncertainty (float): Base uncertainty level for mass initialization (0.0-1.0). Default: 0.8
+            k (int): Number of classes.
+            algo (str): Rule generation algorithm ('STATIC', 'RIPPER', 'FOIL').
+            device (str): Device to run on ('cpu', 'cuda').
+            feature_names (list): List of feature names for interpretability.
+            value_decoders (dict): Dictionary mapping feature names to value decoders.
+            rule_uncertainty (float): Initial uncertainty mass for rules (0.0 to 1.0).
+            combination_rule (str): 'dempster', 'yager', or 'vote'.
         """
         super().__init__()
-        self.num_classes, self.k, self.algo, self.device = int(k), int(k), str(algo).upper(), torch.device(device)
-        self.feature_names, self.value_names = list(feature_names) if feature_names else None, value_decoders or {}
+        self.num_classes, self.k = int(k), int(k)
+        self.algo = str(algo).upper()
+        self.device = torch.device(device)
+        self.feature_names = list(feature_names) if feature_names else None
+        self.value_names = value_decoders or {}
         self.rule_uncertainty = float(rule_uncertainty)
+
+        self.combination_rule = self._normalize_combination_rule(combination_rule)
+        if self.combination_rule not in {"dempster", "yager", "vote"}:
+            raise ValueError("combination_rule must be 'dempster', 'yager', or 'vote'")
+        self.combination_weight_key = "precision"  # used only for explanation weighting
+
         self.class_prior = None
-        self._encoders, self._decoders = {}, {}
+        self._encoders = {}
         self.rules, self._rule_signatures = [], set()
-        self._literal_to_index, self._literals, self._rule_literal_indices = {}, [], []
-        self._lit2rule = self._rule_len = self.rule_class_mask = self.head = self.rule_mass_params = self.initial_rule_masses = None
+
+        # Cache for literals
+        self._literal_to_index = {}
+        self._literals = []
+        self._rule_literal_indices = []
+        
+        # Optimized Tensors for evaluation
+        self._lit2rule = None
+        self._rule_len = None
+        self._lit_feat_idx = None
+        self._lit_op_code = None
+        self._lit_value = None
+
+        self.rule_mass_params = None
+        self.initial_rule_masses = None
         self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names)} if self.feature_names else {}
-        self._last_algo = None
         self.to(self.device)
 
-    def _fit_encoders(self, X_raw):
-        """
-        Fit encoders for categorical features in the dataset.
-        
-        Args:
-            X_raw (ndarray): Raw input data with potentially mixed types
-        """
-        self.feature_names = self.feature_names or [f"X[{i}]" for i in range(X_raw.shape[1])]
-        self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names)}
-        self._encoders.clear(); self._decoders.clear()
-        for j, name in enumerate(self.feature_names):
-            col = X_raw[:, j]
-            dec = self.value_names.get(name, {})
-            if not (bool(dec) or not (np.issubdtype(col.dtype, np.number) and col.dtype.kind != "O")): continue
-            uniq, enc = np.unique(col), {}
-            if dec:
-                for code, raw_val in dec.items():
-                    try: code_f = float(code)
-                    except: continue
-                    for key in (raw_val, str(raw_val), code, str(code), code_f): enc[key] = code_f
-                for u in uniq: enc.setdefault(u, float(u))
-                dec_full = {**dec, **{str(k): v for k, v in dec.items()}}
-                self._decoders[name], self.value_names[name] = dec_full, dec_full
-            else:
-                enc = {val: float(i) for i, val in enumerate(uniq)}
-                dec_map = {int(i): val for i, val in enumerate(uniq)}
-                self._decoders[name] = dec_map
-                self.value_names[name] = {**self.value_names.get(name, {}), **dec_map, **{str(k): v for k, v in dec_map.items()}}
-            self._encoders[name] = enc
+    # ----------------------------- Helpers -----------------------------
+    @staticmethod
+    def _normalize_combination_rule(rule: Optional[str]) -> str:
+        """Normalize combination rule string (dempster, yager, vote)."""
+        r = str(rule or "dempster").strip().lower().replace("-", "_")
+        if r in {"dempster", "yager", "vote"}:
+            return r
+        return "dempster"
 
-    def _encode_X(self, X_raw):
+    def _resolve_feature_index(self, name: str, *, num_features: Optional[int] = None) -> int:
+        """Resolve feature name to column index, supporting X[i] and named features."""
+        idx = self._feature_to_idx.get(name)
+        if idx is None and name.startswith("X[") and name.endswith("]") and name[2:-1].isdigit():
+            idx = int(name[2:-1])
+        if idx is None or (num_features is not None and not (0 <= idx < num_features)):
+            raise KeyError(f"Unknown feature '{name}'")
+        return int(idx)
+
+    def _prior_tensor(self, k: int) -> torch.Tensor:
+        """Get the class prior tensor (1, K) for mass redistribution."""
+        if self.class_prior is not None and self.class_prior.sum() > 0:
+            p = self.class_prior.to(self.device)
+            return (p / p.sum().clamp_min(1e-12)).reshape(1, -1)
+        return torch.full((1, k), 1.0 / max(1, k), device=self.device)
+
+
+    def _final_conf_from_mass(self, mass: np.ndarray) -> Dict[str, Any]:
         """
-        Encode raw data using fitted encoders.
+        Extract detailed confidence metrics (betp, omega, certainty) from a mass vector.
         
         Args:
-            X_raw (ndarray): Raw input data
+            mass: Mass vector of shape (K+1,)
             
         Returns:
-            ndarray: Encoded numerical representation
+            Dict containing 'betp', 'omega', 'certainty', 'top1', 'sep', 'final_conf'.
         """
+        m = np.asarray(mass, dtype=float).reshape(-1)
+        k = len(m) - 1
+        if k < 1: return {"betp": np.ones(1), "omega": 1.0, "final_conf": 0.0, "top1": 0}
+
+        omega = float(np.clip(m[-1], 0.0, 1.0))
+        certainty = 1.0 - omega
+        
+        prior = (self.class_prior.cpu().numpy() if self.class_prior is not None else np.full(k, 1/k))
+        prior = prior / max(prior.sum(), 1e-12)
+        
+        # Pignistic transform: m(A) + m(Omega) * |A|/|Omega| -> here |A|=1
+        betp = m[:k] + omega * prior
+        betp /= max(betp.sum(), 1e-12)
+        
+        top1 = int(np.argmax(betp)) if betp.size else 0
+        sep = (betp[top1] - np.sort(betp)[-2]) if k >= 2 else (betp[top1] if k == 1 else 0.0)
+
+        return {
+            "betp": betp, "omega": omega, "certainty": certainty,
+            "top1": top1, "sep": float(sep), "final_conf": float(certainty * max(sep, 0.0))
+        }
+
+    # ----------------------------- Encoders -----------------------------
+    def _fit_encoders(self, X_raw):
+        """Fit feature encoders for categorical columns."""
+        self.feature_names = self.feature_names or [f"X[{i}]" for i in range(X_raw.shape[1])]
+        self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names)}
+        self._encoders.clear()
+
+        for j, name in enumerate(self.feature_names):
+            col = X_raw[:, j]
+            dec = self.value_names.get(name) or {}
+            is_numeric = np.issubdtype(col.dtype, np.number) and col.dtype.kind != "O"
+
+            full_dec = {}
+            if dec:
+                for k, v in dec.items():
+                    full_dec[str(k)] = v
+                    if isinstance(k, (int, float)): full_dec[k] = v
+                    try: full_dec[float(k)] = v
+                    except: pass
+                self.value_names[name] = full_dec
+            
+            if not dec and is_numeric: continue
+
+            enc = {}
+            if dec:
+                for uv in np.unique(col):
+                    for candid in [uv, str(uv)]:
+                        if candid in full_dec:
+                             try: enc[uv] = float(candid)
+                             except: enc[uv] = -1.0
+                             break
+                    if uv not in enc and not is_numeric: enc[uv] = float(len(enc))
+                self._encoders[name] = enc
+            else:
+                u = np.unique(col)
+                self._encoders[name] = {v: float(i) for i, v in enumerate(u)}
+
+    def _encode_X(self, X_raw):
+        """Encode raw input X into float32 suitable for PyTorch."""
         X_num = np.empty(X_raw.shape, dtype=np.float32)
         for j, name in enumerate(self.feature_names or []):
-            col, enc = X_raw[:, j], self._encoders.get(name)
-            if enc: X_num[:, j] = [enc.get(v, -1) for v in col]
-            elif np.issubdtype(col.dtype, np.number): X_num[:, j] = col.astype(np.float32)
-            else: X_num[:, j] = np.nan
+            col = X_raw[:, j]
+            enc = self._encoders.get(name)
+            if enc:
+                X_num[:, j] = [enc.get(v, -1.0) for v in col]
+            else:
+                try: X_num[:, j] = col.astype(np.float32)
+                except: X_num[:, j] = np.nan
         return X_num
 
     def _encode_literal_value(self, name, op, value):
-        """
-        Encode a literal value for comparison.
-        
-        Args:
-            name (str): Feature name
-            op (str): Comparison operator
-            value: Raw value to encode
-            
-        Returns:
-            float: Encoded numerical value
-        """
-        if op == "==" and name in self._encoders: return float(self._encoders[name].get(value, -1))
+        """Encode a single literal value for comparison logic."""
+        if op == "==" and name in self._encoders:
+            return float(self._encoders[name].get(value, -1.0))
         try: return float(value)
         except: return float("nan")
 
+    # ----------------------------- Rule generation -----------------------------
     def generate_rules(self, X, y=None, feature_names=None, *, algo=None, verbose=False, **params):
         """
-        Generate classification rules using specified algorithm.
-        
+        Generate rules from data using the specified algorithm (STATIC, RIPPER, FOIL).
+
         Args:
-            X (ndarray): Input features
-            y (ndarray, optional): Target labels (required for RIPPER/FOIL)
-            feature_names (list, optional): Names of features
-            algo (str, optional): Algorithm to use ('STATIC', 'RIPPER', 'FOIL')
-            verbose (bool): Print detailed progress information. Default: False
-            **params: Additional parameters for rule generation
+            X: Input features.
+            y: Target labels.
+            feature_names: Optional feature names.
+            algo: Algorithm name.
+            verbose: Print verbose output.
+            **params: Additional parameters for RuleGenerator.
         """
-        X_raw, y_np = _as_numpy(X), np.asarray(y, dtype=int) if y is not None else None
+        X_raw = _as_numpy(X)
+        y_np = np.asarray(y, dtype=int) if y is not None else None
         if feature_names: self.feature_names = list(feature_names)
         self.feature_names = self.feature_names or [f"X[{i}]" for i in range(X_raw.shape[1])]
-        self.algo = self._last_algo = str(algo or self._last_algo or self.algo or "STATIC").upper()
+        self.algo = str(algo or self.algo).upper()
+
         gen = RuleGenerator(algo=self.algo.lower(), verbose=verbose, **params)
         self.rules.clear(); self._rule_signatures.clear()
 
         if self.algo == "STATIC":
             for r in gen.build_static_rules(X_raw, feature_names=self.feature_names, y=y_np, value_decoders=self.value_names, verbose=verbose, **params):
-                self._add_rule_specs(r.get("specs", ()), r.get("label"), r.get("caption"), r.get("stats"))
+                self._add_rule_struct(r)
         elif self.algo in {"RIPPER", "FOIL"}:
-            if y_np is None: raise ValueError("Supervised rule generation requires target labels (y)")
+            if y_np is None: raise ValueError("Supervised algo needs y")
             gen.fit(X_raw, y_np, feature_names=self.feature_names)
             for label, cond, stats in gen.ordered_rules:
-                self._add_rule_specs(tuple((n, o, v) for n, (o, v) in sorted(cond.items())), int(label), None, stats)
-        else: raise ValueError(f"Unsupported algo {self.algo}")
+                self._add_rule_struct({"specs": tuple((n, o, v) for n, (o, v) in sorted(cond.items())), "label": int(label), "stats": stats})
+        else:
+            raise ValueError(f"Unsupported algo {self.algo}")
 
-        if y_np is not None and self.num_classes >= 2:
-            counts = np.bincount(y_np, minlength=self.num_classes).astype(np.float32)
-            counts[counts <= 0.0] = 1.0
-            inv = 1.0 / counts
-            self.class_prior = torch.tensor(inv / float(inv.sum()), device=self.device, dtype=torch.float32) if np.isfinite(inv.sum()) and inv.sum() > 0.0 else None
+        # Compute empirical class prior if needed
+        if y_np is not None:
+            counts = np.bincount(y_np, minlength=self.num_classes)
+            self.class_prior = torch.tensor(1.0 / np.maximum(counts, 1.0), device=self.device, dtype=torch.float32)
+            self.class_prior /= self.class_prior.sum()
 
-        self._fit_encoders(X_raw); self._rebuild_literal_cache(); self._build_head(); self.reset_masses()
+        self._fit_encoders(X_raw)
+        self._rebuild_literal_cache()
+        self._build_head()
+        self.reset_masses()
 
-    def _add_rule_specs(self, specs, label, caption, stats=None):
-        """
-        Add a rule specification to the model if it's unique.
-        
-        Args:
-            specs (tuple): Tuple of (feature_name, operator, value) literals
-            label (int): Target class label for the rule
-            caption (str): Human-readable description of the rule
-            stats (dict, optional): Statistics about the rule (precision, recall, etc.)
-        """
-        cond = self._canonicalize_condition(specs)
+    def _add_rule_struct(self, r):
+        """Internal helper to add a rule structure, ensuring uniqueness."""
+        cond = self._canonicalize_condition(r.get("specs", ()))
         if not cond: return
         sig = self._condition_signature(cond)
         if sig in self._rule_signatures: return
         self._rule_signatures.add(sig)
-        self.rules.append({"specs": cond, "label": int(label) if label is not None else None, "caption": caption or self._condition_caption(cond, self.value_names, label), "stats": stats})
+        
+        self.rules.append({
+            "specs": cond,
+            "label": r.get("label"),
+            "caption": r.get("caption") or self._condition_caption(cond),
+            "stats": r.get("stats")
+        })
 
+    # ----------------------------- Condition Logic -----------------------------
     @staticmethod
-    def _normalise_value(v):
-        """
-        Normalize numeric values for consistent comparison.
-        
-        Args:
-            v: Value to normalize
-            
-        Returns:
-            Normalized value (float or int)
-        """
-        if isinstance(v, (np.floating, float)):
+    def _normalise_val(v):
+        """Normalize numeric values (e.g. 5.0 -> 5) to avoid float mismatch."""
+        try:
             f = float(v)
-            if math.isfinite(f) and abs(f - round(f)) < 1e-9: return float(round(f))
-        return float(v) if isinstance(v, (np.floating, float)) else (int(v) if isinstance(v, (np.integer, int)) else v)
+            return float(round(f)) if abs(f - round(f)) < 1e-9 else f
+        except: return v
 
-    @classmethod
-    def _values_equal(cls, a, b):
+    def _canonicalize_condition(self, literals: tuple) -> tuple:
         """
-        Check if two values are equal with numerical tolerance.
+        Canonicalize a condition by merging constraints on the same feature.
         
-        Args:
-            a: First value
-            b: Second value
-            
         Returns:
-            bool: True if values are considered equal
-        """
-        an, bn = cls._normalise_value(a), cls._normalise_value(b)
-        return abs(an - bn) <= 1e-9 if isinstance(an, float) or isinstance(bn, float) else an == bn
-
-    @classmethod
-    def _canonicalize_condition(cls, literals):
-        """
-        Canonicalize a condition by merging and validating literals.
-        
-        This method combines multiple literals on the same feature, checks for
-        contradictions, and returns a standardized sorted tuple.
-        
-        Args:
-            literals (iterable): Sequence of (name, op, value) tuples
-            
-        Returns:
-            tuple: Canonicalized condition or None if contradictory
+            Tuple of literals or None if the condition is contradictory.
         """
         if not literals: return ()
         scope = {}
-        for name, op, raw_val in literals:
-            if op not in _ALLOWED_OPS: raise ValueError(f"Unsupported op {op}")
-            val = cls._normalise_value(raw_val)
-            s = scope.setdefault(name, {"eq": None, "lt": None, "gt": None})
-            if op == "==":
-                if s["eq"] is not None and not cls._values_equal(s["eq"], val): return None
-                s["eq"] = val
-            elif op == "<": s["lt"] = min(s["lt"], float(val)) if s["lt"] is not None else float(val)
-            elif op == ">": s["gt"] = max(s["gt"], float(val)) if s["gt"] is not None else float(val)
+        for name, op, v in literals:
+            op_code = self.OPS.get(op)
+            if op_code is None: continue
+            val = self._normalise_val(v)
+            if name not in scope: scope[name] = [None, None, None] # eq, lt, gt
+            
+            s = scope[name]
+            if op_code == self.OP_EQ:
+                if s[0] is not None and s[0] != val: return None # Conflict
+                s[0] = val
+            elif op_code == self.OP_LT:
+                s[1] = min(s[1], float(val)) if s[1] is not None else float(val)
+            elif op_code == self.OP_GT:
+                s[2] = max(s[2], float(val)) if s[2] is not None else float(val)
+
         res = []
-        for name, s in sorted(scope.items()):
-            eq, lt, gt = s["eq"], s["lt"], s["gt"]
+        for name, (eq, lt, gt) in sorted(scope.items()):
             if eq is not None:
-                if (lt is not None and float(eq) >= lt - _EPS) or (gt is not None and float(eq) <= gt + _EPS): return None
+                if (lt is not None and eq >= lt) or (gt is not None and eq <= gt): return None
                 res.append((name, "==", eq))
             else:
-                if gt is not None and lt is not None and gt >= lt - _EPS: return None
+                if lt is not None and gt is not None and gt >= lt: return None
                 if gt is not None: res.append((name, ">", gt))
                 if lt is not None: res.append((name, "<", lt))
-        return tuple(sorted(res, key=lambda x: (x[0], {"==": 0, ">": 1, "<": 2}[x[1]], repr(cls._normalise_value(x[2])))))
+        return tuple(res)
 
-    @classmethod
-    def _condition_signature(cls, cond):
-        """
-        Generate unique string signature for a condition.
-        
-        Args:
-            cond (tuple): Canonicalized condition
-            
-        Returns:
-            str: Unique signature string
-        """
-        return "&&".join(f"{n}{o}{(_FLOAT_FMT.format(cls._normalise_value(val)) if isinstance(cls._normalise_value(val), float) else str(cls._normalise_value(val)))}" for n, o, val in cond)
+    def _condition_signature(self, cond):
+        """Generate a unique string signature for a condition."""
+        return "&&".join(f"{n}{o}{self._normalise_val(v)}" for n, o, v in cond)
 
-    @staticmethod
-    def _resolve_value_name(name, value, mapping):
-        """
-        Resolve feature value to its human-readable name.
-        
-        Args:
-            name (str): Feature name
-            value: Encoded value
-            mapping (dict): Value decoder mappings
-            
-        Returns:
-            Decoded value or original if not found
-        """
-        d = mapping.get(name) or {}
-        for k in (value, str(value), int(value) if isinstance(value, (int, float, str)) and str(value).replace('.','',1).isdigit() else None):
-            if k in d: return d[k]
-        return value
-
-    @classmethod
-    def _condition_caption(cls, cond, value_names, label=None):
-        """
-        Generate human-readable caption for a condition.
-        
-        Args:
-            cond (tuple): Canonicalized condition
-            value_names (dict): Value decoder mappings
-            label (int, optional): Target class label
-            
-        Returns:
-            str: Human-readable condition description
-        """
+    def _condition_caption(self, cond):
+        """Generate a human-readable caption for a condition."""
         def _fmt(n, o, v):
-            d = cls._resolve_value_name(n, v, value_names)
-            return f"{n} {o} {(_FLOAT_FMT.format(float(d)) if isinstance(d, float) else d)}"
-        return (" & ".join(_fmt(*t) for t in cond) or "<empty>") + (f" → class {label}" if label is not None else "")
+            d = (self.value_names.get(n) or {}).get(v, v)
+            val = f"{float(d):.4g}" if isinstance(d, float) else d
+            return f"{n} {o} {val}"
+        return " & ".join(_fmt(*t) for t in cond) or "<empty>"
 
+    # ----------------------------- Literal cache + params -----------------------------
     def _rebuild_literal_cache(self):
         """
-        Rebuild internal caches for efficient rule evaluation.
+        Rebuild internal optimized caches for fast vector evaluation of rules.
         
-        Creates literal-to-index mappings and rule-literal matrices for fast lookup.
+        Creates matrices mapping rules to literals and literals to feature indices depending on OPS.
         """
         self._literal_to_index, self._rule_literal_indices = {}, []
         for r in self.rules:
-            self._rule_literal_indices.append([self._literal_to_index.setdefault(l, len(self._literal_to_index)) for l in r.get("specs", ())])
+            idxs = [self._literal_to_index.setdefault(l, len(self._literal_to_index)) for l in r.get("specs", ())]
+            self._rule_literal_indices.append(idxs)
+
         self._literals = list(self._literal_to_index.keys())
-        if not self._literals: self._lit2rule = self._rule_len = None; return
-        self._lit2rule = torch.zeros((len(self._literals), len(self.rules)), dtype=torch.bool, device=self.device)
-        for rid, idxs in enumerate(self._rule_literal_indices): self._lit2rule[idxs, rid] = True
-        self._rule_len = torch.tensor([len(i) for i in self._rule_literal_indices], dtype=torch.long, device=self.device)
+        if not self._literals:
+            self._lit2rule = self._rule_len = self._lit_feat_idx = self._lit_op_code = self._lit_value = None
+            return
+
+        self._lit2rule = torch.zeros((len(self._literals), len(self.rules)), dtype=torch.float32, device=self.device)
+        for rid, idxs in enumerate(self._rule_literal_indices):
+            if idxs: self._lit2rule[idxs, rid] = 1.0
+        self._rule_len = torch.tensor([len(i) for i in self._rule_literal_indices], dtype=torch.float32, device=self.device)
+
+        feat_idx, op_code, values = [], [], []
+        for name, op, val in self._literals:
+            feat_idx.append(self._resolve_feature_index(name))
+            op_code.append(self.OPS.get(op, 0))
+            values.append(self._encode_literal_value(name, op, val))
+
+        self._lit_feat_idx = torch.tensor(feat_idx, device=self.device, dtype=torch.long)
+        self._lit_op_code = torch.tensor(op_code, device=self.device, dtype=torch.long)
+        self._lit_value = torch.tensor(values, device=self.device, dtype=torch.float32)
 
     def _build_head(self):
-        """
-        Build the neural network head for mass parameters.
-        
-        Creates learnable parameters for mass functions, one per rule.
-        """
-        self.head, self.initial_rule_masses = None, None
-        if not self.rules: self.rule_mass_params = None; return
-        self.rule_mass_params = nn.Parameter(torch.zeros(len(self.rules), self.num_classes + 1, device=self.device, dtype=torch.float32), requires_grad=True)
+        """Initialize the learnable mass parameters."""
+        self.initial_rule_masses = None
+        if not self.rules:
+            self.rule_mass_params = None
+            return
+        self.rule_mass_params = nn.Parameter(
+            torch.zeros(len(self.rules), self.num_classes + 1, device=self.device, dtype=torch.float32),
+            requires_grad=True
+        )
 
-    def _eval_literals(self, X):
-        """
-        Evaluate all literals against input data.
-        
-        Args:
-            X (Tensor): Input features (N, D)
-            
-        Returns:
-            Tensor: Boolean mask (N, num_literals) indicating which literals are satisfied
-        """
-        if not self._literals: return torch.zeros((X.shape[0], 0), dtype=torch.bool, device=self.device)
-        masks = []
-        for name, op, val in self._literals:
-            idx = self._feature_to_idx.get(name)
-            if idx is None and name.startswith("X[") and name.endswith("]") and name[2:-1].isdigit(): idx = int(name[2:-1])
-            if idx is None or not (0 <= idx < X.shape[1]): raise KeyError(f"Unknown feature '{name}'")
-            col, v = X[:, idx], self._encode_literal_value(name, op, val)
-            if op == "==": masks.append(torch.isclose(col, torch.tensor(v, device=self.device), atol=1e-5))
-            elif op == "<": masks.append(col < float(v))
-            elif op == ">": masks.append(col > float(v))
-        return torch.stack(masks, dim=1)
+    # ----------------------------- Evaluation -----------------------------
+    def _eval_literals(self, X: torch.Tensor) -> torch.Tensor:
+        """Evaluate all unique literals against input batch X (vectorized)."""
+        if not self._literals:
+            return torch.zeros((X.shape[0], 0), dtype=torch.bool, device=self.device)
 
-    def _activation_matrix(self, X):
-        """
-        Compute rule activation matrix.
+        if self._lit_feat_idx is not None:
+            cols = X[:, self._lit_feat_idx]
+            vals = self._lit_value.view(1, -1)
+            eq = torch.isclose(cols, vals, atol=1e-5)
+            # Stack [eq, lt, gt] -> gather by op code (OP_EQ=0, OP_LT=1, OP_GT=2)
+            # ops tensor has indices 0, 1, 2. gather(2, ops) selects from last dim of stack
+            stack = torch.stack([eq, cols < vals, cols > vals], dim=2)
+            ops = self._lit_op_code.view(1, -1, 1).expand(X.shape[0], -1, 1)
+            return stack.gather(2, ops).squeeze(2)
         
-        Args:
-            X (Tensor): Input features (N, D)
-            
-        Returns:
-            Tensor: Boolean mask (N, num_rules) indicating which rules fire for each sample
-        """
-        if not self.rules: return torch.zeros((X.shape[0], 0), dtype=torch.bool, device=self.device)
+        return torch.zeros((X.shape[0], len(self._literals)), dtype=torch.bool, device=self.device)
+
+    def _activation_matrix(self, X: torch.Tensor) -> torch.Tensor:
+        """Compute the binary activation matrix (N, num_rules) for the batch."""
         L = self._eval_literals(X)
-        return torch.stack([L[:, idxs].all(dim=1) if idxs else torch.ones(X.shape[0], dtype=torch.bool, device=self.device) for idxs in self._rule_literal_indices], dim=1)
+        if self._lit2rule is None:
+            return torch.zeros((X.shape[0], len(self.rules)), dtype=torch.bool, device=self.device)
+        return (L.float() @ self._lit2rule).eq(self._rule_len)
 
-    def _combine_active_masses(self, masses: torch.Tensor, act: torch.Tensor) -> torch.Tensor:
+    def _combine_vote_masses(
+        self,
+        act_flat: torch.Tensor,
+        k_plus_one: int,
+        dtype=None,
+    ) -> torch.Tensor:
+        """Combine active rules via simple majority vote into mass assignments."""
+        device = act_flat.device
+        dtype = dtype or torch.float32
+        labels = torch.tensor(
+            [r.get("label", -1) if r.get("label") is not None else -1 for r in self.rules],
+            device=device,
+            dtype=torch.long,
+        )
+        
+        scores = torch.zeros((act_flat.shape[0], k_plus_one - 1), device=device, dtype=dtype)
+        act_f = act_flat.float()
+        for cls in range(scores.shape[1]):
+            mask = labels == cls
+            if mask.any():
+                scores[:, cls] = act_f[:, mask].sum(dim=1)
+
+        denom = scores.sum(dim=1, keepdim=True)
+        combined = torch.zeros((act_flat.shape[0], k_plus_one), device=device, dtype=dtype)
+        has_votes = denom.squeeze(1) > 0
+        combined[has_votes, : k_plus_one - 1] = scores[has_votes] / denom[has_votes]
+        combined[~has_votes, -1] = 1.0
+        return combined
+
+    def _combine_active_masses(self, masses, act, *, combination_rule=None):
         """
-        Combine mass functions of activated rules using Dempster's combination rule.
+        Combine active rules using Dempster, Yager, or vote.
         
         Args:
-            masses (Tensor): Mass parameters (num_rules, num_classes+1)
-            act (Tensor): Activation matrix (N, num_rules)
+            masses: Mass tensor for each rule (num_rules, K+1).
+            act: Activation matrix (N, num_rules).
+            combination_rule: 'dempster', 'yager', or 'vote'.
             
         Returns:
-            Tensor: Combined masses (N, num_classes+1) after applying Dempster's rule
+            Combined mass tensor (N, K+1).
         """
-        if masses.numel() == 0 or act.numel() == 0:
-            return torch.cat([torch.zeros((act.shape[0], self.num_classes), device=self.device, dtype=masses.dtype), torch.ones((act.shape[0], 1), device=self.device, dtype=masses.dtype)], dim=1)
-        vac = torch.zeros((1, 1, self.num_classes + 1), device=self.device, dtype=masses.dtype); vac[..., -1] = 1.0
-        m = torch.where(act.unsqueeze(-1), masses.unsqueeze(0).expand(act.shape[0], -1, -1), vac.expand(act.shape[0], masses.shape[0], -1))
-        if m.shape[1] == 1: return m[:, 0, :]
-        if m.shape[1] % 2 == 1: m = torch.cat([m, vac.expand(m.shape[0], 1, -1)], dim=1)
-        while m.shape[1] > 1:
-            m = ds_combine_pair(m[:, 0::2, :], m[:, 1::2, :])
-            if m.dim() == 2: m = m.unsqueeze(1)
-            if m.shape[1] % 2 == 1 and m.shape[1] > 1: m = torch.cat([m, vac.expand(m.shape[0], 1, -1)], dim=1)
-        return m[:, 0, :]
+        rule = self._normalize_combination_rule(combination_rule or self.combination_rule)
+
+        # Strict mode: during training we optimize masses under Dempster only.
+        if self.training and rule != "dempster":
+            raise ValueError(f"Training supports only combination_rule='dempster' (got {rule!r}).")
+
+        batch_shape = act.shape[:-1]
+        act_flat = act.reshape(-1, act.shape[-1])
+        masses = masses.reshape(-1, masses.shape[-1])
+        k_plus_one = masses.shape[-1]
+
+        # Vacuous mass (pure uncertainty)
+        vac = torch.zeros((1, k_plus_one), device=masses.device, dtype=masses.dtype)
+        vac[0, -1] = 1.0
+
+        if masses.numel() == 0 or act_flat.numel() == 0:
+            return vac.expand(act_flat.shape[0], -1).reshape(*batch_shape, k_plus_one)
+
+        # --- Vote (majority) ---
+        if rule == "vote":
+            combined = self._combine_vote_masses(act_flat, k_plus_one, dtype=masses.dtype)
+            return combined.reshape(*batch_shape, k_plus_one)
+
+        # --- Standard Dempster's Rule ---
+        # Conflict is normalized away via 1/(1-k).
+        # This is the standard implementation per DSGD/DSGD-Enhanced.
+        if rule == "dempster":
+            acc = vac.expand(act_flat.shape[0], -1).clone()
+            for rid in act_flat.any(dim=0).nonzero(as_tuple=False).flatten():
+                combined = ds_combine_pair(acc, masses[rid].view(1, -1))
+                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
+            return acc.reshape(*batch_shape, k_plus_one)
+
+        # --- Yager ---
+        # Conflict (κ) is transferred to Omega, preserving uncertainty.
+        # Use for inference/explanation when you want conflict-aware uncertainty.
+        if rule == "yager":
+            k = k_plus_one - 1
+            acc = vac.expand(act_flat.shape[0], -1).clone()
+            
+            for rid in act_flat.any(dim=0).nonzero(as_tuple=False).flatten():
+                mA, mB = acc, masses[rid].view(1, -1)
+                a_s, a_o = mA[:, :k], mA[:, -1:]
+                b_s, b_o = mB[:, :k], mB[:, -1:]
+                
+                # Conjunctive combination (unnormalized)
+                num_s = a_s * b_s + a_s * b_o + a_o * b_s
+                num_o = a_o * b_o
+                
+                # Conflict → Omega
+                kappa = (a_s.sum(dim=-1, keepdim=True) * b_s.sum(dim=-1, keepdim=True) - 
+                         (a_s * b_s).sum(dim=-1, keepdim=True)).clamp(min=0.0)
+                combined = torch.cat([num_s, num_o + kappa], dim=-1)
+                combined = combined / combined.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
+            
+            return acc.reshape(*batch_shape, k_plus_one)
+        
+        raise ValueError(f"Unknown combination rule '{rule}'")
 
     def _prepare_numeric_tensor(self, X):
-        """
-        Convert input to encoded numeric tensor.
-        
-        Args:
-            X: Input data (ndarray or Tensor)
-            
-        Returns:
-            Tensor: Encoded features on device
-        """
+        """Convert/Encode input data to float tensor on device (N, D)."""
         if isinstance(X, torch.Tensor): return X.to(self.device, dtype=torch.float32)
         X_raw = _as_numpy(X)
-        if not self.feature_names: self.feature_names = [f"X[{i}]" for i in range(X_raw.shape[1])]
+        if not self.feature_names:
+            self.feature_names = [f"X[{i}]" for i in range(X_raw.shape[1])]
+            self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names)}
         return torch.as_tensor(self._encode_X(X_raw), dtype=torch.float32, device=self.device)
 
-    def project_rules_to_simplex(self):
-        """
-        Project rule mass parameters onto the probability simplex.
-        
-        Ensures all mass parameters are valid probability distributions (sum to 1, all non-negative).
-        """
-        if self.rule_mass_params is None: return
-        with torch.no_grad():
-            rp, eps = self.rule_mass_params.data, 1e-8
-            rp.clamp_(min=eps)
-            bad = rp.sum(dim=1, keepdim=True) <= eps
-            if bad.any(): rp[bad] = 0.0; rp[bad, -1] = 1.0
-            rp /= rp.sum(dim=1, keepdim=True).clamp_min(eps)
+    # ----------------------------- Mass params utilities -----------------------------
+    def project_rules_to_simplex(self, max_abs_logits: float = 12.0):
+        """Stabilize unconstrained mass logits.
 
-    def forward(self, X):
+        NOTE: In v4 we learn *logits* and map them to valid masses via softmax.
+        We keep the old method name for backward compatibility with training code.
         """
-        Forward pass: compute class probabilities.
+        if self.rule_mass_params is None:
+            return
+        with torch.no_grad():
+            # Row-centering doesn't change softmax, but improves identifiability.
+            self.rule_mass_params.data -= self.rule_mass_params.data.mean(dim=1, keepdim=True)
+            # Prevent extreme logits → saturated softmax → vanishing gradients.
+            if max_abs_logits is not None:
+                self.rule_mass_params.data.clamp_(-float(max_abs_logits), float(max_abs_logits))
+
+    @staticmethod
+    def _masses_to_logits(masses: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+        """Convert valid masses (rows sum to 1) to logits such that softmax(logits)=masses."""
+        m = masses.clamp_min(eps)
+        logits = torch.log(m)
+        logits = logits - logits.mean(dim=1, keepdim=True)
+        return logits
+
+    def _rule_masses(self) -> torch.Tensor:
+        """Return per-rule mass vectors (R, K+1) computed from current logits."""
+        if self.rule_mass_params is None:
+            raise ValueError("rule_mass_params is None; call _build_head()/reset_masses() first.")
+        return torch.softmax(self.rule_mass_params, dim=1)
+
+    def get_rule_masses(self) -> torch.Tensor:
+        """Public wrapper for accessing masses (probability simplex) from learned logits."""
+        return self._rule_masses()
+
+    def forward(self, X, combination_rule=None):
+        """
+        Forward pass: compute class probabilities from input features.
         
-        Args:
-            X: Input features (ndarray or Tensor)
-            
         Returns:
-            Tensor: Class probabilities (N, num_classes)
+            Probability tensor (N, K).
         """
         X = self._prepare_numeric_tensor(X)
-        if not self.rules or self.rule_mass_params is None: return torch.full((X.shape[0], self.num_classes), 1.0/max(1, self.num_classes), device=self.device)
-        return self._mass_to_prob(self._combine_active_masses(params_to_mass(self.rule_mass_params), self._activation_matrix(X)))
-
-    def _mass_to_prob(self, masses: torch.Tensor) -> torch.Tensor:
-        """
-        Convert mass functions to probability distributions using pignistic transformation.
+        if not self.rules: return torch.full((X.shape[0], self.num_classes), 1.0/self.num_classes, device=self.device)
         
-        Args:
-            masses (Tensor): Mass functions (N, num_classes+1)
-            
-        Returns:
-            Tensor: Probability distributions (N, num_classes)
-        """
-        if masses.ndim != 2 or masses.shape[1] < 2: raise ValueError("masses tensor must have shape (N, K+1)")
-        p = masses[:, :masses.shape[1]-1] + masses[:, masses.shape[1]-1:] * (self.class_prior.to(masses.device) / self.class_prior.sum() if self.class_prior is not None and self.class_prior.sum() > 0 else 1.0/masses.shape[1])
+        masses = self._rule_masses()
+        act = self._activation_matrix(X)
+        combined = self._combine_active_masses(masses, act, combination_rule=combination_rule)
+        return self._mass_to_prob(combined)
+
+    def _mass_to_prob(self, masses):
+        """Convert mass functions to pignistic probability distributions."""
+        k = masses.shape[1] - 1
+        omega = masses[:, -1:].clamp(0, 1)
+        prior = self._prior_tensor(k)
+        p = masses[:, :k] + omega * prior
         return p / p.sum(dim=1, keepdim=True).clamp_min(1e-12)
 
-    def reset_masses(self):
-        """
-        Reset mass parameters to random initialization.
-        
-        Initializes each rule with a random distribution over classes plus base uncertainty.
-        """
-        if self.rule_mass_params is None: return
-        with torch.no_grad():
-            base_unc = min(max(float(self.rule_uncertainty), 0.0), 1.0)
-            m = torch.zeros_like(self.rule_mass_params)
-            for i in range(len(self.rules)):
-                arr = torch.rand(self.num_classes + 1, device=self.device); arr[-1] = 0.0
-                arr = arr / arr.sum().clamp_min(1e-9) * (1.0 - base_unc); arr[-1] = base_unc
-                m[i] = arr
-            if m.shape[0] > len(self.rules): m[len(self.rules):, -1] = 1.0
-            self.rule_mass_params.copy_(m); self.project_rules_to_simplex()
-        self.initial_rule_masses = self.rule_mass_params.detach().clone()
+    def reset_masses(self, init_seed=None):
+        """Reinitialize masses.
 
-    def init_masses_dsgdpp(self, X, y):
+        Internally, we store *logits* in self.rule_mass_params and map to masses via softmax.
+        We also keep a copy of the initial masses in self.initial_rule_masses (probabilities).
         """
-        DSGD++ mass initialization based on confidence from data representativeness and rule purity.
-        
-        This initialization method assigns higher mass to rules that cover representative samples
-        with high purity (majority class agreement), reducing initial uncertainty.
-        
-        Args:
-            X: Training features
-            y: Training labels
+        if self.rule_mass_params is None:
+            return
+        if init_seed is not None:
+            torch.manual_seed(init_seed)
+
+        base_unc = float(self.rule_uncertainty)
+        num_rules = self.rule_mass_params.shape[0]
+        num_classes = self.num_classes
+
+        # Create initial masses on the simplex: random class masses + fixed omega = base_unc.
+        init_masses = torch.rand(num_rules, num_classes, device=self.rule_mass_params.device, dtype=self.rule_mass_params.dtype)
+        init_masses = init_masses / init_masses.sum(dim=1, keepdim=True) * (1.0 - base_unc)
+        omega = torch.full((num_rules, 1), base_unc, device=self.rule_mass_params.device, dtype=self.rule_mass_params.dtype)
+        init_masses = torch.cat([init_masses, omega], dim=1)  # (R, K+1)
+
+        # Store probability-form initial masses for later use (e.g., ablations).
+        self.initial_rule_masses = init_masses.detach().clone()
+
+        # Convert to logits and load.
+        logits = self._masses_to_logits(init_masses)
+        self.rule_mass_params.data.copy_(logits)
+
+        # Keep logits numerically stable.
+        self.project_rules_to_simplex()
+
+    def init_masses_dsgdpp(
+        self,
+        X_tensor,
+        y_tensor,
+        use_initial_masses: bool = False,
+        *,
+        # Backward-compatible knobs (kept, but the current implementation follows DSGD++'s
+        # representativeness-based confidence rather than coverage-based heuristics).
+        coverage_exponent: float = 0.25,  # unused (kept for API compatibility)
+        laplace: float = 1.0,  # unused (kept for API compatibility)
+        min_class_mass: float = 1e-4,  # unused (kept for API compatibility)
+        lower_confidence_by_purity: bool = True,
+        normalize_representativeness: bool = True,
+        min_confidence: float = 0.05,
+        max_confidence: float = 0.95,
+    ):
+        """Initialize masses using DSGD++ confidence (representativeness × purity).
+
+        This follows the DSGD++ idea described in `Literature/DSGD-Enhanced`:
+        - representativeness of a sample is defined via its distance to the centroid of its class;
+        - rule confidence is derived from the representativeness of the samples it covers, and
+          (optionally) lowered by the purity/proportion of the majority class among covered samples;
+        - the mass assignment starts more confident (lower Ω) for high-confidence rules.
+
+        The resulting masses are on the simplex and are converted to logits for training.
         """
-        if self.rule_mass_params is None: return
-        X_np = _as_numpy(X)
-        y_np = np.asarray(y, dtype=int)
-        
-        # 1. Calculate class centroids and sample representativeness
-        # Simple approach: one centroid per class
-        centroids = {}
-        for c in np.unique(y_np):
-            centroids[c] = np.mean(X_np[y_np == c], axis=0)
-            
-        # Calculate sample representativeness: Rep(x) = 1 / (1 + dist(x, centroid_y))
-        reps = np.zeros(len(X_np))
-        for i, (x, label) in enumerate(zip(X_np, y_np)):
-            c = centroids.get(label)
-            if c is not None:
-                dist = np.linalg.norm(x - c)
-                reps[i] = 1.0 / (1.0 + dist)
-        
-        # Calculate confidence for each rule based on coverage statistics
-        with torch.no_grad():
-            m = torch.zeros_like(self.rule_mass_params)
-            # Evaluate all rules on all data to find coverage
-            X_t = self._prepare_numeric_tensor(X_np)
-            act = self._activation_matrix(X_t).cpu().numpy()
-            
-            for i in range(len(self.rules)):
-                covered_indices = np.where(act[:, i])[0]
-                if len(covered_indices) == 0:
-                    # No coverage -> full uncertainty
-                    m[i, -1] = 1.0
-                    continue
-                
-                covered_y = y_np[covered_indices]
-                covered_reps = reps[covered_indices]
-                
-                # Calculate purity as proportion of majority class
-                counts = np.bincount(covered_y, minlength=self.num_classes)
-                maj_cls = np.argmax(counts)
-                purity = counts[maj_cls] / len(covered_y)
-                
-                # Average representativeness of covered samples
-                avg_rep = np.mean(covered_reps)
-                
-                # Confidence is product of purity and average representativeness
-                c = purity * avg_rep
-                
-                # Assign mass: m(maj_cls) = c, m(Omega) = 1 - c
-                m[i, maj_cls] = c
-                m[i, -1] = 1.0 - c
-                
-            # Handle padding for extra rule slots
-            if m.shape[0] > len(self.rules): m[len(self.rules):, -1] = 1.0
-            
-            self.rule_mass_params.copy_(m)
+        if self.rule_mass_params is None:
+            return
+
+        if use_initial_masses and self.initial_rule_masses is not None:
+            logits = self._masses_to_logits(self.initial_rule_masses.to(self.rule_mass_params.device, self.rule_mass_params.dtype))
+            self.rule_mass_params.data.copy_(logits)
             self.project_rules_to_simplex()
-        self.initial_rule_masses = self.rule_mass_params.detach().clone()
+            return
+
+        num_rules = int(self.rule_mass_params.shape[0])
+        K = int(self.num_classes)
+        if K < 1:
+            return
+
+        init_masses = torch.zeros(
+            (num_rules, K + 1),
+            device=self.rule_mass_params.device,
+            dtype=self.rule_mass_params.dtype,
+        )
+
+        with torch.no_grad():
+            X_t = self._prepare_numeric_tensor(X_tensor)  # (N, D)
+            y_true = torch.as_tensor(y_tensor, device=X_t.device, dtype=torch.long).view(-1)
+            if y_true.numel() != X_t.shape[0]:
+                raise ValueError("X_tensor and y_tensor must have the same number of samples")
+
+            # --- Representativeness: 1 / (1 + dist(x, centroid[y])) ---
+            centroids = torch.zeros((K, X_t.shape[1]), device=X_t.device, dtype=X_t.dtype)
+            for c in range(K):
+                mask = y_true == c
+                if mask.any():
+                    centroids[c] = X_t[mask].mean(dim=0)
+                else:
+                    centroids[c] = X_t.mean(dim=0)
+
+            dist = torch.norm(X_t - centroids[y_true.clamp(min=0, max=K - 1)], dim=1)
+            rep = 1.0 / (1.0 + dist)
+            if bool(normalize_representativeness):
+                rep = rep / rep.max().clamp_min(1e-12)
+
+            # --- Rule coverage ---
+            act = self._activation_matrix(X_t)  # (N, R) bool
+
+            min_c = float(min_confidence)
+            max_c = float(max_confidence)
+            min_c = max(0.0, min(min_c, 1.0))
+            max_c = max(0.0, min(max_c, 1.0))
+            if max_c < min_c:
+                min_c, max_c = max_c, min_c
+
+            for r in range(num_rules):
+                active = act[:, r]
+                if not bool(active.any().item()):
+                    init_masses[r, -1] = 1.0
+                    continue
+
+                y_act = y_true[active]
+                rep_act = rep[active]
+
+                counts = torch.bincount(y_act, minlength=K).to(dtype=X_t.dtype)
+                dominant = int(torch.argmax(counts).item())
+                purity = float((counts[dominant] / counts.sum().clamp_min(1.0)).item())
+
+                maj_mask = y_act == dominant
+                rep_maj = rep_act[maj_mask].mean() if bool(maj_mask.any().item()) else rep_act.mean()
+
+                confidence = rep_maj
+                if bool(lower_confidence_by_purity):
+                    confidence = confidence * purity
+                confidence = confidence.clamp(min=min_c, max=max_c)
+
+                # Assign confidence to dominant class, and the REST (1-confidence) to Omega.
+                # Other classes get a tiny epsilon to keep logits finite.
+                eps = 1e-12
+                init_masses[r, :K] = eps
+                init_masses[r, dominant] = confidence - (K - 1) * eps
+                init_masses[r, -1] = 1.0 - confidence
+
+        # Numerical safety: rows should already sum to 1, but keep a stable renorm anyway.
+        init_masses = init_masses.clamp_min(0.0)
+        init_masses = init_masses / init_masses.sum(dim=1, keepdim=True).clamp_min(1e-12)
+
+        self.initial_rule_masses = init_masses.detach().clone()
+        logits = self._masses_to_logits(init_masses)
+        self.rule_mass_params.data.copy_(logits)
+        self.project_rules_to_simplex()
 
     def renormalize_masses(self):
-        """Renormalize mass parameters to valid probability simplex."""
+        """Ensure mass parameters are valid."""
         self.project_rules_to_simplex()
-    
-    def init_masses_random(self):
-        """Initialize masses with random values."""
-        self.reset_masses()
 
-    def predict_with_dst(self, X, use_initial_masses=False):
-        """
-        Predict using DST mass combination with pignistic transformation.
-        
-        Args:
-            X: Input features
-            use_initial_masses (bool): Use initial (untrained) masses instead of learned ones
-            
-        Returns:
-            ndarray: Pignistic probabilities (N, num_classes)
-        """
-        return masses_to_pignistic(self.predict_masses(X, use_initial_masses))
-    
-    def predict_dst_labels(self, X, use_initial_masses=False):
-        """
-        Predict class labels using DST.
-        
-        Args:
-            X: Input features
-            use_initial_masses (bool): Use initial masses instead of learned ones
-            
-        Returns:
-            ndarray: Predicted class labels
-        """
-        return self.predict_with_dst(X, use_initial_masses).argmax(axis=1).astype(int)
+    # ----------------------------- Predictions & Explanation -----------------------------
+    def predict_with_dst(self, X, use_initial_masses=False, combination_rule=None):
+        """Predict pignistic probabilities using DST combination."""
+        return masses_to_pignistic(self.predict_masses(X, use_initial_masses, combination_rule=combination_rule))
 
-    def predict_masses(self, X, use_initial_masses=False):
+    def predict_dst_labels(self, X, use_initial_masses=False, combination_rule=None):
+        """Predict class labels (argmax) using DST."""
+        return self.predict_with_dst(X, use_initial_masses, combination_rule=combination_rule).argmax(axis=1)
+
+    def predict_masses(self, X, use_initial_masses=False, *, combination_rule=None, explain=False):
         """
         Predict mass functions for input samples.
         
         Args:
-            X: Input features
-            use_initial_masses (bool): Use initial masses instead of learned ones
+            X: Input samples.
+            use_initial_masses: If True, use untrained masses.
+            explain: If True, returns detailed explanation dictionary.
             
         Returns:
-            ndarray: Combined mass functions (N, num_classes+1)
+            Mass tensor (N, K+1) or explanation dicts.
         """
         orig = self.rule_mass_params.data.clone() if use_initial_masses and self.initial_rule_masses is not None else None
-        if orig is not None: self.rule_mass_params.data.copy_(self.initial_rule_masses.data)
-        try: return self._combine_active_masses(params_to_mass(self.rule_mass_params), self._activation_matrix(self._prepare_numeric_tensor(X))).detach().cpu().numpy()
+        if orig is not None:
+            self.rule_mass_params.data.copy_(self._masses_to_logits(self.initial_rule_masses.to(self.rule_mass_params.device, self.rule_mass_params.dtype)))
+
+        try:
+            tensor_X = self._prepare_numeric_tensor(X)
+            act = self._activation_matrix(tensor_X)
+            mass_rules = self._rule_masses()
+            combined = self._combine_active_masses(mass_rules, act, combination_rule=combination_rule)
+
+            if explain:
+                return self._explain_predictions(tensor_X, act, mass_rules, combined, combination_rule)
+            return combined.detach().cpu().numpy()
         finally:
-            if orig is not None: self.rule_mass_params.data.copy_(orig)
+            if orig is not None:
+                self.rule_mass_params.data.copy_(orig)
+    
+
+    def _uncertainty_rule_avg(self, act: torch.Tensor, masses: torch.Tensor) -> torch.Tensor:
+        """Average Ω across activated rules (pre-combination)."""
+        act_f = act.to(dtype=masses.dtype)
+        omega = masses[:, -1].unsqueeze(0)  # (1, R)
+        fired = act_f.sum(dim=1)
+        denom = fired.clamp(min=1.0)
+        avg = (omega * act_f).sum(dim=1) / denom
+        no_fire = fired == 0
+        if no_fire.any():
+            avg = torch.where(no_fire, torch.ones_like(avg), avg)
+        return avg
+
+    def uncertainty_stats(self, X, *, combination_rule: Optional[str] = None) -> Dict[str, np.ndarray]:
+        """Return per-sample uncertainty: rule-average Ω and combined Ω."""
+        n = _as_numpy(X).shape[0]
+        if not self.rules:
+            ones = np.ones(n, dtype=np.float32)
+            return {"unc_rule": ones, "unc_comb": ones}
+
+        with torch.no_grad():
+            X_t = self._prepare_numeric_tensor(X)
+            act = self._activation_matrix(X_t)
+            masses = self._rule_masses()
+
+            # 1. Rule-average Omega (intrinsic model confidence)
+            unc_rule = self._uncertainty_rule_avg(act, masses)
+            
+            # 2. Combined Omega (reasoning confidence after merging)
+            rule = self._normalize_combination_rule(combination_rule or self.combination_rule)
+            combined = self._combine_active_masses(masses, act, combination_rule=rule)
+            unc_comb = combined[..., -1]
+
+            return {
+                "unc_rule": unc_rule.detach().cpu().numpy().astype(np.float32, copy=False),
+                "unc_comb": unc_comb.detach().cpu().numpy().astype(np.float32, copy=False),
+            }
 
     def sample_uncertainty(self, X):
-        """
-        Compute uncertainty (mass on Omega) for each sample.
-        
-        Args:
-            X: Input features
-            
-        Returns:
-            ndarray: Uncertainty values (0-1) for each sample
-        """
-        if not self.rules or self.rule_mass_params is None: return np.ones(_as_numpy(X).shape[0], dtype=np.float32)
-        act = self._activation_matrix(self._prepare_numeric_tensor(X))
-        unc = (params_to_mass(self.rule_mass_params)[:, -1].unsqueeze(0) * act).sum(dim=1) / act.sum(dim=1).clamp(min=1)
-        if (act.sum(dim=1) == 0).any(): unc[act.sum(dim=1) == 0] = 1.0
-        return unc.detach().cpu().numpy()
+        """Backward-compatible uncertainty: average Ω across activated rules (pre-combination)."""
+        return self.uncertainty_stats(X, combination_rule="vote")["unc_rule"]
 
     def predict_by_rule_vote(self, X, default_label=0):
-        """
-        Predict using simple majority vote among activated rules.
-        
-        Args:
-            X: Input features
-            default_label (int): Default class when no rules fire
-            
-        Returns:
-            ndarray: Predicted class labels
-        """
-        if not self.rules: return np.full(_as_numpy(X).shape[0], int(default_label), dtype=int)
-        act = self._activation_matrix(self._prepare_numeric_tensor(X)).cpu().numpy()
-        lbls = np.array([r.get("label", -1) if r.get("label") is not None else -1 for r in self.rules], dtype=int)
-        return np.array([int(np.bincount(lbls[m & (lbls != -1)], minlength=2).argmax()) if (m & (lbls != -1)).any() else int(default_label) for m in act], dtype=int)
+        """Evaluate baseline: simple majority vote among activated rules."""
+        X_raw = _as_numpy(X)
+        if X_raw.ndim == 1:
+            X_raw = X_raw.reshape(1, -1)
+        if not self.rules:
+            return np.full(X_raw.shape[0], int(default_label), dtype=int)
+        act = self._activation_matrix(self._prepare_numeric_tensor(X_raw))
+        preds = np.asarray(self.predict_dst_labels(X_raw, combination_rule="vote"), dtype=int)
+        if default_label is not None:
+            no_fire = (act.sum(dim=1) == 0).cpu().numpy()
+            if no_fire.any():
+                preds = preds.copy()
+                preds[no_fire] = int(default_label)
+        return preds
 
-    def predict_by_weighted_rule_vote(self, X, default_label=0, weight_key="precision"):
-        """
-        Predict using weighted vote among activated rules.
-        
-        Args:
-            X: Input features
-            default_label (int): Default class when no rules fire
-            weight_key (str): Rule statistic to use as weight (e.g., 'precision', 'recall')
-            
-        Returns:
-            ndarray: Predicted class labels
-        """
-        if not self.rules: return np.full(_as_numpy(X).shape[0], int(default_label), dtype=int)
-        act = self._activation_matrix(self._prepare_numeric_tensor(X)).cpu().numpy()
-        lbls = np.array([r.get("label", -1) if r.get("label") is not None else -1 for r in self.rules], dtype=int)
-        w = np.array([float((r.get("stats") or {}).get(weight_key, 1.0)) for r in self.rules], dtype=float); w[~np.isfinite(w) | (w <= 0.0)] = 1.0
-        return np.array([int(np.bincount(lbls[m & (lbls != -1)], weights=w[m & (lbls != -1)], minlength=max(lbls.max()+1, 2)).argmax()) if (m & (lbls != -1)).any() else int(default_label) for m in act], dtype=int)
 
     def predict_by_first_rule(self, X, default_label=0):
-        """
-        Predict using the first activated rule (top-to-bottom priority).
-        
-        Args:
-            X: Input features
-            default_label (int): Default class when no rules fire
-            
-        Returns:
-            ndarray: Predicted class labels
-        """
+        """Evaluate baseline: predict using first activated rule in list order."""
         if not self.rules: return np.full(_as_numpy(X).shape[0], int(default_label), dtype=int)
         act = self._activation_matrix(self._prepare_numeric_tensor(X)).cpu().numpy()
         lbls = [r.get("label") for r in self.rules]
         return np.array([int(next((lbls[i] for i, f in enumerate(m) if f and lbls[i] is not None), default_label)) for m in act], dtype=int)
 
-    def save_rules_dsb(self, path):
+    def sort_rules_by_certainty(self, *, descending: bool = True, score_mode: str = "certainty_label_mass") -> np.ndarray:
+        """Reorder rules (and their masses) by a deterministic certainty score.
+
+        This is useful for inspection/export: the most determinate rules appear first.
+
+        Parameters
+        ----------
+        descending : bool
+            If True, highest score first.
+        score_mode : str
+            - 'certainty': score = (1 - omega)
+            - 'certainty_label_mass' (default): score = (1 - omega) * mass[label]
         """
-        Save rules in human-readable .dsb format with mass distributions.
-        
+        if not self.rules or self.rule_mass_params is None:
+            return np.arange(len(self.rules), dtype=int)
+
+        with torch.no_grad():
+            masses = self._rule_masses().detach()  # (R, K+1)
+            omega = masses[:, -1].clamp(0.0, 1.0)
+            certainty = (1.0 - omega).clamp(0.0, 1.0)
+
+            labels = torch.tensor(
+                [r.get("label") if r.get("label") is not None else -1 for r in self.rules],
+                device=masses.device,
+                dtype=torch.long,
+            )
+            valid = (labels >= 0) & (labels < self.num_classes)
+            label_mass = torch.zeros_like(certainty)
+            if valid.any():
+                rid = torch.arange(labels.numel(), device=masses.device)
+                label_mass[valid] = masses[rid[valid], labels[valid]]
+
+            mode = str(score_mode or "certainty_label_mass").strip().lower()
+            if mode == "certainty":
+                score = certainty
+            elif mode == "certainty_label_mass":
+                score = certainty * label_mass
+            else:
+                raise ValueError("score_mode must be 'certainty' or 'certainty_label_mass'")
+
+            perm = torch.argsort(score, descending=bool(descending))
+
+            # Reorder rules
+            perm_list = perm.detach().cpu().numpy().tolist()
+            self.rules = [self.rules[i] for i in perm_list]
+
+            # Reorder learnable logits (rule_mass_params)
+            self.rule_mass_params.data.copy_(self.rule_mass_params.data[perm])
+
+            # Reorder stored initial masses (if present)
+            if self.initial_rule_masses is not None and int(self.initial_rule_masses.shape[0]) == len(perm_list):
+                self.initial_rule_masses = self.initial_rule_masses[perm].detach().clone()
+
+            # Rebuild caches tied to rule ordering.
+            self._rebuild_literal_cache()
+            self._rule_signatures = {str(r.get("caption", "")).strip().lower() for r in self.rules}
+
+            return perm.detach().cpu().numpy().astype(int, copy=False)
+
+    def _combine_literals(self, weighted_literals):
+        """Combine literal contributions into one conjunctive condition (explanation-only).
+
         Args:
-            path (str): Output file path
+            weighted_literals: iterable of {"literal": (name, op, value), "weight": float}.
+                Only positive weights are considered.
+
+        Returns:
+            desc: human-readable string like "f1 > 3 AND f2 == 1".
+            literals: list[dict] with keys {"literal", "weight"} sorted by weight desc.
         """
-        m = params_to_mass(self.rule_mass_params).detach().cpu().numpy() if self.rule_mass_params is not None else None
-        order = list(np.argsort(m[:, -1])) if m is not None and len(m) == len(self.rules) else list(range(len(self.rules)))
+        if not weighted_literals:
+            return "<empty>", []
+
+        groups: dict[tuple[str, str], list[tuple[object, float]]] = {}
+        for wl in weighted_literals:
+            lit = wl.get("literal") if isinstance(wl, dict) else None
+            if not lit or len(lit) != 3:
+                continue
+            name, op, val = lit
+            try:
+                w = float(wl.get("weight", 0.0))
+            except Exception:
+                w = 0.0
+            if w <= 0.0:
+                continue
+            groups.setdefault((str(name), str(op)), []).append((val, w))
+
+        if not groups:
+            return "<empty>", []
+
+        combined = []
+        for (name, op), items in sorted(groups.items(), key=lambda kv: kv[0]):
+            total_w = float(sum(w for _, w in items))
+
+            # Choose a representative value for this (feature, op).
+            if op == "==":
+                candidates = {v for v, _ in items}
+                best_val = max(candidates, key=lambda v: sum(w for vv, w in items if vv == v))
+            else:
+                fvals = []
+                for v, _ in items:
+                    try:
+                        fvals.append(float(v))
+                    except Exception:
+                        continue
+                if fvals:
+                    best_val = max(fvals) if op == ">" else min(fvals)
+                else:
+                    best_val = items[0][0]
+
+            combined.append({"literal": (name, op, best_val), "weight": total_w})
+
+        combined.sort(key=lambda d: d["weight"], reverse=True)
+        desc = " AND ".join(f"{n} {o} {v}" for (n, o, v) in [d["literal"] for d in combined]) or "<empty>"
+        return desc, combined
+
+    def _explain_predictions(self, tensor_X, act, mass_rules, combined_mass, combine_rule):
+        """Generate detailed explanation for predictions including rule contributions."""
+        rule = self._normalize_combination_rule(combine_rule or self.combination_rule)
+        act_np = act.detach().cpu().numpy()
+        combined_np = combined_mass.detach().cpu().numpy()
+        masses_np = mass_rules.detach().cpu().numpy() if mass_rules is not None else None
+
+        res = []
+        for i in range(act_np.shape[0]):
+            fired_ids = np.where(act_np[i])[0]
+            res.append(
+                self._combined_rule_summary(
+                    fired_ids,
+                    combined_np[i],
+                    rule,
+                    masses=masses_np,
+                    weight_key=self.combination_weight_key,
+                    return_details=True,
+                )
+            )
+        return res[0] if len(res) == 1 else res
+
+    def _combined_rule_summary(
+        self,
+        fired_ids,
+        combined_mass,
+        rule: str,
+        *,
+        masses=None,
+        weight_key: str | None = None,
+        return_details: bool = True,
+    ) -> Dict[str, Any]:
+        """Build a combined-rule explanation for a single sample.
+
+        Notes:
+            - This does NOT affect prediction; it only builds a human-friendly explanation.
+            - weight_key is used only to scale contribution weights from rule stats (e.g. precision).
+        """
+        if rule in {"dempster", "yager"} and masses is None:
+            return {"error": "Model not trained (required for DST combination explanation)"}
+
+        mass = np.asarray(combined_mass, dtype=float).reshape(-1)
+        c_info = self._final_conf_from_mass(mass)
+        predicted_class = int(c_info["top1"])
+        combined_omega = float(c_info["omega"])
+
+        fired_ids = np.asarray(fired_ids, dtype=int).reshape(-1)
+
+        base = {
+            "predicted_class": predicted_class,
+            "combined_omega": combined_omega,
+            "final_conf": float(c_info.get("final_conf", 0.0)),
+            "n_rules_fired": int(fired_ids.size),
+        }
+
+        if fired_ids.size == 0:
+            if not return_details:
+                return base
+            return {
+                **base,
+                "n_agreeing": 0,
+                "n_conflicting": 0,
+                "combined_condition": "<no rules fired>",
+                "combined_literals": [],
+                "rule_contributions": [],
+            }
+
+        # Explanation weighting (stats) is optional and must never affect inference.
+        wk = str(weight_key or "").strip() or None
+
+        rule_contributions: list[dict[str, Any]] = []
+        literal_contribs: list[dict[str, Any]] = []  # positive-only
+
+        for rid in fired_ids.tolist():
+            r = self.rules[int(rid)]
+            rule_cls = r.get("label", None)
+            rule_cls = int(rule_cls) if rule_cls is not None else -1
+
+            # If a rule has no explicit label, treat it as agreeing for explanation-only logic.
+            if rule_cls < 0:
+                rule_cls = predicted_class
+
+            agrees = (rule_cls == predicted_class)
+
+            stats = r.get("stats") or {}
+            try:
+                stats_w = float(stats.get(wk, 1.0)) if wk else 1.0
+            except Exception:
+                stats_w = 1.0
+
+            if rule in {"dempster", "yager"}:
+                m = np.asarray(masses[int(rid)], dtype=float).reshape(-1)
+                r_info = self._final_conf_from_mass(m)
+
+                # Use mass assigned to the predicted class as the main "support" signal.
+                p_mass = float(m[predicted_class]) if predicted_class < len(m) - 1 else 0.0
+                if agrees:
+                    weight = float(r_info["certainty"] * p_mass)
+                else:
+                    other_mass = float(m[rule_cls]) if 0 <= rule_cls < len(m) - 1 else 0.0
+                    weight = -float(r_info["certainty"] * other_mass * 0.5)
+
+                weight *= stats_w
+
+                rule_contributions.append({
+                    "rule_id": int(rid),
+                    "caption": r.get("caption"),
+                    "rule_class": int(rule_cls),
+                    "agrees": bool(agrees),
+                    "weight": float(weight),
+                    "certainty": float(r_info.get("certainty", 0.0)),
+                    "omega": float(r_info.get("omega", 1.0)),
+                    "final_conf": float(r_info.get("final_conf", 0.0)),
+                })
+            else:
+                # Simple vote explanation: +/- constant weight (optionally scaled by stats).
+                weight = (1.0 if agrees else -0.5) * stats_w
+                rule_contributions.append({
+                    "rule_id": int(rid),
+                    "caption": r.get("caption"),
+                    "rule_class": int(rule_cls),
+                    "agrees": bool(agrees),
+                    "weight": float(weight),
+                })
+
+            if return_details and weight > 0.0:
+                specs = r.get("specs", ()) or ()
+                if specs:
+                    w_lit = abs(float(weight)) / float(len(specs))
+                    for lit in specs:
+                        literal_contribs.append({"literal": lit, "weight": w_lit})
+
+        rule_contributions.sort(key=lambda x: abs(float(x.get("weight", 0.0))), reverse=True)
+
+        if not return_details:
+            return base
+
+        desc, combined_literals = self._combine_literals(literal_contribs)
+        n_agree = sum(1 for c in rule_contributions if c.get("agrees"))
+        n_conf = int(len(rule_contributions) - n_agree)
+
+        return {
+            **base,
+            "n_agreeing": int(n_agree),
+            "n_conflicting": int(n_conf),
+            "combined_condition": desc,
+            "combined_literals": combined_literals,
+            "rule_contributions": rule_contributions,
+        }
+
+    def get_combined_rule(
+        self,
+        sample,
+        return_details: bool = False,
+        *,
+        combination_rule: str | None = None,
+        weight_key: str | None = None,
+    ):
+        """Explain how the model combined fired rules for a single sample.
+
+        Args:
+            sample: 1D sample features.
+            return_details: if True, include rule-level contributions and combined literals.
+            combination_rule: "vote" | "dempster" | "yager" (defaults to model setting).
+            weight_key: optional rule stat key (e.g. "precision") used only for explanation weighting.
+        """
+        sample_np = _as_numpy(sample).reshape(-1)
+        batch = sample_np.reshape(1, -1)
+
+        if not self.rules:
+            return {"error": "No rules available"}
+
+        rule = self._normalize_combination_rule(combination_rule or self.combination_rule)
+
+        # Activation for this sample
+        tensor_X = self._prepare_numeric_tensor(batch)
+        act_row = self._activation_matrix(tensor_X)[0].detach().cpu().numpy().astype(bool)
+        fired_ids = np.where(act_row)[0]
+
+        combined_mass = self.predict_masses(batch, combination_rule=rule)[0]
+
+        masses_np = None
+        if rule in {"dempster", "yager"}:
+            if self.rule_mass_params is None:
+                return {"error": "Model not trained (required for DST combination explanation)"}
+            masses_np = self._rule_masses().detach().cpu().numpy()
+
+        return self._combined_rule_summary(
+            fired_ids,
+            combined_mass,
+            rule,
+            masses=masses_np,
+            weight_key=weight_key or self.combination_weight_key,
+            return_details=return_details,
+        )
+
+    def save_rules_dsb(self, path):
+        """Save rules in DSB text format (sorted by rule certainty for readability).
+
+        Sorting is applied only in the exported file and does not mutate the model order.
+        """
+        m = self._rule_masses().detach().cpu().numpy() if self.rule_mass_params is not None else None
         with Path(path).open("w", encoding="utf-8") as f:
+            order = list(range(len(self.rules)))
+            if m is not None and len(m) == len(self.rules):
+                omega = np.clip(m[:, -1], 0.0, 1.0)
+                certainty = 1.0 - omega
+                labels = np.array([r.get("label") if r.get("label") is not None else -1 for r in self.rules], dtype=int)
+                label_mass = np.zeros(len(self.rules), dtype=float)
+                ok = (labels >= 0) & (labels < (m.shape[1] - 1))
+                label_mass[ok] = m[np.where(ok)[0], labels[ok]]
+                score = certainty * label_mass
+                order = np.argsort(score)[::-1].tolist()
+
             for i in order:
                 r = self.rules[i]
-                f.write(f"class {r.get('label') if r.get('label') is not None else '?'} :: {r.get('caption', '')}" + (f" || masses: {', '.join(f'{x:.6f}' for x in m[i])}" if m is not None and i < len(m) else "") + "\n")
+                f.write(f"class {r.get('label')} :: {r.get('caption')} || masses: {m[i] if m is not None else 'n/a'}\n")
 
     def save_rules_bin(self, path):
-        """
-        Save model rules and parameters in binary format (pickle).
-        
-        Args:
-            path (str): Output file path
-        """
-        d = {"k": self.num_classes, "algo": self.algo, "feature_names": self.feature_names, "value_decoders": self.value_names, "rules": self.rules}
-        if self.rule_mass_params is not None: d["rule_mass_params"] = self.rule_mass_params.detach().cpu().numpy().tolist()
+        """Save rules and params to binary file."""
+        d = {"k": self.num_classes, "algo": self.algo, "feature_names": self.feature_names, 
+             "value_decoders": self.value_names, "rules": self.rules, 
+             "combination_rule": self.combination_rule,
+             "combination_weight_key": getattr(self, "combination_weight_key", "precision"),
+             }
+        if self.rule_mass_params is not None: d["rule_mass_params"] = self.get_rule_masses().detach().cpu().numpy().tolist()
         if self.initial_rule_masses is not None: d["initial_rule_masses"] = self.initial_rule_masses.detach().cpu().numpy().tolist()
         with Path(path).open("wb") as f: _lazy_pickle().dump(d, f)
-
-    def load_rules_bin(self, path):
-        """
-        Load model rules and parameters from binary format.
         
-        Args:
-            path (str): Input file path
-        """
+    def load_rules_bin(self, path):
+        """Load rules and params from binary file."""
         with Path(path).open("rb") as f: d = _lazy_pickle().load(f)
-        self.num_classes = self.k = int(d.get("k", self.num_classes))
-        self.algo, self.feature_names, self.value_names = str(d.get("algo", self.algo)), d.get("feature_names", self.feature_names), d.get("value_decoders", self.value_names)
+        self.num_classes = int(d.get("k", self.num_classes))
+        self.algo = str(d.get("algo", self.algo))
+        self.feature_names = d.get("feature_names", self.feature_names)
+        self.value_names = d.get("value_decoders", self.value_names)
+        self.combination_rule = str(d.get("combination_rule", self.combination_rule or "dempster")).lower()
+        self.combination_weight_key = str(d.get("combination_weight_key", getattr(self, "combination_weight_key", "precision")))
         self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names or [])}
-        self.rules, self._rule_signatures = [], set()
-        for r in d.get("rules", []): self._add_rule_specs(r.get("specs", ()), r.get("label"), r.get("caption"), r.get("stats"))
-        self._rebuild_literal_cache(); self._build_head()
+        self.rules = d.get("rules", [])
+
+        self._rebuild_literal_cache()
+        self._build_head()
+        if self.rule_mass_params is None:
+            return
+        self.reset_masses()
         if d.get("rule_mass_params") is not None:
-            with torch.no_grad(): self.rule_mass_params.copy_(torch.tensor(d["rule_mass_params"], device=self.device))
-        if d.get("initial_rule_masses") is not None: self.initial_rule_masses = torch.tensor(d["initial_rule_masses"], device=self.device)
-        if self.rule_mass_params is None: self.reset_masses()
+            self.rule_mass_params.data.copy_(self._masses_to_logits(torch.tensor(d["rule_mass_params"], device=self.device, dtype=self.rule_mass_params.dtype)))
+            self.project_rules_to_simplex()
+        if d.get("initial_rule_masses") is not None:
+            self.initial_rule_masses = torch.tensor(d["initial_rule_masses"], device=self.device)
 
     def prepare_rules_for_export(self, sample=None):
-        """
-        Prepare rules and predictions for export as dictionary.
-        
-        Args:
-            sample (optional): If provided, include sample-specific activation and mass info
-            
-        Returns:
-            dict: Comprehensive rule information including masses and activations
-        """
-        s = {"algo": self.algo, "num_rules": len(self.rules), "rules": [copy.deepcopy(r) for r in self.rules]}
-        if self.rule_mass_params is not None: s["masses"] = params_to_mass(self.rule_mass_params).detach().cpu().numpy().tolist()
-        if sample is None: return s
-        act = self._activation_matrix(self._prepare_numeric_tensor([sample]))[0].cpu().numpy()
-        s["activated_rule_ids"] = fired = [i for i, f in enumerate(act) if f]
-        s["dst_masses"] = self.predict_masses([sample])[0].tolist()
-        if fired:
-            m = params_to_mass(self.rule_mass_params).detach().cpu().numpy() if self.rule_mass_params is not None else None
-            s["activated_rules"] = [{"id": i, "condition": self.rules[i].get("caption", f"rule#{i}"), "class": self.rules[i].get("label"), "mass": m[i].tolist() if m is not None else None, "stats": self.rules[i].get("stats")} for i in fired]
-        return s
-
-    def summarize_rules(self, X=None, y=None, *, top_n=10, samples=3, sample_size=256):
-        """
-        Print comprehensive summary of rules and their performance.
-        
-        Args:
-            X (optional): Input features for evaluation
-            y (optional): Target labels for evaluation
-            top_n (int): Number of examples to show. Default: 10
-            samples (int): Number of random samples to evaluate. Default: 3
-            sample_size (int): Size of each sample. Default: 256
-        """
-        if not self.rules: return print("[summary] No rules available.")
-        lens = np.array([len(r.get("specs", ())) for r in self.rules])
-        print(f"[summary] rules={len(self.rules)} len[min/med/max]={int(lens.min())}/{int(np.median(lens))}/{int(lens.max())}")
-        om = params_to_mass(self.rule_mass_params)[:, -1].detach().cpu().numpy() if self.rule_mass_params is not None else None
-        def _fmt(i): return f"#{i} L={len(self.rules[i].get('specs', ()))} Ω={f'{om[i]:.3f}' if om is not None else 'n/a'} class={self.rules[i].get('label')} :: {self.rules[i].get('caption', f'rule#{i}')}"
-        print("[short] examples:"); [print("  ", _fmt(i)) for i in np.argsort(lens)[:top_n]]
-        print("[long] examples:"); [print("  ", _fmt(i)) for i in np.argsort(-lens)[:top_n]]
-        if X is None or y is None: return
-        X_np, y_np, rng = _as_numpy(X), np.asarray(y, dtype=int), np.random.default_rng(42)
-        from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-        for k in range(max(1, int(samples))):
-            idx = rng.choice(len(X_np), min(sample_size, len(X_np)), replace=False)
-            Xs, ys = X_np[idx], y_np[idx]
-            y_raw = self.predict_by_rule_vote(Xs, default_label=int(np.bincount(ys).argmax()))
-            y_dst = self.predict_dst_labels(Xs)
-            m_raw = {k: float(f(ys, y_raw, zero_division=0) if k!="Acc" else f(ys, y_raw)) for k, f in [("Acc", accuracy_score), ("F1", f1_score), ("P", precision_score), ("R", recall_score)]}
-            m_dst = {k: float(f(ys, y_dst, zero_division=0) if k!="Acc" else f(ys, y_dst)) for k, f in [("Acc", accuracy_score), ("F1", f1_score), ("P", precision_score), ("R", recall_score)]}
-            print(f"[sample {k+1}] vote={m_raw}  dst={m_dst}")
-
-__all__ = ["DSModelMultiQ", "Literal", "Condition", "masses_to_pignistic"]
+        """Export rules and optional sample activations for visualization."""
+        out = {"algo": self.algo, "num_rules": len(self.rules), "rules": [copy.deepcopy(r) for r in self.rules]}
+        if self.rule_mass_params is not None: out["masses"] = self._rule_masses().detach().cpu().numpy().tolist()
+        if sample is not None:
+             act = self._activation_matrix(self._prepare_numeric_tensor([sample]))[0].cpu().numpy()
+             out["activated_rule_ids"] = fired = [i for i, f in enumerate(act) if f]
+             out["dst_masses"] = self.predict_masses([sample])[0].tolist()
+             if fired and self.rule_mass_params is not None:
+                 m = self._rule_masses().detach().cpu().numpy()
+                 out["activated_rules"] = [{"id": i, "condition": self.rules[i].get("caption"), "class": self.rules[i].get("label"), 
+                                            "mass": m[i].tolist(), "stats": self.rules[i].get("stats")} for i in fired]
+        return out
+    
+    def summarize_rules(self, X=None, y=None):
+        """Print summary of rule set."""
+        print(f"Rules: {len(self.rules)}")

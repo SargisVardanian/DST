@@ -1,502 +1,542 @@
-class 1 :: alcohol < 9.7 & density < 0.99622 & quality == 7 → class 1 || masses: 0.000000, 0.353188, 0.646812
-class 0 :: density > 0.99622 & good == 1 & pH > 3.28 → class 0 || masses: 0.336040, 0.000000, 0.663960
-class 1 :: alcohol < 9.7 & density < 0.99622 & good == 1 → class 1 || masses: 0.000000, 0.323314, 0.676686
-class 1 :: alcohol < 9.7 & good == 1 & pH > 3.14 → class 1 || masses: 0.000240, 0.314444, 0.685316
-class 0 :: density > 0.99622 & pH > 3.28 & quality == 7 → class 0 || masses: 0.311075, 0.000000, 0.688925
-class 0 :: alcohol > 9.7 & density > 0.99622 & pH < 3.28 → class 0 || masses: 0.297559, 0.000750, 0.701691
-class 1 :: density > 0.99622 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.000000, 0.290320, 0.709680
-class 1 :: density > 0.99622 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.000000, 0.287382, 0.712618
-class 1 :: alcohol < 9.7 & density > 0.9932 & pH > 3.14 → class 1 || masses: 0.000000, 0.283274, 0.716726
-class 0 :: density > 0.9932 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.279219, 0.003087, 0.717693
-class 1 :: alcohol < 11 & good == 1 & pH < 3.28 → class 1 || masses: 0.275842, 0.000000, 0.724158
-class 1 :: density > 0.9932 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.000453, 0.272776, 0.726771
-class 0 :: alcohol > 9.7 & density > 0.99622 & sulphates > 0.563333 → class 0 || masses: 0.272988, 0.000000, 0.727012
-class 1 :: alcohol < 9.7 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.001931, 0.256363, 0.741706
-class 0 :: density > 0.99622 & quality == 5 & sulphates > 0.46 → class 0 || masses: 0.255993, 0.000068, 0.743939
-class 0 :: alcohol > 11 → class 0 || masses: 0.252127, 0.000432, 0.747441
-class 1 :: quality == 9 → class 1 || masses: 0.001403, 0.250666, 0.747931
-class 0 :: density > 0.9932 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.245638, 0.001437, 0.752925
-class 1 :: alcohol < 9.7 & density > 0.99622 & good == 1 → class 1 || masses: 0.007549, 0.237777, 0.754675
-class 0 :: alcohol > 9.7 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.004288, 0.238094, 0.757618
-class 1 :: alcohol < 9.7 & pH > 3.14 & quality == 7 → class 1 || masses: 0.000366, 0.241701, 0.757933
-class 1 :: density < 0.99622 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.238529, 0.000329, 0.761142
-class 0 :: density > 0.9932 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.238306, 0.000000, 0.761694
-class 0 :: alcohol < 9.7 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.000052, 0.237223, 0.762724
-class 1 :: density > 0.99622 → class 1 || masses: 0.000000, 0.236148, 0.763852
-class 1 :: density > 0.9932 & pH < 3.28 & quality == 7 → class 1 || masses: 0.002567, 0.233014, 0.764419
-class 0 :: alcohol > 9.7 & density > 0.99622 & pH > 3.28 → class 0 || masses: 0.000000, 0.235259, 0.764741
-class 1 :: alcohol < 11 & density < 0.99622 & good == 1 → class 1 || masses: 0.231567, 0.002331, 0.766102
-class 1 :: alcohol < 11 & density < 0.99622 & sulphates > 0.563333 → class 1 || masses: 0.005327, 0.227989, 0.766684
-class 1 :: alcohol < 9.7 & density > 0.9932 & good == 1 → class 1 || masses: 0.000796, 0.231703, 0.767500
-class 1 :: alcohol < 9.7 & good == 1 → class 1 || masses: 0.007879, 0.224545, 0.767577
-class 1 :: alcohol > 9.7 & density < 0.99622 & good == 1 → class 1 || masses: 0.003035, 0.227948, 0.769017
-class 1 :: alcohol > 9.7 & density > 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.000000, 0.230887, 0.769113
-class 1 :: good == 1 → class 1 || masses: 0.002746, 0.227357, 0.769897
-class 0 :: density < 0.99622 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.009942, 0.219461, 0.770597
-class 1 :: density > 0.9932 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.002923, 0.225125, 0.771951
-class 1 :: alcohol > 9.7 & density < 0.99622 & quality == 5 → class 1 || masses: 0.003129, 0.223685, 0.773187
-class 1 :: alcohol < 11 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.224784, 0.001960, 0.773256
-class 1 :: alcohol < 9.7 & density < 0.99622 & quality == 6 → class 1 || masses: 0.001800, 0.223594, 0.774606
-class 0 :: density > 0.9932 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.224346, 0.001027, 0.774628
-class 1 :: alcohol < 11 & pH < 3.28 & quality == 5 → class 1 || masses: 0.005400, 0.219167, 0.775433
-class 1 :: density < 0.99622 & pH < 3.28 & quality == 5 → class 1 || masses: 0.004538, 0.219832, 0.775630
-class 0 :: density > 0.99622 & good == 1 & pH > 3.14 → class 0 || masses: 0.002559, 0.221424, 0.776018
-class 0 :: density > 0.9932 & quality == 6 & sulphates > 0.46 → class 0 || masses: 0.222224, 0.000796, 0.776980
-class 1 :: alcohol < 11 & pH > 3.14 & quality == 7 → class 1 || masses: 0.000552, 0.221124, 0.778324
-class 0 :: density > 0.9932 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.221060, 0.000000, 0.778940
-class 0 :: alcohol < 9.7 & pH > 3.28 & sulphates < 0.563333 → class 0 || masses: 0.201794, 0.018982, 0.779225
-class 1 :: good == 0 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.001686, 0.219005, 0.779309
-class 0 :: pH > 3.28 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.220069, 0.000000, 0.779930
-class 1 :: alcohol < 11 & pH > 3.14 & quality == 6 → class 1 || masses: 0.208301, 0.011117, 0.780582
-class 0 :: density > 0.99622 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.211210, 0.008178, 0.780612
-class 0 :: density > 0.9932 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.216757, 0.002479, 0.780764
-class 1 :: alcohol < 11 & quality == 7 & sulphates > 0.46 → class 1 || masses: 0.022193, 0.196637, 0.781170
-class 1 :: alcohol < 9.7 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.195346, 0.023337, 0.781317
-class 1 :: good == 0 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.218133, 0.000000, 0.781867
-class 0 :: density > 0.99622 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.199401, 0.018538, 0.782061
-class 1 :: density < 0.99622 & good == 1 & sulphates > 0.46 → class 1 || masses: 0.028037, 0.189807, 0.782156
-class 1 :: alcohol < 11 & density > 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.015353, 0.202390, 0.782258
-class 1 :: alcohol < 9.7 & pH < 3.28 & quality == 7 → class 1 || masses: 0.059097, 0.158248, 0.782655
-class 1 :: alcohol < 9.7 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.002273, 0.214901, 0.782826
-class 0 :: quality == 4 → class 0 || masses: 0.201841, 0.015266, 0.782893
-class 0 :: good == 0 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.215869, 0.001230, 0.782901
-class 0 :: pH > 3.28 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.190989, 0.025180, 0.783831
-class 0 :: density > 0.99622 & quality == 6 & sulphates > 0.46 → class 0 || masses: 0.192438, 0.023503, 0.784059
-class 1 :: alcohol < 9.7 & density > 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.019908, 0.195887, 0.784205
-class 1 :: alcohol < 11 & density < 0.99622 & quality == 7 → class 1 || masses: 0.001558, 0.213699, 0.784743
-class 0 :: pH > 3.28 & quality == 5 & sulphates < 0.563333 → class 0 || masses: 0.000000, 0.215165, 0.784835
-class 0 :: alcohol > 9.7 & density > 0.9932 & quality == 5 → class 0 || masses: 0.197389, 0.017361, 0.785249
-class 1 :: alcohol < 11 & density > 0.9932 & quality == 7 → class 1 || masses: 0.004189, 0.210232, 0.785579
-class 1 :: alcohol < 11 & density > 0.9932 & good == 0 → class 1 || masses: 0.011977, 0.202311, 0.785713
-class 1 :: density > 0.9932 & good == 0 & quality == 5 → class 1 || masses: 0.191034, 0.023228, 0.785738
-class 1 :: alcohol < 11 & density > 0.9932 & quality == 6 → class 1 || masses: 0.012369, 0.201592, 0.786039
-class 1 :: alcohol < 11 & good == 1 & sulphates > 0.46 → class 1 || masses: 0.024751, 0.189072, 0.786177
-class 0 :: alcohol < 9.7 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.175451, 0.037808, 0.786741
-class 0 :: density > 0.9932 & pH > 3.28 & quality == 7 → class 0 || masses: 0.200820, 0.012206, 0.786974
-class 1 :: alcohol < 11 & good == 0 & quality == 5 → class 1 || masses: 0.038352, 0.174343, 0.787305
-class 1 :: alcohol < 11 & density > 0.99622 → class 1 || masses: 0.045570, 0.166945, 0.787485
-class 1 :: alcohol < 11 & sulphates < 0.563333 → class 1 || masses: 0.013478, 0.198887, 0.787634
-class 0 :: alcohol > 9.7 & density > 0.99622 & sulphates > 0.46 → class 0 || masses: 0.192286, 0.019939, 0.787775
-class 1 :: alcohol > 9.7 & pH > 3.28 & sulphates < 0.563333 → class 1 || masses: 0.017158, 0.194986, 0.787856
-class 0 :: density > 0.99622 & pH < 3.28 & sulphates > 0.563333 → class 0 || masses: 0.164965, 0.047090, 0.787945
-class 0 :: density > 0.99622 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.164860, 0.046869, 0.788272
-class 1 :: alcohol < 9.7 & pH < 3.28 & sulphates > 0.563333 → class 1 || masses: 0.164254, 0.047130, 0.788616
-class 1 :: alcohol < 9.7 & density < 0.99622 & pH > 3.14 → class 1 || masses: 0.173583, 0.037681, 0.788736
-class 1 :: alcohol < 9.7 & pH > 3.14 & sulphates > 0.46 → class 1 || masses: 0.193963, 0.017028, 0.789008
-class 0 :: alcohol > 9.7 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.163923, 0.046994, 0.789083
-class 0 :: alcohol > 9.7 & density > 0.9932 & sulphates > 0.563333 → class 0 || masses: 0.173251, 0.037499, 0.789250
-class 1 :: density < 0.99622 & quality == 6 & sulphates > 0.46 → class 1 || masses: 0.001912, 0.208524, 0.789564
-class 0 :: quality == 3 → class 0 || masses: 0.175806, 0.034265, 0.789930
-class 1 :: alcohol < 11 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.022000, 0.187904, 0.790096
-class 1 :: pH < 3.28 & quality == 5 → class 1 || masses: 0.057565, 0.152001, 0.790434
-class 0 :: good == 0 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.153143, 0.056304, 0.790553
-class 0 :: alcohol > 9.7 & pH > 3.14 & quality == 7 → class 0 || masses: 0.186565, 0.022630, 0.790805
-class 1 :: alcohol < 9.7 & good == 1 & quality == 7 → class 1 || masses: 0.070858, 0.138297, 0.790845
-class 0 :: density < 0.99622 & good == 1 & sulphates > 0.563333 → class 0 || masses: 0.017851, 0.191290, 0.790859
-class 1 :: alcohol < 9.7 & quality == 7 → class 1 || masses: 0.069989, 0.139025, 0.790986
-class 1 :: alcohol > 9.7 & good == 1 & pH > 3.14 → class 1 || masses: 0.158589, 0.050363, 0.791048
-class 0 :: density > 0.99622 & good == 1 & sulphates > 0.563333 → class 0 || masses: 0.185830, 0.023086, 0.791084
-class 1 :: alcohol < 9.7 & density > 0.9932 → class 1 || masses: 0.047275, 0.161536, 0.791190
-class 1 :: alcohol < 9.7 & quality == 6 → class 1 || masses: 0.058442, 0.150361, 0.791196
-class 1 :: alcohol < 11 & density < 0.99622 & pH > 3.28 → class 1 || masses: 0.015649, 0.192943, 0.791408
-class 0 :: alcohol > 9.7 & density < 0.99622 & sulphates > 0.46 → class 0 || masses: 0.055290, 0.153243, 0.791466
-class 0 :: density > 0.9932 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.193157, 0.015302, 0.791541
-class 1 :: alcohol < 9.7 & good == 0 & quality == 6 → class 1 || masses: 0.025387, 0.183010, 0.791603
-class 1 :: alcohol < 9.7 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.042179, 0.166177, 0.791644
-class 0 :: alcohol > 9.7 & density > 0.9932 & pH > 3.28 → class 0 || masses: 0.165426, 0.042791, 0.791783
-class 0 :: pH > 3.14 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.169898, 0.038269, 0.791833
-class 1 :: alcohol < 11 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.190489, 0.017625, 0.791887
-class 0 :: density > 0.9932 & good == 1 & sulphates > 0.46 → class 0 || masses: 0.146328, 0.061678, 0.791994
-class 0 :: density < 0.99622 & good == 0 & pH > 3.28 → class 0 || masses: 0.159440, 0.048488, 0.792072
-class 0 :: alcohol > 9.7 & good == 1 & sulphates > 0.46 → class 0 || masses: 0.037533, 0.170133, 0.792334
-class 1 :: density < 0.99622 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.004675, 0.202829, 0.792497
-class 1 :: density > 0.9932 & good == 0 & pH < 3.28 → class 1 || masses: 0.019626, 0.187786, 0.792588
-class 0 :: density > 0.9932 & good == 1 & pH > 3.14 → class 0 || masses: 0.148022, 0.059129, 0.792849
-class 0 :: alcohol > 9.7 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.155222, 0.051611, 0.793168
-class 1 :: alcohol < 11 & density > 0.9932 → class 1 || masses: 0.051769, 0.154852, 0.793379
-class 0 :: density > 0.99622 & pH > 3.14 & quality == 7 → class 0 || masses: 0.055864, 0.150733, 0.793403
-class 0 :: alcohol < 9.7 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.185929, 0.020646, 0.793424
-class 1 :: alcohol < 11 & density > 0.9932 & pH > 3.14 → class 1 || masses: 0.045482, 0.161087, 0.793431
-class 0 :: density > 0.99622 & pH > 3.28 & quality == 5 → class 0 || masses: 0.035422, 0.170967, 0.793611
-class 0 :: alcohol < 11 & density > 0.99622 & pH > 3.14 → class 0 || masses: 0.174926, 0.031275, 0.793799
-class 1 :: density > 0.99622 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.183965, 0.022183, 0.793851
-class 0 :: good == 0 & pH > 3.28 & sulphates < 0.563333 → class 0 || masses: 0.201951, 0.004159, 0.793890
-class 1 :: pH < 3.28 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.026827, 0.178805, 0.794368
-class 1 :: alcohol < 11 → class 1 || masses: 0.069558, 0.135910, 0.794531
-class 0 :: density > 0.9932 & pH < 3.28 & sulphates > 0.563333 → class 0 || masses: 0.190160, 0.015149, 0.794691
-class 1 :: alcohol < 11 & density < 0.99622 & sulphates > 0.46 → class 1 || masses: 0.066561, 0.138674, 0.794765
-class 0 :: good == 1 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.185537, 0.019624, 0.794838
-class 1 :: alcohol < 9.7 & density > 0.99622 & good == 0 → class 1 || masses: 0.056769, 0.148308, 0.794923
-class 1 :: alcohol < 11 & pH < 3.28 & quality == 6 → class 1 || masses: 0.149937, 0.055118, 0.794945
-class 0 :: pH > 3.14 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.157298, 0.047751, 0.794951
-class 1 :: alcohol > 9.7 & density < 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.179567, 0.025360, 0.795073
-class 0 :: density > 0.99622 & good == 0 & pH > 3.14 → class 0 || masses: 0.144775, 0.060148, 0.795077
-class 1 :: density > 0.9932 & pH > 3.14 & quality == 5 → class 1 || masses: 0.147060, 0.057843, 0.795098
-class 0 :: alcohol < 11 & pH > 3.28 & quality == 6 → class 0 || masses: 0.053291, 0.151526, 0.795183
-class 1 :: pH > 3.14 & quality == 6 → class 1 || masses: 0.009492, 0.195308, 0.795200
-class 1 :: density > 0.99622 & pH < 3.28 & quality == 7 → class 1 || masses: 0.151797, 0.052785, 0.795418
-class 1 :: quality == 5 & sulphates > 0.46 → class 1 || masses: 0.151069, 0.053499, 0.795432
-class 1 :: pH < 3.28 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.064508, 0.139936, 0.795555
-class 1 :: density < 0.99622 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.036677, 0.167624, 0.795698
-class 1 :: density > 0.99622 & good == 0 & quality == 5 → class 1 || masses: 0.023041, 0.181229, 0.795731
-class 1 :: density < 0.99622 & good == 0 & pH > 3.14 → class 1 || masses: 0.007156, 0.197094, 0.795750
-class 0 :: alcohol < 9.7 & pH > 3.28 & quality == 5 → class 0 || masses: 0.164082, 0.040033, 0.795885
-class 0 :: alcohol < 9.7 & density > 0.9932 & sulphates > 0.563333 → class 0 || masses: 0.060881, 0.143148, 0.795970
-class 1 :: alcohol < 11 & pH < 3.28 & quality == 7 → class 1 || masses: 0.151351, 0.052560, 0.796089
-class 0 :: alcohol > 9.7 & density > 0.99622 → class 0 || masses: 0.127353, 0.076534, 0.796113
-class 1 :: alcohol < 9.7 & density > 0.9932 & good == 0 → class 1 || masses: 0.057014, 0.146831, 0.796155
-class 1 :: alcohol > 9.7 & pH < 3.28 & quality == 5 → class 1 || masses: 0.035203, 0.168621, 0.796176
-class 0 :: alcohol < 11 & sulphates > 0.563333 → class 0 || masses: 0.062725, 0.141007, 0.796268
-class 1 :: alcohol > 9.7 & density > 0.9932 & sulphates < 0.563333 → class 1 || masses: 0.053371, 0.150274, 0.796355
-class 1 :: good == 0 & pH > 3.14 & quality == 5 → class 1 || masses: 0.061983, 0.141640, 0.796377
-class 0 :: good == 0 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.192359, 0.011263, 0.796378
-class 1 :: density < 0.99622 & pH < 3.28 & sulphates > 0.563333 → class 1 || masses: 0.073959, 0.129660, 0.796381
-class 1 :: alcohol > 9.7 & good == 1 → class 1 || masses: 0.061825, 0.141744, 0.796431
-class 1 :: alcohol < 11 & density < 0.99622 & quality == 6 → class 1 || masses: 0.036844, 0.166712, 0.796445
-class 1 :: alcohol > 9.7 & density < 0.99622 & pH < 3.28 → class 1 || masses: 0.046938, 0.156547, 0.796515
-class 1 :: alcohol < 9.7 & sulphates < 0.563333 → class 1 || masses: 0.067485, 0.135918, 0.796597
-class 1 :: alcohol < 11 & quality == 7 & sulphates > 0.563333 → class 1 || masses: 0.020866, 0.182459, 0.796675
-class 1 :: alcohol < 11 & density > 0.9932 & sulphates > 0.46 → class 1 || masses: 0.028208, 0.174992, 0.796799
-class 0 :: alcohol < 11 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.141819, 0.061257, 0.796924
-class 1 :: alcohol > 9.7 & good == 1 & pH > 3.28 → class 1 || masses: 0.075943, 0.127094, 0.796963
-class 0 :: pH > 3.14 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.053316, 0.149669, 0.797015
-class 0 :: pH > 3.28 & quality == 5 → class 0 || masses: 0.151993, 0.050951, 0.797056
-class 1 :: alcohol > 9.7 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.194886, 0.008058, 0.797056
-class 0 :: alcohol > 9.7 & quality == 6 & sulphates > 0.46 → class 0 || masses: 0.168604, 0.034329, 0.797067
-class 1 :: alcohol < 9.7 & pH > 3.14 & quality == 6 → class 1 || masses: 0.159563, 0.043367, 0.797070
-class 1 :: alcohol < 11 & pH < 3.28 & sulphates > 0.563333 → class 1 || masses: 0.069554, 0.133096, 0.797350
-class 1 :: alcohol > 9.7 & density < 0.99622 & quality == 6 → class 1 || masses: 0.018160, 0.184448, 0.797391
-class 0 :: good == 0 & pH > 3.28 & quality == 6 → class 0 || masses: 0.048278, 0.154187, 0.797535
-class 1 :: alcohol < 9.7 & density > 0.9932 & pH < 3.28 → class 1 || masses: 0.058846, 0.143614, 0.797540
-class 1 :: pH > 3.28 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.050533, 0.151883, 0.797584
-class 0 :: alcohol < 11 & density > 0.99622 & sulphates > 0.563333 → class 0 || masses: 0.128713, 0.073536, 0.797750
-class 0 :: alcohol < 11 & density > 0.9932 & sulphates > 0.563333 → class 0 || masses: 0.040266, 0.161975, 0.797760
-class 0 :: density > 0.99622 & pH > 3.14 & quality == 6 → class 0 || masses: 0.146821, 0.055410, 0.797768
-class 0 :: alcohol > 9.7 & density > 0.99622 & quality == 6 → class 0 || masses: 0.135927, 0.066253, 0.797820
-class 1 :: alcohol < 9.7 & good == 0 & quality == 5 → class 1 || masses: 0.162229, 0.039950, 0.797821
-class 1 :: alcohol < 11 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.054805, 0.147356, 0.797839
-class 1 :: alcohol < 9.7 & pH > 3.14 → class 1 || masses: 0.185344, 0.016809, 0.797847
-class 1 :: density > 0.99622 & pH < 3.28 & quality == 5 → class 1 || masses: 0.068376, 0.133771, 0.797853
-class 1 :: alcohol > 9.7 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.144042, 0.058029, 0.797929
-class 0 :: density > 0.9932 & good == 1 & sulphates > 0.563333 → class 0 || masses: 0.168710, 0.033111, 0.798179
-class 1 :: alcohol < 9.7 & density > 0.9932 & sulphates > 0.46 → class 1 || masses: 0.023579, 0.178201, 0.798220
-class 0 :: alcohol > 9.7 & good == 0 → class 0 || masses: 0.148236, 0.053417, 0.798347
-class 0 :: alcohol > 9.7 & density > 0.99622 & good == 1 → class 0 || masses: 0.125736, 0.075816, 0.798448
-class 1 :: alcohol < 11 & quality == 7 → class 1 || masses: 0.073137, 0.128414, 0.798449
-class 1 :: alcohol < 9.7 & good == 0 → class 1 || masses: 0.057796, 0.143731, 0.798474
-class 0 :: alcohol > 9.7 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.059582, 0.141808, 0.798610
-class 1 :: alcohol < 9.7 & sulphates > 0.46 → class 1 || masses: 0.194687, 0.006697, 0.798616
-class 1 :: alcohol < 9.7 & pH < 3.28 → class 1 || masses: 0.052320, 0.149061, 0.798619
-class 1 :: alcohol < 11 & pH > 3.14 → class 1 || masses: 0.012042, 0.189315, 0.798643
-class 0 :: good == 0 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.139584, 0.061598, 0.798818
-class 1 :: density > 0.9932 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.006519, 0.194532, 0.798950
-class 1 :: alcohol < 11 & good == 0 & pH > 3.14 → class 1 || masses: 0.018061, 0.182891, 0.799048
-class 0 :: pH < 3.28 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.141820, 0.059040, 0.799140
-class 0 :: alcohol < 11 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.024092, 0.176686, 0.799223
-class 0 :: alcohol > 9.7 & quality == 5 & sulphates > 0.46 → class 0 || masses: 0.134335, 0.066316, 0.799349
-class 0 :: density > 0.99622 & pH > 3.28 & sulphates < 0.563333 → class 0 || masses: 0.064148, 0.136440, 0.799412
-class 0 :: alcohol > 9.7 & pH > 3.14 & quality == 5 → class 0 || masses: 0.141353, 0.059227, 0.799420
-class 0 :: pH > 3.28 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.070236, 0.130335, 0.799430
-class 1 :: density < 0.99622 & pH > 3.14 & quality == 5 → class 1 || masses: 0.041470, 0.159075, 0.799455
-class 1 :: alcohol < 9.7 & density > 0.99622 & sulphates > 0.46 → class 1 || masses: 0.152539, 0.047982, 0.799479
-class 1 :: alcohol < 11 & density > 0.99622 & quality == 6 → class 1 || masses: 0.152060, 0.048435, 0.799505
-class 1 :: good == 0 & quality == 6 → class 1 || masses: 0.058454, 0.141948, 0.799597
-class 0 :: density > 0.99622 & pH > 3.14 & quality == 5 → class 0 || masses: 0.176361, 0.023967, 0.799672
-class 0 :: density > 0.9932 & good == 0 & pH > 3.14 → class 0 || masses: 0.146108, 0.054172, 0.799719
-class 1 :: sulphates > 0.46 → class 1 || masses: 0.142805, 0.057458, 0.799737
-class 0 :: density < 0.99622 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.023296, 0.176856, 0.799848
-class 1 :: alcohol < 11 & density > 0.99622 & good == 1 → class 1 || masses: 0.062892, 0.137135, 0.799974
-class 1 :: good == 1 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.055381, 0.144564, 0.800055
-class 1 :: density < 0.99622 → class 1 || masses: 0.163709, 0.036206, 0.800085
-class 1 :: alcohol < 11 & quality == 6 → class 1 || masses: 0.085732, 0.114154, 0.800114
-class 1 :: alcohol < 11 & density < 0.99622 → class 1 || masses: 0.176783, 0.023078, 0.800139
-class 1 :: pH > 3.14 → class 1 || masses: 0.036454, 0.163352, 0.800194
-class 0 :: alcohol < 11 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.121131, 0.078630, 0.800240
-class 1 :: density > 0.9932 & pH < 3.28 & quality == 6 → class 1 || masses: 0.081140, 0.118616, 0.800244
-class 0 :: alcohol > 9.7 & density > 0.9932 & good == 0 → class 0 || masses: 0.112575, 0.087176, 0.800248
-class 1 :: density < 0.99622 & good == 0 & pH < 3.28 → class 1 || masses: 0.066472, 0.133243, 0.800285
-class 0 :: density < 0.99622 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.084954, 0.114672, 0.800373
-class 0 :: alcohol < 9.7 & density > 0.99622 & pH > 3.28 → class 0 || masses: 0.172351, 0.027126, 0.800523
-class 0 :: alcohol > 9.7 & pH > 3.28 & quality == 7 → class 0 || masses: 0.130234, 0.069210, 0.800557
-class 1 :: alcohol < 9.7 & density < 0.99622 & sulphates > 0.46 → class 1 || masses: 0.101748, 0.097661, 0.800591
-class 0 :: alcohol < 9.7 & density < 0.99622 & pH > 3.28 → class 0 || masses: 0.158259, 0.041104, 0.800637
-class 1 :: density > 0.99622 & good == 1 & quality == 7 → class 1 || masses: 0.126517, 0.072791, 0.800692
-class 1 :: alcohol < 11 & good == 0 & quality == 6 → class 1 || masses: 0.088893, 0.110361, 0.800747
-class 0 :: density > 0.9932 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.054355, 0.144813, 0.800831
-class 0 :: alcohol > 9.7 & density > 0.99622 & quality == 7 → class 0 || masses: 0.096350, 0.102818, 0.800832
-class 0 :: good == 1 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.172692, 0.026429, 0.800880
-class 1 :: alcohol > 9.7 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.017365, 0.181739, 0.800896
-class 1 :: quality == 7 → class 1 || masses: 0.070227, 0.128802, 0.800970
-class 1 :: alcohol < 11 & density > 0.9932 & quality == 5 → class 1 || masses: 0.076580, 0.122433, 0.800987
-class 0 :: alcohol > 9.7 & sulphates > 0.46 → class 0 || masses: 0.031618, 0.167336, 0.801046
-class 0 :: density < 0.99622 & pH > 3.28 & quality == 6 → class 0 || masses: 0.081213, 0.117736, 0.801051
-class 1 :: alcohol < 11 & pH < 3.28 → class 1 || masses: 0.194579, 0.004342, 0.801079
-class 0 :: density > 0.99622 & good == 1 & sulphates > 0.46 → class 0 || masses: 0.110843, 0.088058, 0.801099
-class 0 :: density > 0.99622 & pH > 3.28 & quality == 6 → class 0 || masses: 0.074908, 0.123991, 0.801101
-class 1 :: alcohol < 11 & density < 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.131325, 0.067566, 0.801109
-class 0 :: alcohol > 9.7 & good == 0 & quality == 6 → class 0 || masses: 0.057968, 0.140901, 0.801131
-class 0 :: alcohol > 9.7 → class 0 || masses: 0.167751, 0.031115, 0.801135
-class 1 :: alcohol > 9.7 & pH < 3.28 & quality == 7 → class 1 || masses: 0.120062, 0.078744, 0.801194
-class 1 :: density > 0.9932 & good == 1 & pH < 3.28 → class 1 || masses: 0.145815, 0.052983, 0.801202
-class 0 :: alcohol < 9.7 & good == 0 & pH > 3.28 → class 0 || masses: 0.117162, 0.081572, 0.801266
-class 0 :: pH > 3.14 & quality == 5 & sulphates > 0.46 → class 0 || masses: 0.031661, 0.166997, 0.801342
-class 0 :: alcohol > 9.7 & pH < 3.28 & sulphates > 0.563333 → class 0 || masses: 0.152605, 0.046052, 0.801343
-class 1 :: good == 0 & pH < 3.28 & quality == 6 → class 1 || masses: 0.061744, 0.136895, 0.801361
-class 1 :: alcohol < 9.7 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.080955, 0.117663, 0.801382
-class 1 :: good == 0 & pH > 3.14 & quality == 6 → class 1 || masses: 0.055415, 0.143147, 0.801438
-class 1 :: alcohol > 9.7 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.080206, 0.118263, 0.801532
-class 1 :: density < 0.99622 & good == 1 & pH < 3.28 → class 1 || masses: 0.125829, 0.072626, 0.801545
-class 1 :: alcohol < 9.7 & density > 0.99622 & quality == 7 → class 1 || masses: 0.093259, 0.105190, 0.801552
-class 1 :: alcohol < 11 & density > 0.9932 & good == 1 → class 1 || masses: 0.088346, 0.110031, 0.801623
-class 0 :: quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.167863, 0.030489, 0.801648
-class 1 :: alcohol < 9.7 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.187414, 0.010901, 0.801685
-class 1 :: alcohol < 9.7 & density < 0.99622 & sulphates > 0.563333 → class 1 || masses: 0.031906, 0.166385, 0.801709
-class 0 :: density > 0.99622 & good == 0 & sulphates > 0.46 → class 0 || masses: 0.137661, 0.060503, 0.801835
-class 0 :: alcohol > 9.7 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.171556, 0.026601, 0.801843
-class 1 :: density > 0.9932 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.151090, 0.047033, 0.801877
-class 1 :: alcohol < 11 & sulphates > 0.46 → class 1 || masses: 0.123546, 0.074535, 0.801919
-class 1 :: pH > 3.28 & quality == 7 → class 1 || masses: 0.039043, 0.158941, 0.802016
-class 1 :: alcohol < 9.7 & good == 0 & pH < 3.28 → class 1 || masses: 0.138854, 0.059106, 0.802041
-class 1 :: alcohol < 9.7 & density < 0.99622 & pH < 3.28 → class 1 || masses: 0.127418, 0.070505, 0.802077
-class 0 :: density < 0.99622 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.070849, 0.127063, 0.802087
-class 0 :: density > 0.99622 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.092997, 0.104902, 0.802102
-class 0 :: density > 0.99622 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.109450, 0.088350, 0.802201
-class 1 :: good == 0 → class 1 || masses: 0.019383, 0.178390, 0.802227
-class 1 :: good == 0 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.068206, 0.129545, 0.802249
-class 0 :: alcohol < 9.7 & pH > 3.28 → class 0 || masses: 0.123467, 0.074213, 0.802320
-class 0 :: alcohol > 9.7 & density > 0.9932 & quality == 6 → class 0 || masses: 0.126587, 0.071087, 0.802326
-class 0 :: pH > 3.28 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.053287, 0.144356, 0.802357
-class 1 :: alcohol < 9.7 & density < 0.99622 & good == 0 → class 1 || masses: 0.131020, 0.066621, 0.802359
-class 1 :: alcohol < 9.7 & density > 0.9932 & quality == 7 → class 1 || masses: 0.094150, 0.103464, 0.802387
-class 0 :: pH > 3.14 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.110691, 0.086890, 0.802419
-class 1 :: density > 0.9932 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.132418, 0.065161, 0.802420
-class 0 :: pH > 3.14 & quality == 6 & sulphates > 0.46 → class 0 || masses: 0.122726, 0.074798, 0.802476
-class 0 :: alcohol > 9.7 & sulphates > 0.563333 → class 0 || masses: 0.073050, 0.124441, 0.802509
-class 1 :: density > 0.9932 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.110436, 0.087035, 0.802529
-class 0 :: alcohol > 9.7 & pH > 3.14 & quality == 6 → class 0 || masses: 0.152629, 0.044772, 0.802599
-class 0 :: alcohol > 9.7 & good == 0 & pH > 3.28 → class 0 || masses: 0.130522, 0.066851, 0.802627
-class 0 :: alcohol > 9.7 & pH > 3.28 & quality == 5 → class 0 || masses: 0.089660, 0.107640, 0.802701
-class 1 :: density < 0.99622 & pH < 3.28 & quality == 7 → class 1 || masses: 0.084277, 0.112992, 0.802731
-class 1 :: pH < 3.28 & quality == 7 → class 1 || masses: 0.065413, 0.131845, 0.802742
-class 1 :: density < 0.99622 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.027059, 0.170198, 0.802743
-class 0 :: good == 0 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.162236, 0.035017, 0.802747
-class 0 :: good == 0 & pH < 3.28 & sulphates > 0.563333 → class 0 || masses: 0.170545, 0.026690, 0.802765
-class 0 :: alcohol > 9.7 & density > 0.99622 & quality == 5 → class 0 || masses: 0.145103, 0.052082, 0.802815
-class 1 :: density < 0.99622 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.070222, 0.126928, 0.802850
-class 0 :: alcohol > 9.7 & good == 1 & sulphates > 0.563333 → class 0 || masses: 0.077356, 0.119750, 0.802894
-class 1 :: sulphates < 0.563333 → class 1 || masses: 0.153324, 0.043721, 0.802955
-class 1 :: density > 0.9932 → class 1 || masses: 0.138884, 0.058159, 0.802957
-class 1 :: density < 0.99622 & good == 0 & sulphates > 0.46 → class 1 || masses: 0.078401, 0.118630, 0.802970
-class 0 :: alcohol < 9.7 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.142863, 0.054164, 0.802973
-class 1 :: pH < 3.28 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.148288, 0.048677, 0.803035
-class 1 :: alcohol < 9.7 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.133219, 0.063737, 0.803044
-class 1 :: alcohol < 11 & good == 1 & sulphates > 0.563333 → class 1 || masses: 0.068310, 0.128632, 0.803058
-class 1 :: alcohol < 11 & density > 0.9932 & sulphates < 0.563333 → class 1 || masses: 0.126956, 0.069965, 0.803079
-class 0 :: alcohol > 9.7 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.106354, 0.090512, 0.803134
-class 1 :: density > 0.99622 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.077234, 0.119629, 0.803136
-class 1 :: alcohol > 9.7 & quality == 7 → class 1 || masses: 0.161271, 0.035585, 0.803145
-class 0 :: alcohol < 11 & pH > 3.28 & quality == 5 → class 0 || masses: 0.025267, 0.171587, 0.803146
-class 1 :: density > 0.9932 & pH < 3.28 & quality == 5 → class 1 || masses: 0.057861, 0.138991, 0.803148
-class 1 :: alcohol < 11 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.128640, 0.068173, 0.803187
-class 0 :: pH > 3.28 & quality == 6 & sulphates > 0.46 → class 0 || masses: 0.057581, 0.139204, 0.803214
-class 0 :: good == 0 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.023552, 0.173221, 0.803226
-class 0 :: density > 0.99622 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.032030, 0.164697, 0.803272
-class 0 :: density > 0.9932 & pH > 3.28 & quality == 6 → class 0 || masses: 0.030659, 0.165992, 0.803348
-class 1 :: sulphates < 0.46 → class 1 || masses: 0.058557, 0.138051, 0.803392
-class 1 :: alcohol < 11 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.123635, 0.072968, 0.803397
-class 1 :: quality == 5 → class 1 || masses: 0.135135, 0.061467, 0.803398
-class 0 :: alcohol > 9.7 & density < 0.99622 & pH > 3.28 → class 0 || masses: 0.066908, 0.129642, 0.803451
-class 0 :: alcohol > 9.7 & pH > 3.14 → class 0 || masses: 0.121722, 0.074805, 0.803473
-class 1 :: quality == 6 & sulphates > 0.46 → class 1 || masses: 0.071504, 0.124984, 0.803512
-class 0 :: density < 0.99622 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.125211, 0.071244, 0.803545
-class 0 :: good == 1 & pH < 3.28 & sulphates > 0.563333 → class 0 || masses: 0.127804, 0.068639, 0.803557
-class 1 :: alcohol < 9.7 & quality == 5 → class 1 || masses: 0.068696, 0.127731, 0.803573
-class 0 :: good == 0 & pH > 3.28 & quality == 5 → class 0 || masses: 0.020124, 0.176263, 0.803613
-class 0 :: density > 0.9932 & pH > 3.14 & quality == 6 → class 0 || masses: 0.108137, 0.088235, 0.803627
-class 0 :: alcohol > 9.7 & quality == 6 → class 0 || masses: 0.110137, 0.086164, 0.803699
-class 1 :: alcohol > 9.7 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.117029, 0.079066, 0.803905
-class 0 :: sulphates > 0.563333 → class 0 || masses: 0.110280, 0.085801, 0.803918
-class 1 :: quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.152800, 0.043221, 0.803979
-class 0 :: alcohol < 9.7 & pH > 3.28 & quality == 6 → class 0 || masses: 0.108584, 0.087428, 0.803988
-class 1 :: alcohol < 9.7 & density > 0.9932 & quality == 5 → class 1 || masses: 0.080735, 0.115275, 0.803990
-class 1 :: density < 0.99622 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.108410, 0.087582, 0.804009
-class 1 :: alcohol < 11 & good == 0 & pH < 3.28 → class 1 || masses: 0.071994, 0.123891, 0.804115
-class 1 :: pH < 3.28 → class 1 || masses: 0.132401, 0.063457, 0.804142
-class 1 :: alcohol < 11 & density < 0.99622 & good == 0 → class 1 || masses: 0.158195, 0.037651, 0.804154
-class 0 :: alcohol > 9.7 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.090380, 0.105432, 0.804187
-class 1 :: density > 0.99622 & good == 1 & pH < 3.28 → class 1 || masses: 0.104429, 0.091367, 0.804204
-class 1 :: alcohol > 9.7 & sulphates < 0.563333 → class 1 || masses: 0.067378, 0.128382, 0.804239
-class 0 :: density > 0.99622 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.036522, 0.159234, 0.804244
-class 1 :: good == 0 & pH < 3.28 & quality == 5 → class 1 || masses: 0.073642, 0.122101, 0.804257
-class 0 :: density > 0.9932 & pH > 3.28 & sulphates < 0.563333 → class 0 || masses: 0.118086, 0.077619, 0.804295
-class 1 :: pH > 3.14 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.113097, 0.082535, 0.804368
-class 1 :: alcohol < 9.7 & good == 1 & pH < 3.28 → class 1 || masses: 0.067358, 0.128257, 0.804386
-class 1 :: alcohol > 9.7 & density < 0.99622 & good == 0 → class 1 || masses: 0.122997, 0.072614, 0.804389
-class 1 :: alcohol < 11 & density < 0.99622 & pH > 3.14 → class 1 || masses: 0.169635, 0.025871, 0.804494
-class 1 :: alcohol < 9.7 & density > 0.99622 → class 1 || masses: 0.070192, 0.125267, 0.804541
-class 1 :: pH > 3.14 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.079315, 0.116127, 0.804558
-class 1 :: alcohol > 9.7 & density < 0.99622 → class 1 || masses: 0.137697, 0.057690, 0.804613
-class 1 :: alcohol < 11 & density < 0.99622 & pH < 3.28 → class 1 || masses: 0.053384, 0.141991, 0.804625
-class 1 :: density < 0.99622 & good == 1 & pH > 3.14 → class 1 || masses: 0.079903, 0.115330, 0.804768
-class 1 :: alcohol < 9.7 & good == 1 & sulphates > 0.563333 → class 1 || masses: 0.125014, 0.070156, 0.804830
-class 0 :: density < 0.99622 & pH > 3.28 & quality == 5 → class 0 || masses: 0.115828, 0.079323, 0.804849
-class 1 :: density < 0.99622 & pH > 3.14 & quality == 7 → class 1 || masses: 0.066816, 0.128247, 0.804936
-class 1 :: good == 0 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.119392, 0.075573, 0.805035
-class 1 :: good == 1 & pH > 3.28 & quality == 7 → class 1 || masses: 0.103440, 0.091521, 0.805040
-class 1 :: alcohol < 9.7 & density > 0.99622 & quality == 6 → class 1 || masses: 0.164408, 0.030444, 0.805148
-class 0 :: alcohol < 9.7 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.069049, 0.125780, 0.805172
-class 0 :: alcohol > 9.7 & density > 0.9932 → class 0 || masses: 0.032185, 0.162601, 0.805214
-class 1 :: alcohol < 11 & good == 1 → class 1 || masses: 0.067310, 0.127461, 0.805229
-class 1 :: good == 1 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.117002, 0.077716, 0.805282
-class 1 :: density < 0.99622 & pH > 3.28 & sulphates < 0.563333 → class 1 || masses: 0.115778, 0.078930, 0.805291
-class 1 :: pH < 3.28 & quality == 7 & sulphates > 0.46 → class 1 || masses: 0.078020, 0.116627, 0.805353
-class 0 :: pH > 3.28 & quality == 6 → class 0 || masses: 0.122436, 0.072190, 0.805374
-class 0 :: alcohol > 9.7 & density > 0.99622 & good == 0 → class 0 || masses: 0.047054, 0.147551, 0.805395
-class 0 :: density < 0.99622 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.091625, 0.102975, 0.805400
-class 1 :: alcohol > 9.7 & density > 0.9932 & pH < 3.28 → class 1 || masses: 0.091551, 0.103032, 0.805417
-class 1 :: good == 0 & quality == 6 & sulphates > 0.46 → class 1 || masses: 0.079984, 0.114559, 0.805457
-class 0 :: alcohol < 11 & density > 0.99622 & sulphates > 0.46 → class 0 || masses: 0.120191, 0.074322, 0.805487
-class 0 :: pH > 3.28 → class 0 || masses: 0.082824, 0.111647, 0.805529
-class 1 :: density < 0.99622 & pH < 3.28 & quality == 6 → class 1 || masses: 0.076037, 0.118370, 0.805593
-class 1 :: density < 0.99622 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.120961, 0.073414, 0.805625
-class 0 :: quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.116207, 0.078085, 0.805708
-class 1 :: pH > 3.14 & quality == 5 → class 1 || masses: 0.125197, 0.069085, 0.805718
-class 0 :: density > 0.9932 & good == 0 & sulphates > 0.46 → class 0 || masses: 0.133013, 0.061129, 0.805858
-class 1 :: alcohol < 9.7 & quality == 7 & sulphates > 0.563333 → class 1 || masses: 0.113105, 0.081006, 0.805889
-class 0 :: alcohol < 11 & density > 0.9932 & pH > 3.28 → class 0 || masses: 0.083414, 0.110658, 0.805928
-class 1 :: density > 0.9932 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.066962, 0.126998, 0.806040
-class 1 :: density < 0.99622 & good == 1 & pH > 3.28 → class 1 || masses: 0.064553, 0.129330, 0.806117
-class 1 :: alcohol < 9.7 & good == 0 & pH > 3.14 → class 1 || masses: 0.096705, 0.097162, 0.806133
-class 1 :: pH > 3.14 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.081919, 0.111889, 0.806192
-class 1 :: alcohol < 9.7 & quality == 7 & sulphates > 0.46 → class 1 || masses: 0.116513, 0.077214, 0.806273
-class 0 :: alcohol < 11 & good == 0 & pH > 3.28 → class 0 || masses: 0.106429, 0.087291, 0.806281
-class 1 :: quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.076734, 0.116981, 0.806284
-class 1 :: alcohol < 11 & density > 0.99622 & pH < 3.28 → class 1 || masses: 0.122529, 0.071166, 0.806305
-class 0 :: alcohol > 9.7 & pH > 3.28 → class 0 || masses: 0.109762, 0.083883, 0.806355
-class 1 :: density > 0.99622 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.085563, 0.108081, 0.806356
-class 0 :: density > 0.99622 & good == 0 & pH > 3.28 → class 0 || masses: 0.117318, 0.076263, 0.806419
-class 0 :: alcohol < 11 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.075320, 0.118125, 0.806555
-class 1 :: alcohol > 9.7 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.115922, 0.077521, 0.806557
-class 1 :: pH < 3.28 & quality == 6 & sulphates > 0.46 → class 1 || masses: 0.106588, 0.086845, 0.806567
-class 1 :: alcohol < 11 & good == 1 & pH > 3.14 → class 1 || masses: 0.110429, 0.082997, 0.806574
-class 0 :: good == 1 & quality == 7 & sulphates > 0.563333 → class 0 || masses: 0.094425, 0.098996, 0.806579
-class 1 :: density > 0.9932 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.141364, 0.052034, 0.806601
-class 1 :: alcohol < 9.7 & pH > 3.14 & quality == 5 → class 1 || masses: 0.098247, 0.094985, 0.806768
-class 1 :: alcohol < 9.7 & density > 0.99622 & pH > 3.14 → class 1 || masses: 0.121962, 0.071262, 0.806776
-class 1 :: alcohol < 11 & good == 1 & pH > 3.28 → class 1 || masses: 0.144605, 0.048578, 0.806817
-class 0 :: alcohol < 11 & pH > 3.28 → class 0 || masses: 0.114623, 0.078523, 0.806854
-class 1 :: density < 0.99622 & good == 0 & quality == 5 → class 1 || masses: 0.094177, 0.098952, 0.806870
-class 0 :: density > 0.9932 & good == 1 & pH > 3.28 → class 0 || masses: 0.055406, 0.137703, 0.806891
-class 1 :: density < 0.99622 & good == 0 & quality == 6 → class 1 || masses: 0.109139, 0.083942, 0.806919
-class 1 :: alcohol < 11 & good == 0 & sulphates > 0.46 → class 1 || masses: 0.081670, 0.111357, 0.806973
-class 1 :: alcohol < 11 & good == 1 & quality == 7 → class 1 || masses: 0.077825, 0.115103, 0.807073
-class 1 :: good == 1 & pH > 3.28 & sulphates < 0.563333 → class 1 || masses: 0.140476, 0.052448, 0.807077
-class 1 :: density > 0.99622 & good == 0 & quality == 6 → class 1 || masses: 0.095842, 0.097056, 0.807102
-class 1 :: density > 0.99622 & pH < 3.28 & quality == 6 → class 1 || masses: 0.127391, 0.065480, 0.807129
-class 1 :: alcohol > 9.7 & good == 1 & pH < 3.28 → class 1 || masses: 0.088594, 0.104252, 0.807154
-class 0 :: alcohol > 9.7 & good == 0 & pH > 3.14 → class 0 || masses: 0.145282, 0.047555, 0.807163
-class 1 :: good == 1 & quality == 7 → class 1 || masses: 0.127673, 0.065151, 0.807176
-class 0 :: alcohol > 9.7 & density > 0.9932 & good == 1 → class 0 || masses: 0.114616, 0.078173, 0.807211
-class 1 :: good == 1 & pH > 3.14 & quality == 7 → class 1 || masses: 0.102869, 0.089891, 0.807240
-class 1 :: pH > 3.28 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.077343, 0.115298, 0.807359
-class 1 :: alcohol < 9.7 & pH < 3.28 & quality == 6 → class 1 || masses: 0.112043, 0.080595, 0.807362
-class 1 :: alcohol < 11 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.078830, 0.113775, 0.807394
-class 1 :: alcohol < 9.7 → class 1 || masses: 0.105399, 0.087172, 0.807429
-class 1 :: alcohol > 9.7 & pH < 3.28 & quality == 6 → class 1 || masses: 0.096402, 0.096165, 0.807433
-class 1 :: alcohol < 9.7 & density < 0.99622 → class 1 || masses: 0.103612, 0.088839, 0.807549
-class 1 :: alcohol < 11 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.048194, 0.144163, 0.807644
-class 0 :: alcohol < 11 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.084045, 0.108293, 0.807662
-class 0 :: density > 0.99622 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.068473, 0.123840, 0.807687
-class 1 :: density < 0.99622 & pH > 3.14 & sulphates > 0.46 → class 1 || masses: 0.131034, 0.061271, 0.807695
-class 1 :: good == 1 & quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.114864, 0.077397, 0.807739
-class 1 :: density < 0.99622 & pH > 3.14 & quality == 6 → class 1 || masses: 0.125637, 0.066597, 0.807766
-class 1 :: pH < 3.28 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.077930, 0.114131, 0.807939
-class 1 :: alcohol < 9.7 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.007406, 0.184614, 0.807979
-class 1 :: alcohol < 9.7 & density < 0.99622 & quality == 5 → class 1 || masses: 0.111233, 0.080711, 0.808056
-class 1 :: alcohol < 9.7 & density > 0.99622 & pH < 3.28 → class 1 || masses: 0.117417, 0.074515, 0.808068
-class 1 :: pH < 3.28 & quality == 6 → class 1 || masses: 0.091895, 0.099993, 0.808112
-class 1 :: density < 0.99622 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.108464, 0.083315, 0.808221
-class 1 :: density > 0.99622 & quality == 5 & sulphates < 0.563333 → class 1 || masses: 0.090121, 0.101570, 0.808310
-class 0 :: alcohol < 11 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.093427, 0.098225, 0.808348
-class 0 :: alcohol > 9.7 & pH > 3.28 & quality == 6 → class 0 || masses: 0.098324, 0.093326, 0.808350
-class 1 :: density < 0.99622 & good == 1 & quality == 7 → class 1 || masses: 0.105543, 0.086092, 0.808365
-class 0 :: alcohol > 9.7 & good == 0 & quality == 5 → class 0 || masses: 0.085429, 0.106155, 0.808417
-class 0 :: alcohol < 9.7 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.113257, 0.078321, 0.808423
-class 0 :: alcohol < 11 & good == 0 & sulphates > 0.563333 → class 0 || masses: 0.142672, 0.048896, 0.808432
-class 0 :: good == 1 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.125708, 0.065829, 0.808463
-class 1 :: density > 0.9932 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.104947, 0.086575, 0.808477
-class 0 :: pH < 3.28 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.109340, 0.081993, 0.808668
-class 0 :: density < 0.99622 & pH > 3.28 & sulphates > 0.563333 → class 0 || masses: 0.117263, 0.074056, 0.808680
-class 1 :: alcohol < 11 & good == 0 → class 1 || masses: 0.147417, 0.043891, 0.808693
-class 1 :: good == 1 & pH < 3.28 & quality == 7 → class 1 || masses: 0.098482, 0.092806, 0.808712
-class 1 :: alcohol < 9.7 & density > 0.99622 & quality == 5 → class 1 || masses: 0.103160, 0.088035, 0.808805
-class 1 :: alcohol < 9.7 & good == 0 & sulphates > 0.46 → class 1 || masses: 0.100516, 0.090663, 0.808820
-class 1 :: alcohol < 11 & density > 0.9932 & pH < 3.28 → class 1 || masses: 0.092962, 0.098164, 0.808874
-class 1 :: density > 0.9932 & good == 0 & quality == 6 → class 1 || masses: 0.103981, 0.087134, 0.808885
-class 1 :: alcohol < 11 & pH > 3.28 & sulphates < 0.563333 → class 1 || masses: 0.078192, 0.112912, 0.808896
-class 0 :: density > 0.9932 & pH > 3.28 & quality == 5 → class 0 || masses: 0.064410, 0.126693, 0.808897
-class 1 :: density > 0.99622 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.114765, 0.076287, 0.808949
-class 1 :: density > 0.9932 & good == 1 & quality == 7 → class 1 || masses: 0.085495, 0.105493, 0.809012
-class 1 :: alcohol < 9.7 & density < 0.99622 & sulphates < 0.563333 → class 1 || masses: 0.068037, 0.122927, 0.809037
-class 1 :: alcohol > 9.7 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.101572, 0.089258, 0.809170
-class 1 :: alcohol > 9.7 & pH < 3.28 → class 1 || masses: 0.093196, 0.097543, 0.809262
-class 1 :: alcohol < 11 & density < 0.99622 & quality == 5 → class 1 || masses: 0.137242, 0.053429, 0.809329
-class 0 :: quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.089013, 0.101600, 0.809387
-class 1 :: alcohol > 9.7 & good == 1 & sulphates < 0.563333 → class 1 || masses: 0.078734, 0.111816, 0.809450
-class 1 :: density < 0.99622 & quality == 5 & sulphates > 0.46 → class 1 || masses: 0.029241, 0.161296, 0.809463
-class 0 :: alcohol > 9.7 & density > 0.99622 & pH > 3.14 → class 0 || masses: 0.086617, 0.103899, 0.809485
-class 1 :: alcohol < 9.7 & density > 0.9932 & sulphates < 0.563333 → class 1 || masses: 0.094154, 0.096199, 0.809647
-class 0 :: alcohol < 9.7 & density > 0.99622 & sulphates > 0.563333 → class 0 || masses: 0.100124, 0.090227, 0.809649
-class 1 :: pH < 3.14 → class 1 || masses: 0.105116, 0.085222, 0.809662
-class 1 :: alcohol < 11 & quality == 6 & sulphates > 0.46 → class 1 || masses: 0.113855, 0.076420, 0.809725
-class 0 :: pH < 3.28 & quality == 5 & sulphates > 0.563333 → class 0 || masses: 0.085660, 0.104330, 0.810010
-class 1 :: alcohol < 11 & density > 0.99622 & good == 0 → class 1 || masses: 0.134071, 0.055852, 0.810077
-class 1 :: density < 0.99622 & pH > 3.28 & quality == 7 → class 1 || masses: 0.101462, 0.088414, 0.810124
-class 1 :: alcohol < 9.7 & good == 1 & pH > 3.28 → class 1 || masses: 0.103589, 0.086185, 0.810226
-class 0 :: alcohol > 9.7 & pH > 3.14 & sulphates > 0.46 → class 0 || masses: 0.093091, 0.096682, 0.810227
-class 1 :: alcohol < 9.7 & pH > 3.28 & quality == 7 → class 1 || masses: 0.101005, 0.088716, 0.810279
-class 1 :: density > 0.99622 & good == 0 & sulphates < 0.563333 → class 1 || masses: 0.111092, 0.078553, 0.810355
-class 1 :: alcohol < 11 & pH > 3.14 & quality == 5 → class 1 || masses: 0.076737, 0.112881, 0.810382
-class 1 :: quality == 7 & sulphates < 0.563333 → class 1 || masses: 0.087609, 0.101963, 0.810428
-class 0 :: alcohol > 9.7 & density > 0.9932 & quality == 7 → class 0 || masses: 0.103366, 0.085982, 0.810652
-class 0 :: density > 0.9932 & good == 0 & pH > 3.28 → class 0 || masses: 0.094956, 0.094310, 0.810734
-class 0 :: alcohol > 9.7 & quality == 7 & sulphates > 0.46 → class 0 || masses: 0.106834, 0.082401, 0.810765
-class 1 :: alcohol < 11 & density > 0.99622 & quality == 5 → class 1 || masses: 0.098655, 0.090549, 0.810796
-class 1 :: density < 0.9932 → class 1 || masses: 0.118346, 0.070732, 0.810922
-class 1 :: good == 0 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.090486, 0.098482, 0.811032
-class 1 :: alcohol < 11 & quality == 5 → class 1 || masses: 0.125063, 0.063886, 0.811051
-class 1 :: alcohol < 9.7 & pH < 3.28 & quality == 5 → class 1 || masses: 0.105011, 0.083770, 0.811219
-class 1 :: alcohol > 9.7 & density < 0.99622 & pH > 3.14 → class 1 || masses: 0.079790, 0.108931, 0.811279
-class 1 :: alcohol < 9.7 & quality == 6 & sulphates > 0.46 → class 1 || masses: 0.121415, 0.067256, 0.811330
-class 1 :: alcohol < 11 & quality == 6 & sulphates < 0.563333 → class 1 || masses: 0.083252, 0.105397, 0.811351
-class 1 :: quality == 8 → class 1 || masses: 0.091892, 0.096681, 0.811427
-class 1 :: alcohol < 11 & density > 0.99622 & quality == 7 → class 1 || masses: 0.089993, 0.098469, 0.811537
-class 1 :: pH > 3.14 & quality == 7 → class 1 || masses: 0.092273, 0.096147, 0.811580
-class 0 :: good == 1 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.087242, 0.100991, 0.811766
-class 0 :: alcohol < 9.7 & density > 0.9932 & pH > 3.28 → class 0 || masses: 0.088392, 0.099839, 0.811769
-class 0 :: density > 0.9932 & pH > 3.14 & quality == 7 → class 0 || masses: 0.071462, 0.116758, 0.811780
-class 0 :: density < 0.99622 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.096300, 0.091873, 0.811827
-class 0 :: pH > 3.28 & quality == 5 & sulphates > 0.46 → class 0 || masses: 0.075896, 0.112220, 0.811884
-class 0 :: density > 0.9932 & quality == 6 & sulphates > 0.563333 → class 0 || masses: 0.065298, 0.122684, 0.812018
-class 1 :: alcohol < 9.7 & good == 1 & sulphates > 0.46 → class 1 || masses: 0.097461, 0.089859, 0.812679
-class 1 :: alcohol < 9.7 & pH > 3.14 & sulphates < 0.563333 → class 1 || masses: 0.095727, 0.091241, 0.813032
-class 0 :: alcohol > 9.7 & density > 0.9932 & pH > 3.14 → class 0 || masses: 0.086158, 0.100405, 0.813437
-class 0 :: alcohol > 9.7 & density < 0.99622 & sulphates > 0.563333 → class 0 || masses: 0.097198, 0.089343, 0.813459
-class 1 :: alcohol < 11 & pH > 3.28 & quality == 7 → class 1 || masses: 0.098909, 0.087390, 0.813700
-class 0 :: alcohol < 11 & density > 0.99622 & pH > 3.28 → class 0 || masses: 0.094056, 0.092000, 0.813943
-class 0 :: alcohol > 9.7 & density > 0.9932 & sulphates > 0.46 → class 0 || masses: 0.098412, 0.087509, 0.814080
-class 0 :: density > 0.99622 & pH > 3.28 & sulphates > 0.46 → class 0 || masses: 0.131818, 0.053596, 0.814586
-class 0 :: alcohol > 9.7 & quality == 5 → class 0 || masses: 0.090884, 0.094310, 0.814806
-class 1 :: alcohol < 9.7 & density > 0.9932 & quality == 6 → class 1 || masses: 0.096038, 0.089105, 0.814857
-class 1 :: good == 0 & pH < 3.28 & sulphates < 0.563333 → class 1 || masses: 0.084997, 0.099911, 0.815092
-class 1 :: density > 0.99622 & good == 0 & pH < 3.28 → class 1 || masses: 0.093854, 0.090940, 0.815207
-class 0 :: good == 1 & pH > 3.14 & sulphates > 0.563333 → class 0 || masses: 0.102722, 0.080109, 0.817169
-class 1 :: alcohol > 9.7 & good == 1 & quality == 7 → class 1 || masses: 0.082711, 0.099876, 0.817412
-class 1 :: good == 1 & pH < 3.28 & sulphates > 0.46 → class 1 || masses: 0.102081, 0.080192, 0.817728
-class 0 :: quality == 7 & sulphates > 0.46 → class 0 || masses: 0.093289, 0.088879, 0.817832
-class 1 :: quality == 6 → class 1 || masses: 0.086026, 0.095353, 0.818620
-class 1 :: good == 0 & quality == 5 → class 1 || masses: 0.089109, 0.092105, 0.818787
-class 1 :: alcohol > 9.7 & good == 0 & pH < 3.28 → class 1 || masses: 0.087328, 0.092870, 0.819803
-class 1 :: alcohol > 9.7 & density < 0.99622 & quality == 7 → class 1 || masses: 0.087776, 0.092260, 0.819965
-class 0 :: alcohol > 9.7 & good == 0 & sulphates > 0.46 → class 0 || masses: 0.094101, 0.085915, 0.819984
-class 0 :: alcohol < 9.7 & sulphates > 0.563333 → class 0 || masses: 0.089398, 0.088665, 0.821937
+class 1 :: pH < 3.32 → class 1 || masses: [0.00168784 0.22847931 0.7698329 ]
+class 1 :: alcohol < 11.3 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.03378498 0.20564754 0.7605674 ]
+class 1 :: density > 0.991 & good == 0 & pH < 3.4 → class 1 || masses: [0.00735533 0.21682619 0.77581847]
+class 1 :: alcohol < 10.8 → class 1 || masses: [0.02484525 0.20702963 0.76812506]
+class 0 :: alcohol > 12.1 → class 0 || masses: [0.20927624 0.01460684 0.77611685]
+class 1 :: alcohol < 12.1 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.02613361 0.20073147 0.7731349 ]
+class 1 :: density > 0.991 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.03882274 0.19450596 0.76667136]
+class 1 :: alcohol < 11.3 & quality == 6 → class 1 || masses: [0.03453944 0.19615386 0.7693067 ]
+class 1 :: good == 0 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.03498613 0.19233611 0.7726778 ]
+class 1 :: alcohol < 11.3 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.04352532 0.18653142 0.76994324]
+class 1 :: alcohol < 11.3 & density < 0.99699 & pH > 3.04 → class 1 || masses: [0.02955812 0.19116634 0.77927554]
+class 1 :: density < 0.99699 & pH < 3.4 & quality == 6 → class 1 || masses: [0.0321238 0.1897799 0.7780963]
+class 1 :: density > 0.991 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.02238785 0.19369106 0.7839211 ]
+class 1 :: density < 0.99699 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.01866197 0.19537033 0.7859677 ]
+class 1 :: density > 0.991 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.04399478 0.18255503 0.7734502 ]
+class 1 :: alcohol < 11.3 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.04789418 0.18059163 0.77151424]
+class 1 :: density < 0.99699 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.00178508 0.20215397 0.796061  ]
+class 1 :: alcohol > 9.2 & pH < 3.4 & quality == 6 → class 1 || masses: [0.01543681 0.19523938 0.7893238 ]
+class 1 :: alcohol < 11.3 & pH > 3.04 & quality == 6 → class 1 || masses: [0.04194978 0.18274102 0.77530915]
+class 1 :: alcohol < 11.3 & density > 0.991 & pH < 3.4 → class 1 || masses: [0.04811895 0.17905523 0.7728258 ]
+class 1 :: density > 0.991 & pH > 3.11 & quality == 6 → class 1 || masses: [0.01876462 0.19249532 0.7887401 ]
+class 0 :: alcohol > 9.2 & sulphates > 0.43 → class 0 || masses: [0.18784109 0.02791781 0.7842411 ]
+class 1 :: alcohol < 12.1 & good == 0 → class 1 || masses: [0.02695775 0.18763658 0.78540564]
+class 1 :: alcohol < 11.3 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.03877787 0.18206179 0.7791603 ]
+class 1 :: good == 0 & pH > 3.11 & quality == 6 → class 1 || masses: [0.01936329 0.19033231 0.7903044 ]
+class 1 :: density < 0.99699 & good == 0 & quality == 6 → class 1 || masses: [0.03785089 0.18110944 0.78103966]
+class 1 :: alcohol < 11.3 & density < 0.99818 & sulphates < 0.69 → class 1 || masses: [0.04885288 0.1760359  0.77511126]
+class 1 :: alcohol < 12.1 & density < 0.99818 → class 1 || masses: [0.01571478 0.19097957 0.7933057 ]
+class 1 :: alcohol < 11.3 & pH > 3.11 → class 1 || masses: [0.003785  0.1955753 0.8006397]
+class 1 :: sulphates < 0.51 → class 1 || masses: [0.06666911 0.16654296 0.76678795]
+class 1 :: alcohol < 11.3 & good == 1 & sulphates > 0.43 → class 1 || masses: [0.01342499 0.18999352 0.7965815 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 → class 1 || masses: [0.0448583 0.1747975 0.7803442]
+class 1 :: good == 0 & pH < 3.4 & quality == 5 → class 1 || masses: [0.02970974 0.18119062 0.78909963]
+class 1 :: alcohol < 11.3 & sulphates < 0.69 → class 1 || masses: [0.06331668 0.16604996 0.7706334 ]
+class 1 :: good == 0 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.01267838 0.18832184 0.79899985]
+class 1 :: alcohol < 11.3 & density > 0.991 & quality == 7 → class 1 || masses: [0.01629372 0.18619202 0.7975143 ]
+class 1 :: alcohol < 11.3 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.01519092 0.18398313 0.80082595]
+class 1 :: alcohol > 9.2 & density > 0.991 & quality == 6 → class 1 || masses: [0.03506556 0.17458728 0.79034716]
+class 1 :: alcohol < 11.3 & density < 0.99818 & pH > 3.11 → class 1 || masses: [0.0132428  0.18460272 0.8021545 ]
+class 1 :: density > 0.991 & pH < 3.4 & quality == 5 → class 1 || masses: [0.03998898 0.17164642 0.78836465]
+class 1 :: alcohol > 9.2 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.02600889 0.17788044 0.7961107 ]
+class 0 :: alcohol > 10.8 → class 0 || masses: [0.15723315 0.07296877 0.76979804]
+class 1 :: pH > 3.04 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.04497143 0.16908541 0.78594315]
+class 0 :: alcohol > 9.2 & good == 0 & sulphates > 0.43 → class 0 || masses: [0.17382962 0.03415941 0.79201096]
+class 1 :: alcohol < 11.3 & density > 0.991 & pH > 3.11 → class 1 || masses: [0.02041626 0.17956965 0.800014  ]
+class 1 :: good == 0 & quality == 6 → class 1 || masses: [0.05440198 0.16391362 0.7816844 ]
+class 1 :: good == 0 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.01590122 0.18065694 0.80344176]
+class 1 :: density > 0.991 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.05506903 0.16262387 0.782307  ]
+class 1 :: alcohol < 12.1 & density > 0.991 & sulphates > 0.43 → class 1 || masses: [0.04762151 0.16532482 0.78705364]
+class 1 :: density < 0.99818 & pH > 3.04 & quality == 5 → class 1 || masses: [0.00936972 0.18279621 0.8078341 ]
+class 1 :: density < 0.99818 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.05333536 0.1625492  0.78411543]
+class 0 :: alcohol > 9.8 → class 0 || masses: [0.15544374 0.07005661 0.77449965]
+class 1 :: alcohol < 11.3 & density < 0.99818 → class 1 || masses: [0.05180356 0.1627427  0.78545374]
+class 1 :: alcohol < 9.5 → class 1 || masses: [0.08590898 0.14877303 0.76531804]
+class 1 :: pH < 3.16 → class 1 || masses: [0.07816136 0.15162294 0.7702157 ]
+class 1 :: alcohol > 9.2 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.06086863 0.15866949 0.7804619 ]
+class 1 :: density < 0.99818 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.03863353 0.16828427 0.7930822 ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & good == 0 → class 1 || masses: [0.01332598 0.17978276 0.80689126]
+class 1 :: alcohol < 11.3 & good == 0 & pH > 3.04 → class 1 || masses: [0.05080979 0.16214341 0.78704685]
+class 0 :: density > 0.991 & pH > 3.11 & sulphates > 0.43 → class 0 || masses: [0.16151118 0.05204665 0.7864422 ]
+class 0 :: sulphates > 0.55 → class 0 || masses: [0.1518912  0.07463267 0.77347606]
+class 1 :: alcohol > 9.2 & density < 0.99818 & sulphates > 0.43 → class 1 || masses: [0.0070383 0.1816416 0.8113201]
+class 1 :: density < 0.99818 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.00468748 0.18274474 0.81256783]
+class 1 :: alcohol < 11.3 & density > 0.991 & good == 0 → class 1 || masses: [0.06151843 0.15684222 0.78163934]
+class 1 :: alcohol < 11.3 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.02847825 0.17119975 0.800322  ]
+class 0 :: sulphates > 0.6 → class 0 || masses: [0.14897074 0.07988468 0.77114457]
+class 1 :: sulphates < 0.47 → class 1 || masses: [0.07307555 0.15137608 0.77554834]
+class 1 :: alcohol < 12.1 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.044577   0.16309914 0.7923238 ]
+class 1 :: alcohol > 9.2 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.04513956 0.16269164 0.7921688 ]
+class 1 :: density < 0.99818 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.04928664 0.16023499 0.7904783 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & sulphates < 0.69 → class 1 || masses: [0.06481619 0.15321587 0.78196794]
+class 1 :: alcohol < 11.3 & quality == 7 → class 1 || masses: [0.03394237 0.16633031 0.79972726]
+class 1 :: alcohol > 9.2 & density < 0.99699 → class 1 || masses: [0.0211991  0.17220557 0.80659527]
+class 1 :: alcohol < 11.3 & density < 0.99699 & good == 1 → class 1 || masses: [0.01672194 0.17403269 0.80924535]
+class 1 :: alcohol < 12.1 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.01512153 0.1745743  0.81030416]
+class 0 :: density < 0.991 → class 0 || masses: [0.14873981 0.0735352  0.7777249 ]
+class 1 :: pH > 3.04 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.07814273 0.14634554 0.77551174]
+class 1 :: pH > 3.04 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.03953927 0.16169155 0.7987691 ]
+class 1 :: pH > 3.11 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.00224277 0.17850262 0.8192546 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & sulphates < 0.69 → class 1 || masses: [0.08228818 0.14309438 0.77461743]
+class 1 :: alcohol > 9.2 & density > 0.991 → class 1 || masses: [0.0210055  0.16817594 0.81081855]
+class 1 :: alcohol > 9.2 & density > 0.991 & quality == 5 → class 1 || masses: [0.00723081 0.17464693 0.8181223 ]
+class 1 :: alcohol < 12.1 & pH < 3.4 → class 1 || masses: [0.07040292 0.1462453  0.7833518 ]
+class 1 :: density > 0.991 & good == 1 & pH < 3.4 → class 1 || masses: [0.01950533 0.16778228 0.81271243]
+class 1 :: alcohol < 11.3 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.08132063 0.14119686 0.77748245]
+class 1 :: alcohol < 11.3 & pH > 3.11 & quality == 5 → class 1 || masses: [0.01606612 0.16932155 0.8146123 ]
+class 1 :: alcohol < 12.1 & good == 0 & pH < 3.4 → class 1 || masses: [0.07181418 0.14420913 0.78397673]
+class 1 :: alcohol < 11.3 & good == 0 & pH < 3.4 → class 1 || masses: [0.07806467 0.14166637 0.78026897]
+class 1 :: alcohol < 12.1 & quality == 6 → class 1 || masses: [0.07671297 0.14211357 0.78117347]
+class 0 :: pH > 3.32 → class 0 || masses: [0.13993105 0.08146387 0.77860504]
+class 1 :: alcohol > 9.2 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.02405683 0.16425158 0.8116915 ]
+class 1 :: pH < 3.21 → class 1 || masses: [0.09151499 0.13571195 0.7727731 ]
+class 1 :: pH > 3.04 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.06881931 0.1438269  0.7873539 ]
+class 0 :: pH > 3.4 → class 0 || masses: [0.1407116  0.07658913 0.7826993 ]
+class 1 :: alcohol < 12.1 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.08907463 0.13545948 0.7754659 ]
+class 1 :: alcohol < 11.3 & good == 1 → class 1 || masses: [0.05118085 0.15065123 0.79816794]
+class 1 :: good == 1 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.02811399 0.16057277 0.81131333]
+class 1 :: density < 0.99818 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.00164996 0.17274071 0.8256094 ]
+class 1 :: alcohol > 9.2 & quality == 5 → class 1 || masses: [0.01930494 0.1631381  0.817557  ]
+class 1 :: density > 0.99586 → class 1 || masses: [0.05641718 0.14643162 0.79715115]
+class 1 :: alcohol < 11.3 & density > 0.991 → class 1 || masses: [0.08261383 0.13556011 0.781826  ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & pH > 3.11 → class 1 || masses: [0.02220537 0.16096315 0.8168315 ]
+class 1 :: density < 0.99699 → class 1 || masses: [0.05667955 0.14460231 0.79871815]
+class 1 :: density < 0.99818 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.056033   0.1448462  0.79912084]
+class 1 :: pH < 3.26 → class 1 || masses: [0.0982154  0.12838395 0.7734006 ]
+class 1 :: density < 0.99818 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.03866309 0.151798   0.8095389 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & quality == 5 → class 1 || masses: [0.05799067 0.1431511  0.7988582 ]
+class 1 :: alcohol < 11.3 & density < 0.99818 & pH < 3.4 → class 1 || masses: [0.08232564 0.13341963 0.7842547 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & quality == 7 → class 1 || masses: [0.0259927 0.1564565 0.8175508]
+class 1 :: alcohol > 9.2 & pH > 3.04 & quality == 6 → class 1 || masses: [0.06594358 0.13862063 0.7954357 ]
+class 0 :: pH > 3.26 → class 0 || masses: [0.12766866 0.09355196 0.7787794 ]
+class 1 :: density > 0.991 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.08583932 0.13051775 0.78364295]
+class 1 :: density < 0.99699 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.0189986  0.15852916 0.8224722 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & sulphates < 0.69 → class 1 || masses: [0.08548463 0.13002805 0.78448737]
+class 0 :: sulphates > 0.51 → class 0 || masses: [0.12683609 0.09381366 0.7793502 ]
+class 1 :: density > 0.991 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.07540496 0.13359371 0.79100126]
+class 1 :: alcohol < 11.3 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.08078455 0.13116741 0.7880481 ]
+class 1 :: good == 1 → class 1 || masses: [0.02712533 0.15353785 0.81933683]
+class 1 :: alcohol > 9.2 & good == 1 & quality == 7 → class 1 || masses: [0.01905473 0.15692642 0.82401884]
+class 1 :: alcohol < 12.1 & good == 1 & quality == 7 → class 1 || masses: [0.04226955 0.1462943  0.8114361 ]
+class 1 :: alcohol < 12.1 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.0445131  0.14522794 0.810259  ]
+class 1 :: alcohol < 11.3 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.09594357 0.124724   0.7793324 ]
+class 1 :: good == 0 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.08652049 0.12807906 0.78540045]
+class 1 :: density < 0.99486 → class 1 || masses: [0.06980547 0.1341385  0.7960561 ]
+class 1 :: density < 0.99818 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.09658577 0.12376551 0.7796487 ]
+class 1 :: density < 0.99586 → class 1 || masses: [0.07484554 0.13181421 0.7933402 ]
+class 1 :: alcohol < 11.3 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.08853436 0.12655568 0.78490996]
+class 1 :: density < 0.99818 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.07662378 0.1310127  0.79236346]
+class 1 :: density < 0.99818 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.04725781 0.14253609 0.81020606]
+class 1 :: pH < 3.04 → class 1 || masses: [0.08280922 0.12813836 0.7890524 ]
+class 1 :: density < 0.99699 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.08512411 0.12703168 0.78784424]
+class 1 :: alcohol < 11.3 & density > 0.991 & quality == 6 → class 1 || masses: [0.09781965 0.12234246 0.7798379 ]
+class 1 :: pH > 3.11 → class 1 || masses: [0.05061441 0.14060895 0.8087767 ]
+class 1 :: density < 0.99818 & good == 1 & pH < 3.4 → class 1 || masses: [0.02532726 0.15179373 0.822879  ]
+class 1 :: density < 0.99699 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.0694123  0.13267052 0.7979172 ]
+class 1 :: good == 0 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.08759212 0.12541457 0.7869933 ]
+class 1 :: density < 0.99699 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.03120213 0.14843579 0.82036215]
+class 1 :: density < 0.99699 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.08663335 0.12526934 0.7880973 ]
+class 1 :: alcohol > 9.2 & pH < 3.4 → class 1 || masses: [0.05352865 0.13797732 0.80849403]
+class 1 :: alcohol > 9.2 & density < 0.99818 & quality == 5 → class 1 || masses: [0.0440943  0.14189097 0.8140148 ]
+class 1 :: sulphates < 0.69 → class 1 || masses: [0.09649542 0.12102173 0.7824829 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 & pH > 3.11 → class 1 || masses: [0.07579254 0.12857604 0.79563147]
+class 1 :: density < 0.99818 & good == 0 & quality == 6 → class 1 || masses: [0.08779028 0.12343843 0.7887713 ]
+class 1 :: alcohol < 11.3 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.09355546 0.12128832 0.78515625]
+class 0 :: alcohol > 9.2 & pH > 3.11 & sulphates > 0.38 → class 0 || masses: [0.12123401 0.09337094 0.785395  ]
+class 1 :: density < 0.99699 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.08674565 0.12362782 0.7896265 ]
+class 1 :: good == 1 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.06196415 0.13308308 0.8049528 ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & pH > 3.04 → class 1 || masses: [0.05616576 0.13538164 0.8084526 ]
+class 1 :: density > 0.991 & pH > 3.04 & quality == 7 → class 1 || masses: [0.04485096 0.14009556 0.8150534 ]
+class 0 :: sulphates > 0.69 → class 0 || masses: [0.1206249  0.09382498 0.78555006]
+class 1 :: alcohol < 11.3 & pH > 3.04 & quality == 5 → class 1 || masses: [0.0683319  0.13016668 0.8015014 ]
+class 1 :: pH > 3.11 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.02503606 0.1485547  0.8264092 ]
+class 1 :: alcohol < 12.1 & good == 1 → class 1 || masses: [0.05349606 0.13590951 0.8105944 ]
+class 1 :: density < 0.99699 & pH > 3.11 & quality == 7 → class 1 || masses: [0.02712617 0.1474353  0.8254385 ]
+class 1 :: alcohol < 11.3 & pH < 3.4 & quality == 5 → class 1 || masses: [0.08837915 0.12200388 0.78961694]
+class 1 :: alcohol > 9.2 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.06226039 0.13197462 0.805765  ]
+class 1 :: alcohol < 11.3 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.06900042 0.12915598 0.8018436 ]
+class 1 :: alcohol > 9.2 & good == 0 & pH < 3.4 → class 1 || masses: [0.06765904 0.12967835 0.8026627 ]
+class 0 :: alcohol > 11.3 → class 0 || masses: [0.11880023 0.09658204 0.7846177 ]
+class 1 :: pH > 3.04 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.05957267 0.13278104 0.8076462 ]
+class 1 :: good == 1 & pH < 3.4 & quality == 7 → class 1 || masses: [0.04359478 0.13936657 0.81703866]
+class 1 :: alcohol < 11.3 & density < 0.99818 & good == 0 → class 1 || masses: [0.08935733 0.12060779 0.7900349 ]
+class 1 :: good == 0 & pH > 3.11 & quality == 5 → class 1 || masses: [0.0542392  0.13372184 0.8120389 ]
+class 1 :: density < 0.99699 & good == 1 & pH < 3.4 → class 1 || masses: [0.03960171 0.13985385 0.8205444 ]
+class 1 :: pH < 3.4 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.04746261 0.13634367 0.8161937 ]
+class 1 :: density > 0.991 & pH > 3.11 & quality == 7 → class 1 || masses: [0.03612456 0.14114642 0.822729  ]
+class 1 :: alcohol < 11.3 & pH > 3.11 & quality == 7 → class 1 || masses: [0.05460307 0.13293014 0.81246686]
+class 1 :: alcohol < 12.1 & density < 0.99818 & pH > 3.04 → class 1 || masses: [0.079277   0.12290582 0.7978172 ]
+class 1 :: pH > 3.04 & quality == 6 → class 1 || masses: [0.0927892  0.11744367 0.78976715]
+class 1 :: alcohol < 12.1 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.07915391 0.1221469  0.7986992 ]
+class 1 :: good == 0 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.09675733 0.11553911 0.7877036 ]
+class 1 :: quality == 8 → class 1 || masses: [0.07965732 0.12168046 0.7986622 ]
+class 1 :: alcohol > 9.2 & pH > 3.04 & quality == 5 → class 1 || masses: [0.05479588 0.13128386 0.81392026]
+class 1 :: quality == 7 & sulphates > 0.38 → class 1 || masses: [0.04966963 0.13303372 0.81729656]
+class 1 :: alcohol > 9.2 & density < 0.99699 & pH > 3.04 → class 1 || masses: [0.07455231 0.12300544 0.80244225]
+class 1 :: density > 0.991 & pH < 3.4 & quality == 7 → class 1 || masses: [0.0616981  0.12754552 0.81075644]
+class 1 :: good == 0 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.08682201 0.11785891 0.79531914]
+class 1 :: density < 0.99699 & good == 1 & pH > 3.11 → class 1 || masses: [0.04163367 0.13575725 0.82260907]
+class 1 :: alcohol < 12.1 & density > 0.991 & pH > 3.04 → class 1 || masses: [0.09024348 0.11629093 0.79346555]
+class 1 :: alcohol < 11.3 & good == 0 & pH > 3.11 → class 1 || masses: [0.07999656 0.11927395 0.8007295 ]
+class 1 :: alcohol < 12.1 & pH > 3.04 & quality == 5 → class 1 || masses: [0.07585336 0.12083552 0.80331105]
+class 1 :: alcohol > 9.2 & density > 0.991 & good == 0 → class 1 || masses: [0.07335304 0.12164685 0.8050002 ]
+class 1 :: density > 0.991 & good == 0 & sulphates > 0.43 → class 1 || masses: [0.09183577 0.11473346 0.7934308 ]
+class 1 :: alcohol > 9.2 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.08778122 0.11600401 0.79621476]
+class 1 :: density > 0.991 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.06423002 0.12483133 0.81093866]
+class 1 :: alcohol < 11.3 & good == 1 & pH < 3.4 → class 1 || masses: [0.08263263 0.11766229 0.7997051 ]
+class 1 :: alcohol < 12.1 & pH < 3.4 & quality == 7 → class 1 || masses: [0.06666634 0.12338193 0.80995166]
+class 1 :: density < 0.99818 & pH < 3.4 & quality == 6 → class 1 || masses: [0.09653218 0.11187183 0.79159594]
+class 1 :: quality == 5 & sulphates > 0.38 → class 1 || masses: [0.08372653 0.11636248 0.79991096]
+class 1 :: alcohol < 11.3 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.08730792 0.11494663 0.79774547]
+class 1 :: alcohol < 12.1 & density < 0.99699 & sulphates > 0.38 → class 1 || masses: [0.09534423 0.11201329 0.7926425 ]
+class 1 :: alcohol > 9.2 & good == 0 & pH > 3.04 → class 1 || masses: [0.07425079 0.11928315 0.80646604]
+class 1 :: pH > 3.04 & quality == 5 → class 1 || masses: [0.07953339 0.11679237 0.8036743 ]
+class 1 :: alcohol > 9.2 & density > 0.991 & sulphates > 0.38 → class 1 || masses: [0.07480206 0.11843698 0.80676097]
+class 1 :: alcohol < 12.1 → class 1 || masses: [0.09600987 0.11042936 0.7935608 ]
+class 1 :: alcohol < 12.1 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.09680577 0.11014313 0.7930511 ]
+class 1 :: alcohol > 9.2 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.08880959 0.11271732 0.79847306]
+class 1 :: alcohol < 11.3 & quality == 5 → class 1 || masses: [0.09140687 0.11098288 0.7976102 ]
+class 1 :: pH < 3.4 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.09624863 0.10917018 0.7945812 ]
+class 1 :: density > 0.991 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.0842476  0.11336261 0.8023898 ]
+class 1 :: alcohol < 12.1 & pH > 3.11 & quality == 6 → class 1 || masses: [0.0959633  0.10915846 0.7948782 ]
+class 1 :: alcohol > 9.2 & quality == 6 → class 1 || masses: [0.09267204 0.11005778 0.7972702 ]
+class 1 :: density < 0.99818 & pH < 3.4 & quality == 5 → class 1 || masses: [0.09271341 0.11001858 0.79726803]
+class 1 :: good == 1 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.06463618 0.12044189 0.8149219 ]
+class 1 :: alcohol < 12.1 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.09518412 0.10872108 0.79609483]
+class 1 :: pH > 3.11 & quality == 7 → class 1 || masses: [0.05547955 0.12353604 0.8209844 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & pH < 3.4 → class 1 || masses: [0.09695988 0.10776804 0.7952721 ]
+class 1 :: alcohol > 9.2 & density < 0.99699 & sulphates > 0.43 → class 1 || masses: [0.08779954 0.11076857 0.80143195]
+class 1 :: good == 1 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.057778   0.12216146 0.8200605 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 → class 1 || masses: [0.09598189 0.10737658 0.7966415 ]
+class 1 :: density < 0.99818 → class 1 || masses: [0.08901564 0.10980002 0.8011843 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & pH > 3.11 → class 1 || masses: [0.08601902 0.11056427 0.8034167 ]
+class 1 :: alcohol < 12.1 & pH > 3.11 → class 1 || masses: [0.08428274 0.11102883 0.8046884 ]
+class 1 :: alcohol > 9.2 & good == 1 & pH < 3.4 → class 1 || masses: [0.06123575 0.11964285 0.81912136]
+class 1 :: alcohol < 12.1 & pH > 3.11 & quality == 5 → class 1 || masses: [0.07715501 0.11322087 0.80962414]
+class 1 :: alcohol < 11.3 & pH > 3.11 & sulphates > 0.43 → class 1 || masses: [0.08573484 0.10999075 0.80427444]
+class 1 :: quality == 7 & sulphates < 0.69 → class 1 || masses: [0.08492241 0.11010025 0.80497736]
+class 1 :: alcohol < 12.1 & density < 0.99699 & good == 1 → class 1 || masses: [0.07212961 0.11437207 0.81349826]
+class 1 :: density < 0.99699 & pH > 3.04 & quality == 7 → class 1 || masses: [0.06904698 0.11539754 0.8155555 ]
+class 1 :: alcohol < 12.1 & good == 0 & quality == 5 → class 1 || masses: [0.0935347  0.10624894 0.8002164 ]
+class 1 :: alcohol > 9.2 & density < 0.99699 & sulphates < 0.69 → class 1 || masses: [0.09599469 0.10500357 0.7990018 ]
+class 1 :: alcohol < 12.1 & pH > 3.11 & sulphates > 0.43 → class 1 || masses: [0.08281604 0.10916062 0.80802333]
+class 1 :: alcohol < 12.1 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.09447623 0.10496668 0.8005571 ]
+class 1 :: pH > 3.04 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.08908313 0.10676701 0.8041498 ]
+class 1 :: density < 0.99699 & good == 1 & quality == 7 → class 1 || masses: [0.06887423 0.11413998 0.81698585]
+class 1 :: pH > 3.11 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.07943998 0.10993295 0.81062704]
+class 1 :: density < 0.99818 & good == 0 & sulphates > 0.43 → class 1 || masses: [0.0969619  0.10308145 0.7999567 ]
+class 1 :: alcohol < 12.1 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.0960227  0.10330425 0.800673  ]
+class 1 :: alcohol > 9.2 & density > 0.991 & pH > 3.11 → class 1 || masses: [0.07876279 0.10938343 0.81185377]
+class 1 :: alcohol > 9.2 & density < 0.99818 & pH < 3.4 → class 1 || masses: [0.09047706 0.10504057 0.8044824 ]
+class 1 :: pH > 3.11 & quality == 5 → class 1 || masses: [0.08358102 0.10710237 0.80931664]
+class 1 :: alcohol > 9.2 & density < 0.99699 & quality == 7 → class 1 || masses: [0.07204331 0.11127442 0.81668234]
+class 1 :: alcohol < 11.3 & pH > 3.04 & quality == 7 → class 1 || masses: [0.09287658 0.1033242  0.8037992 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & quality == 5 → class 1 || masses: [0.09463456 0.10246243 0.80290306]
+class 1 :: alcohol > 9.5 → class 1 || masses: [0.12460585 0.09277239 0.78262174]
+class 1 :: alcohol > 9.2 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.11328819 0.09601299 0.7906989 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & pH > 3.11 → class 1 || masses: [0.09554482 0.10168254 0.80277264]
+class 1 :: density < 0.99699 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.11254711 0.09600711 0.79144573]
+class 1 :: alcohol > 9.2 & pH > 3.11 → class 1 || masses: [0.120523   0.09320284 0.78627414]
+class 1 :: density > 0.991 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.11265862 0.09557206 0.7917694 ]
+class 1 :: density < 0.99818 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.09461125 0.10140643 0.80398226]
+class 1 :: alcohol < 12.1 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.08758654 0.10379092 0.80862254]
+class 1 :: alcohol > 9.2 & density > 0.991 & quality == 7 → class 1 || masses: [0.11155412 0.09574306 0.79270285]
+class 1 :: alcohol < 11.3 & pH < 3.4 & quality == 6 → class 1 || masses: [0.08990797 0.10269892 0.80739313]
+class 1 :: alcohol > 9.2 & density < 0.99818 & good == 1 → class 1 || masses: [0.07468325 0.10814536 0.81717145]
+class 1 :: quality == 7 & sulphates > 0.43 → class 1 || masses: [0.11738362 0.093667   0.7889493 ]
+class 1 :: density > 0.991 & good == 0 & quality == 5 → class 1 || masses: [0.09724732 0.10012504 0.8026276 ]
+class 1 :: density < 0.99818 & good == 1 & quality == 7 → class 1 || masses: [0.07585779 0.10751723 0.816625  ]
+class 1 :: density < 0.99699 & good == 0 & pH > 3.11 → class 1 || masses: [0.0971894  0.09965661 0.803154  ]
+class 1 :: density > 0.991 & good == 1 & sulphates > 0.43 → class 1 || masses: [0.1135556  0.09424175 0.79220265]
+class 1 :: alcohol > 9.2 & pH > 3.11 & quality == 7 → class 1 || masses: [0.11299648 0.09429647 0.792707  ]
+class 1 :: alcohol > 9.2 & density < 0.99818 → class 1 || masses: [0.11308366 0.09407116 0.7928452 ]
+class 1 :: alcohol > 9.2 & good == 1 → class 1 || masses: [0.07635209 0.1065266  0.81712127]
+class 1 :: alcohol < 12.1 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.09450494 0.09986713 0.80562794]
+class 1 :: density < 0.9936 → class 1 || masses: [0.09651174 0.09903653 0.80445176]
+class 1 :: density < 0.99699 & good == 1 & sulphates > 0.43 → class 1 || masses: [0.12199634 0.09076145 0.7872422 ]
+class 1 :: pH > 3.11 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.10986519 0.09440815 0.79572666]
+class 1 :: quality == 7 → class 1 || masses: [0.12114947 0.09071457 0.7881359 ]
+class 1 :: density > 0.991 & good == 1 & pH > 3.11 → class 1 || masses: [0.07927448 0.10454907 0.8161765 ]
+class 1 :: good == 1 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.1214702  0.09009306 0.7884367 ]
+class 1 :: density < 0.99699 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.08765606 0.10094461 0.81139934]
+class 1 :: alcohol > 9.2 & pH > 3.04 & quality == 7 → class 1 || masses: [0.08174512 0.10301182 0.81524307]
+class 1 :: alcohol > 9.2 & good == 1 & pH > 3.04 → class 1 || masses: [0.08119718 0.10320091 0.81560194]
+class 1 :: alcohol > 9.2 & pH < 3.4 & quality == 5 → class 1 || masses: [0.0960591  0.09801827 0.8059227 ]
+class 1 :: density > 0.99699 → class 1 || masses: [0.09296326 0.09902978 0.8080069 ]
+class 1 :: alcohol < 12.1 & good == 1 & sulphates > 0.43 → class 1 || masses: [0.10135556 0.09622333 0.8024211 ]
+class 1 :: pH < 3.4 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.10153484 0.09605544 0.8024097 ]
+class 1 :: density < 0.99818 & pH < 3.4 & quality == 7 → class 1 || masses: [0.12592538 0.0884819  0.78559273]
+class 0 :: alcohol > 9.2 & good == 0 & pH > 3.11 → class 0 || masses: [0.09797177 0.09540907 0.8066191 ]
+class 0 :: quality == 4 → class 0 || masses: [0.09907798 0.09211133 0.80881065]
+class 1 :: alcohol < 11.3 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.10379115 0.09505717 0.8011517 ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & quality == 7 → class 1 || masses: [0.12796485 0.08763209 0.78440297]
+class 1 :: alcohol > 9.2 & density < 0.99699 & good == 1 → class 1 || masses: [0.12630002 0.08810253 0.78559744]
+class 1 :: alcohol > 9.2 & good == 0 → class 1 || masses: [0.09800735 0.09689417 0.80509853]
+class 1 :: good == 0 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.09838523 0.09667073 0.804944  ]
+class 1 :: alcohol < 11.3 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.09252131 0.09857661 0.8089021 ]
+class 1 :: alcohol < 12.1 & sulphates > 0.38 → class 1 || masses: [0.09224971 0.09860288 0.80914736]
+class 0 :: quality == 3 → class 0 || masses: [0.09632343 0.09792161 0.8057549 ]
+class 1 :: alcohol > 9.2 & density > 0.991 & pH > 3.04 → class 1 || masses: [0.11523748 0.09061164 0.7941509 ]
+class 1 :: density > 0.991 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.10586066 0.09345198 0.8006874 ]
+class 1 :: density > 0.991 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.12118372 0.08867177 0.7901445 ]
+class 1 :: alcohol < 11.3 & good == 1 & quality == 7 → class 1 || masses: [0.09218939 0.09769982 0.8101108 ]
+class 1 :: alcohol > 9.2 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.10571906 0.09320404 0.8010769 ]
+class 1 :: sulphates < 0.38 → class 1 || masses: [0.11312163 0.09049106 0.7963873 ]
+class 1 :: density > 0.991 & good == 1 & quality == 7 → class 1 || masses: [0.09003123 0.09773757 0.8122311 ]
+class 1 :: alcohol < 11.3 & density < 0.99818 & quality == 5 → class 1 || masses: [0.10197216 0.09356447 0.8044634 ]
+class 1 :: pH > 3.04 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.08687458 0.09858485 0.81454057]
+class 1 :: good == 0 & quality == 5 → class 1 || masses: [0.10086734 0.09380475 0.8053279 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & sulphates > 0.43 → class 1 || masses: [0.09374396 0.09607768 0.8101784 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & quality == 7 → class 1 || masses: [0.1246163  0.08613297 0.78925073]
+class 1 :: good == 0 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.10191425 0.09303983 0.80504596]
+class 1 :: pH < 3.4 & quality == 5 → class 1 || masses: [0.09717714 0.09458386 0.80823904]
+class 1 :: alcohol < 11.3 & pH < 3.4 & quality == 7 → class 1 || masses: [0.10833167 0.0909808  0.80068755]
+class 1 :: alcohol > 9.2 & density > 0.991 & sulphates > 0.43 → class 1 || masses: [0.12421375 0.0861712  0.78961504]
+class 1 :: good == 1 & quality == 7 → class 1 || masses: [0.08810482 0.09742735 0.8144678 ]
+class 1 :: alcohol > 9.2 & density < 0.99699 & pH > 3.11 → class 1 || masses: [0.09931153 0.0935723  0.8071162 ]
+class 1 :: alcohol < 12.1 & good == 1 & pH < 3.4 → class 1 || masses: [0.09181303 0.09590447 0.8122825 ]
+class 1 :: density < 0.99818 & good == 1 & sulphates > 0.43 → class 1 || masses: [0.08727014 0.09745357 0.8152763 ]
+class 1 :: good == 1 & pH > 3.04 & quality == 7 → class 1 || masses: [0.10195596 0.09225379 0.8057903 ]
+class 1 :: sulphates < 0.43 → class 1 || masses: [0.09414311 0.09478508 0.8110719 ]
+class 1 :: pH > 3.16 → class 1 || masses: [0.12942737 0.08388339 0.7866892 ]
+class 1 :: density < 0.99699 & good == 0 & pH > 3.04 → class 1 || masses: [0.09619484 0.09404982 0.80975527]
+class 1 :: alcohol > 9.2 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.10125859 0.09238365 0.8063578 ]
+class 1 :: good == 0 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.09431753 0.0945467  0.81113577]
+class 1 :: alcohol < 11.3 & pH < 3.4 → class 1 || masses: [0.09221792 0.09517448 0.8126076 ]
+class 1 :: density < 0.99818 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.1115624  0.08894377 0.7994938 ]
+class 1 :: alcohol < 12.1 & quality == 5 → class 1 || masses: [0.10689862 0.09010523 0.80299616]
+class 1 :: alcohol < 12.1 & density > 0.991 → class 1 || masses: [0.09575976 0.09360474 0.81063545]
+class 1 :: good == 0 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.09520227 0.0937183  0.8110794 ]
+class 1 :: alcohol > 9.2 & sulphates > 0.38 → class 1 || masses: [0.12438408 0.08445406 0.7911619 ]
+class 1 :: quality == 5 & sulphates < 0.69 → class 1 || masses: [0.10229811 0.09115843 0.80654347]
+class 1 :: density < 0.99818 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.08937363 0.09535822 0.81526816]
+class 1 :: alcohol < 12.1 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.10839728 0.08903571 0.80256695]
+class 0 :: pH > 3.11 & quality == 5 & sulphates > 0.43 → class 0 || masses: [0.09235703 0.09753475 0.8101082 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & pH > 3.11 → class 1 || masses: [0.11849237 0.08576049 0.79574716]
+class 1 :: alcohol < 12.1 & density > 0.991 & good == 1 → class 1 || masses: [0.09198863 0.09373659 0.8142747 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & good == 0 → class 1 || masses: [0.09735249 0.09191693 0.8107306 ]
+class 1 :: density > 0.9936 → class 1 || masses: [0.09991144 0.09102545 0.8090631 ]
+class 1 :: alcohol > 9.2 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.1211783  0.08449385 0.79432786]
+class 1 :: pH > 3.04 → class 1 || masses: [0.10828564 0.08831275 0.80340165]
+class 1 :: alcohol > 9.2 & density > 0.991 & good == 1 → class 1 || masses: [0.09097736 0.09388179 0.81514084]
+class 1 :: alcohol < 11.3 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.09985536 0.09092382 0.80922085]
+class 1 :: density < 0.99818 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.13478908 0.08035385 0.78485703]
+class 1 :: pH > 3.04 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.09047487 0.0937551  0.81577003]
+class 1 :: alcohol < 12.1 & good == 0 & sulphates > 0.43 → class 1 || masses: [0.09996223 0.09056713 0.8094706 ]
+class 1 :: density < 0.99818 & good == 1 & pH > 3.11 → class 1 || masses: [0.14101398 0.0785382  0.78044784]
+class 1 :: alcohol < 12.1 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.10451318 0.08896504 0.8065218 ]
+class 1 :: density < 0.99699 & pH > 3.11 & quality == 6 → class 1 || masses: [0.09981764 0.09042358 0.8097587 ]
+class 1 :: alcohol > 9.2 → class 1 || masses: [0.12969212 0.08140515 0.78890276]
+class 1 :: density > 0.991 & good == 0 & quality == 6 → class 1 || masses: [0.09409603 0.09216885 0.8137351 ]
+class 1 :: good == 0 & pH < 3.4 & quality == 6 → class 1 || masses: [0.09451334 0.09187324 0.8136134 ]
+class 1 :: quality == 6 & sulphates > 0.38 → class 1 || masses: [0.09565879 0.09148011 0.8128611 ]
+class 0 :: density < 0.99818 & pH > 3.11 & sulphates > 0.43 → class 0 || masses: [0.08965203 0.10080998 0.80953807]
+class 1 :: density > 0.9924 → class 1 || masses: [0.1025429  0.08888211 0.808575  ]
+class 1 :: good == 0 & pH > 3.04 & quality == 6 → class 1 || masses: [0.09860598 0.09008251 0.8113115 ]
+class 1 :: pH > 3.11 & quality == 6 → class 1 || masses: [0.10461347 0.08803273 0.8073538 ]
+class 1 :: density < 0.99699 & pH > 3.11 & sulphates > 0.38 → class 1 || masses: [0.0967932  0.09010243 0.8131044 ]
+class 1 :: pH < 3.4 & quality == 6 → class 1 || masses: [0.09573065 0.09038965 0.8138797 ]
+class 1 :: alcohol < 12.1 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.09538634 0.0904691  0.8141445 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & sulphates > 0.38 → class 1 || masses: [0.10551795 0.08721795 0.8072641 ]
+class 1 :: alcohol < 12.1 & pH > 3.11 & quality == 7 → class 1 || masses: [0.13854147 0.07772731 0.7837313 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & good == 1 → class 1 || masses: [0.09426528 0.09077089 0.8149639 ]
+class 1 :: quality == 9 → class 1 || masses: [0.10709214 0.08655771 0.80635023]
+class 1 :: alcohol < 12.1 & pH > 3.04 & quality == 6 → class 1 || masses: [0.09774211 0.08941043 0.8128475 ]
+class 1 :: good == 1 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.0918892  0.09127362 0.81683713]
+class 1 :: alcohol < 11.3 & sulphates > 0.43 → class 1 || masses: [0.09735573 0.08939487 0.81324947]
+class 1 :: alcohol < 12.1 & good == 0 & pH > 3.11 → class 1 || masses: [0.11975418 0.08223363 0.79801226]
+class 1 :: alcohol > 9.2 & density < 0.99699 & pH < 3.4 → class 1 || masses: [0.11693269 0.08294357 0.80012375]
+class 1 :: alcohol < 11.3 & density > 0.991 & pH > 3.04 → class 1 || masses: [0.10083281 0.08776171 0.8114054 ]
+class 1 :: density < 0.99699 & good == 0 & sulphates > 0.38 → class 1 || masses: [0.1049741  0.08641793 0.80860794]
+class 1 :: alcohol > 9.2 & density < 0.99699 & sulphates > 0.38 → class 1 || masses: [0.1179882  0.08241057 0.7996012 ]
+class 1 :: good == 1 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.09345539 0.08999003 0.81655455]
+class 1 :: density < 0.99699 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.11023476 0.08464745 0.80511785]
+class 1 :: density < 0.99818 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.11456636 0.08334592 0.8020877 ]
+class 1 :: pH < 3.4 & quality == 7 & sulphates > 0.43 → class 1 || masses: [0.13520166 0.07719043 0.78760785]
+class 1 :: alcohol < 11.3 & density < 0.99699 & good == 0 → class 1 || masses: [0.10004953 0.08737561 0.8125749 ]
+class 1 :: sulphates > 0.38 → class 1 || masses: [0.11016572 0.08312181 0.8067125 ]
+class 1 :: density < 0.99699 & good == 0 & pH < 3.4 → class 1 || masses: [0.1063104  0.08427497 0.8094146 ]
+class 0 :: pH > 3.11 & quality == 7 & sulphates > 0.43 → class 0 || masses: [0.08811887 0.0940972  0.8177839 ]
+class 1 :: quality == 5 & sulphates > 0.43 → class 1 || masses: [0.12204669 0.07953303 0.7984203 ]
+class 1 :: sulphates < 0.55 → class 1 || masses: [0.09250649 0.08804838 0.81944513]
+class 1 :: density > 0.991 & good == 1 & pH > 3.04 → class 1 || masses: [0.13424325 0.07571294 0.79004383]
+class 1 :: good == 1 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.13788275 0.0746282  0.78748906]
+class 0 :: alcohol > 9.2 & pH > 3.04 & sulphates > 0.43 → class 0 || masses: [0.08378746 0.10522912 0.8109834 ]
+class 1 :: alcohol < 12.1 & pH > 3.04 & quality == 7 → class 1 || masses: [0.13464016 0.07535572 0.7900041 ]
+class 1 :: quality == 5 → class 1 || masses: [0.11897537 0.07961748 0.8014071 ]
+class 1 :: density < 0.99818 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.12100161 0.07865749 0.8003409 ]
+class 1 :: good == 0 & pH > 3.04 & quality == 5 → class 1 || masses: [0.12544157 0.0774137  0.7971447 ]
+class 0 :: alcohol > 9.2 & quality == 5 & sulphates > 0.43 → class 0 || masses: [0.08288524 0.10538405 0.81173074]
+class 1 :: alcohol > 9.2 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.12828259 0.07608515 0.7956322 ]
+class 1 :: alcohol > 9.2 & quality == 7 → class 1 || masses: [0.14709428 0.07117125 0.78173447]
+class 1 :: alcohol > 9.2 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.13669102 0.07359477 0.7897142 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & quality == 7 → class 1 || masses: [0.13060497 0.07495974 0.79443526]
+class 1 :: alcohol > 9.2 & density < 0.99699 & good == 0 → class 1 || masses: [0.12176812 0.07729735 0.80093455]
+class 1 :: density < 0.99818 & pH > 3.11 & quality == 7 → class 1 || masses: [0.15323853 0.06902966 0.7777318 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & pH < 3.4 → class 1 || masses: [0.1031386  0.0821462  0.81471515]
+class 1 :: density > 0.991 & good == 0 & pH > 3.04 → class 1 || masses: [0.1146884  0.07856262 0.806749  ]
+class 1 :: alcohol < 11.3 & density > 0.991 & sulphates < 0.69 → class 1 || masses: [0.09775877 0.0834171  0.8188242 ]
+class 1 :: density > 0.991 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.10240334 0.08178944 0.8158072 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & good == 0 → class 1 || masses: [0.11480545 0.07800829 0.80718625]
+class 1 :: alcohol < 12.1 & density < 0.99818 & quality == 6 → class 1 || masses: [0.1049227  0.08064359 0.81443375]
+class 0 :: alcohol > 9.2 & quality == 7 & sulphates > 0.43 → class 0 || masses: [0.08113834 0.10305405 0.81580764]
+class 1 :: density < 0.99818 & good == 0 & pH > 3.11 → class 1 || masses: [0.1304536  0.07317109 0.7963753 ]
+class 1 :: density > 0.991 & pH > 3.11 & quality == 5 → class 1 || masses: [0.14102331 0.07021894 0.78875774]
+class 1 :: alcohol > 9.2 & density > 0.991 & pH < 3.4 → class 1 || masses: [0.12996167 0.07297295 0.7970654 ]
+class 1 :: pH > 3.04 & quality == 7 → class 1 || masses: [0.14635915 0.06881745 0.7848234 ]
+class 1 :: pH < 3.4 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.1034181  0.08034714 0.81623477]
+class 1 :: alcohol < 12.1 & density < 0.99699 & quality == 6 → class 1 || masses: [0.10423583 0.08007193 0.8156922 ]
+class 1 :: alcohol > 9.2 & density < 0.99699 & quality == 6 → class 1 || masses: [0.11129105 0.07788479 0.8108241 ]
+class 1 :: alcohol < 11.3 & density < 0.99818 & good == 1 → class 1 || masses: [0.13497329 0.0713532  0.79367346]
+class 1 :: pH < 3.4 & quality == 7 → class 1 || masses: [0.14596915 0.06846251 0.7855683 ]
+class 1 :: density < 0.99699 & good == 1 & sulphates < 0.69 → class 1 || masses: [0.13905159 0.06960917 0.7913392 ]
+class 1 :: density < 0.99699 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.12102552 0.07429265 0.8046818 ]
+class 1 :: good == 1 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.13331923 0.07061967 0.79606104]
+class 1 :: density < 0.99699 & pH > 3.11 & quality == 5 → class 1 || masses: [0.1354457  0.06990886 0.7946454 ]
+class 1 :: alcohol < 9.2 → class 1 || masses: [0.09307769 0.08187585 0.8250465 ]
+class 1 :: alcohol > 9.2 & good == 0 & quality == 6 → class 1 || masses: [0.12083141 0.07349086 0.8056778 ]
+class 1 :: density < 0.99818 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.11042913 0.07632384 0.813247  ]
+class 1 :: density > 0.991 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.12250591 0.07284444 0.80464965]
+class 1 :: density > 0.991 & pH > 3.04 & quality == 5 → class 1 || masses: [0.13151297 0.07039754 0.7980895 ]
+class 1 :: alcohol < 11.3 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.10376441 0.07767066 0.81856495]
+class 1 :: alcohol > 9.2 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.14332323 0.06690504 0.78977174]
+class 1 :: alcohol > 9.2 & good == 1 & pH > 3.11 → class 1 || masses: [0.16006863 0.06282376 0.77710766]
+class 1 :: density < 0.99699 & good == 0 & sulphates > 0.43 → class 1 || masses: [0.1178021 0.0726032 0.8095947]
+class 1 :: alcohol < 11.3 & density < 0.99818 & quality == 7 → class 1 || masses: [0.13993824 0.06649777 0.793564  ]
+class 1 :: alcohol < 11.3 & density > 0.991 & sulphates > 0.38 → class 1 || masses: [0.10836759 0.07481796 0.8168145 ]
+class 1 :: alcohol < 12.1 & good == 1 & pH > 3.04 → class 1 || masses: [0.14440541 0.06500746 0.7905871 ]
+class 1 :: pH < 3.4 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.12344119 0.06996045 0.8065984 ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & quality == 6 → class 1 || masses: [0.12138057 0.07025751 0.80836195]
+class 1 :: alcohol < 12.1 & sulphates > 0.43 → class 1 || masses: [0.1192363  0.07078504 0.80997866]
+class 0 :: sulphates > 0.47 → class 0 || masses: [0.07110632 0.11787975 0.81101394]
+class 1 :: density < 0.99818 & pH > 3.04 & quality == 6 → class 1 || masses: [0.11698014 0.07117583 0.811844  ]
+class 1 :: good == 0 → class 1 || masses: [0.12194241 0.06974058 0.808317  ]
+class 1 :: density > 0.99818 → class 1 || masses: [0.10585424 0.07413054 0.8200152 ]
+class 1 :: density < 0.99699 & good == 0 & quality == 5 → class 1 || masses: [0.1332537  0.06580736 0.8009389 ]
+class 1 :: alcohol > 9.2 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.14286673 0.06294008 0.79419315]
+class 1 :: alcohol > 9.2 & good == 0 & quality == 5 → class 1 || masses: [0.15555775 0.05994672 0.7844955 ]
+class 1 :: density < 0.99818 & pH > 3.11 & quality == 5 → class 1 || masses: [0.15313177 0.06018672 0.7866815 ]
+class 1 :: density < 0.99818 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.11559245 0.06937327 0.8150343 ]
+class 1 :: density < 0.99699 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.12198833 0.06736486 0.81064683]
+class 1 :: density < 0.99699 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.11589126 0.06870468 0.81540406]
+class 1 :: alcohol < 12.1 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.11440499 0.0689991  0.8165959 ]
+class 1 :: sulphates < 0.6 → class 1 || masses: [0.10734691 0.07089832 0.8217548 ]
+class 1 :: pH < 3.4 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.12037583 0.06683504 0.81278914]
+class 1 :: density > 0.991 & good == 0 & pH > 3.11 → class 1 || masses: [0.14212164 0.06105574 0.7968226 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 & quality == 6 → class 1 || masses: [0.1105553  0.06904942 0.82039535]
+class 1 :: good == 0 & pH > 3.04 & sulphates > 0.38 → class 1 || masses: [0.13212398 0.06317097 0.8047051 ]
+class 1 :: density < 0.99818 & pH > 3.11 & quality == 6 → class 1 || masses: [0.12771979 0.06396263 0.80831754]
+class 0 :: alcohol > 9.2 & pH > 3.11 & quality == 5 → class 0 || masses: [0.06613016 0.11736087 0.81650895]
+class 1 :: alcohol < 12.1 & density < 0.99699 & good == 0 → class 1 || masses: [0.12635887 0.06343574 0.8102054 ]
+class 1 :: alcohol < 12.1 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.1079434  0.06821866 0.82383794]
+class 1 :: alcohol > 9.2 & density < 0.99818 & sulphates < 0.69 → class 1 || masses: [0.13734461 0.06065956 0.8019959 ]
+class 1 :: alcohol > 9.2 & pH > 3.04 → class 1 || masses: [0.1554797  0.0561528  0.78836745]
+class 1 :: density < 0.99699 & pH > 3.04 & quality == 6 → class 1 || masses: [0.12160359 0.06362794 0.8147685 ]
+class 1 :: density > 0.991 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.10920713 0.06651197 0.8242809 ]
+class 1 :: quality == 6 & sulphates > 0.43 → class 1 || masses: [0.1202489  0.06344217 0.816309  ]
+class 1 :: alcohol < 12.1 & density > 0.991 & quality == 5 → class 1 || masses: [0.13912416 0.05776473 0.80311114]
+class 0 :: alcohol > 10.3 → class 0 || masses: [0.06387903 0.11166216 0.82445884]
+class 1 :: pH > 3.11 & quality == 6 & sulphates > 0.38 → class 1 || masses: [0.13680065 0.05694129 0.8062581 ]
+class 1 :: alcohol < 12.1 & density < 0.99818 & sulphates > 0.43 → class 1 || masses: [0.13560423 0.05716521 0.8072306 ]
+class 1 :: density < 0.99818 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.1295435  0.05810905 0.8123475 ]
+class 1 :: alcohol < 12.1 & good == 0 & pH > 3.04 → class 1 || masses: [0.1360242  0.05644185 0.807534  ]
+class 0 :: alcohol > 9.2 & pH > 3.11 & sulphates > 0.43 → class 0 || masses: [0.05991856 0.12131319 0.8187682 ]
+class 1 :: alcohol < 11.3 & pH < 3.4 & sulphates < 0.69 → class 1 || masses: [0.11540068 0.06059105 0.8240082 ]
+class 1 :: alcohol > 9.2 & quality == 7 & sulphates > 0.38 → class 1 || masses: [0.17388678 0.04781316 0.77830005]
+class 1 :: alcohol < 12.1 & pH > 3.04 → class 1 || masses: [0.13769661 0.05482859 0.8074748 ]
+class 1 :: alcohol < 11.3 & density > 0.991 & good == 1 → class 1 || masses: [0.14250427 0.05365968 0.80383605]
+class 1 :: alcohol < 12.1 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.15005527 0.05171701 0.79822767]
+class 1 :: good == 0 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.1168035  0.05923972 0.82395685]
+class 1 :: alcohol < 12.1 & density < 0.99699 & pH < 3.4 → class 1 || masses: [0.13207313 0.05549249 0.8124343 ]
+class 1 :: alcohol < 12.1 & density < 0.99699 & pH > 3.04 → class 1 || masses: [0.13664602 0.05396438 0.80938965]
+class 1 :: alcohol < 11.3 & density < 0.99699 & sulphates > 0.43 → class 1 || masses: [0.12491439 0.05613797 0.8189476 ]
+class 1 :: density < 0.99699 & pH > 3.04 & quality == 5 → class 1 || masses: [0.14937763 0.04999651 0.80062586]
+class 1 :: good == 0 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.14365718 0.05062776 0.805715  ]
+class 1 :: density > 0.991 & pH < 3.4 & sulphates > 0.38 → class 1 || masses: [0.12850592 0.05385689 0.8176372 ]
+class 1 :: density > 0.991 & pH > 3.04 & quality == 6 → class 1 || masses: [0.13035555 0.05306553 0.81657887]
+class 1 :: density > 0.991 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.14139383 0.04951812 0.80908805]
+class 1 :: density < 0.99699 & quality == 5 & sulphates > 0.43 → class 1 || masses: [0.15185058 0.04729951 0.8008499 ]
+class 1 :: alcohol < 12.1 & pH < 3.4 & quality == 5 → class 1 || masses: [0.14005253 0.0495008  0.8104466 ]
+class 1 :: alcohol < 12.1 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.13005361 0.05155646 0.8183899 ]
+class 1 :: alcohol < 11.3 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.13875614 0.04923243 0.8120114 ]
+class 1 :: pH < 3.4 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.12744544 0.05157571 0.8209788 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 & sulphates > 0.38 → class 1 || masses: [0.12959395 0.05089965 0.8195064 ]
+class 1 :: density < 0.99699 & good == 1 & pH > 3.04 → class 1 || masses: [0.17703623 0.04188185 0.781082  ]
+class 1 :: alcohol > 9.2 & sulphates < 0.69 → class 1 || masses: [0.15185532 0.04601189 0.8021327 ]
+class 0 :: pH > 3.11 & quality == 6 & sulphates > 0.43 → class 0 || masses: [0.04436447 0.160434   0.79520154]
+class 1 :: density > 0.991 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.15504834 0.04435829 0.8005934 ]
+class 1 :: pH < 3.11 → class 1 || masses: [0.12023949 0.05125691 0.8285036 ]
+class 1 :: density > 0.991 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.12946802 0.04910459 0.8214274 ]
+class 1 :: alcohol < 11.3 & density < 0.99818 & pH > 3.04 → class 1 || masses: [0.14220674 0.04636964 0.81142366]
+class 1 :: alcohol < 12.1 & density > 0.991 & quality == 6 → class 1 || masses: [0.12960045 0.0482465  0.82215303]
+class 1 :: alcohol < 11.3 & good == 1 & pH > 3.04 → class 1 || masses: [0.15786274 0.04248206 0.7996552 ]
+class 1 :: alcohol > 9.2 & density < 0.99818 & sulphates > 0.38 → class 1 || masses: [0.16777037 0.04072332 0.79150635]
+class 1 :: density < 0.99818 & good == 0 & quality == 5 → class 1 || masses: [0.16227062 0.04112529 0.79660416]
+class 1 :: pH > 3.04 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.16572504 0.04055101 0.79372394]
+class 1 :: alcohol < 12.1 & pH < 3.4 & quality == 6 → class 1 || masses: [0.1309496  0.04663061 0.8224198 ]
+class 1 :: density < 0.99699 & pH < 3.4 & quality == 7 → class 1 || masses: [0.18394068 0.03732785 0.7787315 ]
+class 1 :: density < 0.99699 & pH > 3.11 & sulphates > 0.43 → class 1 || masses: [0.16813116 0.03943535 0.79243344]
+class 1 :: alcohol < 11.3 & good == 1 & sulphates > 0.38 → class 1 || masses: [0.15532908 0.04155589 0.803115  ]
+class 1 :: density < 0.99699 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.13607766 0.0450361  0.8188863 ]
+class 1 :: density < 0.99818 & pH > 3.04 & quality == 7 → class 1 || masses: [0.18551342 0.03614968 0.7783369 ]
+class 1 :: density > 0.991 → class 1 || masses: [0.14579444 0.04225851 0.81194705]
+class 1 :: density < 0.99699 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.15650712 0.04029278 0.8032002 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 & pH < 3.4 → class 1 || masses: [0.13674462 0.04330749 0.8199479 ]
+class 1 :: density > 0.991 & pH < 3.4 & quality == 6 → class 1 || masses: [0.13349155 0.04359079 0.8229177 ]
+class 1 :: density > 0.991 & pH > 3.11 & sulphates < 0.69 → class 1 || masses: [0.15093432 0.04004311 0.8090226 ]
+class 1 :: alcohol < 11.3 & good == 0 & quality == 6 → class 1 || masses: [0.13178357 0.04352362 0.8246927 ]
+class 1 :: alcohol < 11.3 & good == 1 & pH > 3.11 → class 1 || masses: [0.17562589 0.03603321 0.7883409 ]
+class 1 :: good == 1 & pH < 3.4 & sulphates > 0.43 → class 1 || masses: [0.18473448 0.03249151 0.78277403]
+class 0 :: good == 1 & pH > 3.11 & sulphates > 0.43 → class 0 || masses: [0.03929157 0.13717435 0.8235341 ]
+class 1 :: density < 0.99818 & good == 0 & pH > 3.04 → class 1 || masses: [0.16121435 0.03513755 0.8036482 ]
+class 1 :: alcohol < 11.3 & good == 0 & sulphates > 0.43 → class 1 || masses: [0.14519988 0.03665849 0.8181416 ]
+class 1 :: alcohol > 9.2 & quality == 5 & sulphates < 0.69 → class 1 || masses: [0.18203555 0.03058311 0.78738135]
+class 1 :: density > 0.991 & quality == 7 & sulphates < 0.69 → class 1 || masses: [0.15710391 0.0334762  0.80941993]
+class 1 :: density < 0.99818 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.15041603 0.0344033  0.8151806 ]
+class 0 :: alcohol > 9.2 & good == 1 & sulphates > 0.43 → class 0 || masses: [0.03539934 0.14299354 0.8216071 ]
+class 1 :: alcohol < 9.8 → class 1 || masses: [0.13121761 0.03667542 0.83210695]
+class 1 :: pH > 3.11 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.14518549 0.03280442 0.8220101 ]
+class 1 :: pH < 3.4 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.13814673 0.03304516 0.8288081 ]
+class 1 :: pH < 3.4 → class 1 || masses: [0.15495332 0.03039477 0.81465185]
+class 1 :: alcohol < 11.3 & density > 0.991 & sulphates > 0.43 → class 1 || masses: [0.15094656 0.02764531 0.82140815]
+class 1 :: alcohol > 9.2 & pH < 3.4 & quality == 7 → class 1 || masses: [0.20327727 0.02150466 0.775218  ]
+class 1 :: sulphates > 0.43 → class 1 || masses: [0.16994394 0.02418784 0.8058682 ]
+class 1 :: alcohol < 12.1 & density > 0.991 & sulphates > 0.38 → class 1 || masses: [0.1562933  0.02565748 0.8180492 ]
+class 1 :: alcohol < 11.3 & density < 0.99699 & quality == 7 → class 1 || masses: [0.18552853 0.02242389 0.7920476 ]
+class 1 :: alcohol < 12.1 & good == 0 & quality == 6 → class 1 || masses: [0.15119623 0.02521991 0.82358384]
+class 1 :: density > 0.991 & quality == 5 & sulphates > 0.38 → class 1 || masses: [0.17538445 0.02161535 0.80300015]
+class 0 :: pH > 3.21 → class 0 || masses: [0.02408164 0.15198416 0.82393426]
+class 1 :: alcohol < 11.3 & sulphates > 0.38 → class 1 || masses: [0.15234374 0.02389802 0.82375824]
+class 1 :: alcohol < 11.3 & good == 0 & sulphates < 0.69 → class 1 || masses: [0.14759393 0.02440989 0.8279962 ]
+class 1 :: quality == 6 & sulphates < 0.69 → class 1 || masses: [0.1457113  0.02393437 0.83035433]
+class 1 :: density < 0.99699 & quality == 6 & sulphates < 0.69 → class 1 || masses: [0.15063478 0.02307734 0.8262879 ]
+class 1 :: good == 1 & pH > 3.11 & quality == 7 → class 1 || masses: [0.21175046 0.01732017 0.77092946]
+class 1 :: alcohol < 11.3 & density < 0.99699 & sulphates < 0.69 → class 1 || masses: [0.15200481 0.02240773 0.8255874 ]
+class 1 :: alcohol < 12.1 & good == 1 & pH > 3.11 → class 1 || masses: [0.20414099 0.0175751  0.77828383]
+class 1 :: alcohol < 11.3 & density < 0.99818 & sulphates > 0.43 → class 1 || masses: [0.161639   0.02105903 0.817302  ]
+class 1 :: alcohol < 11.3 → class 1 || masses: [0.15555719 0.02155351 0.8228893 ]
+class 1 :: good == 1 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.18391879 0.01809297 0.79798824]
+class 1 :: alcohol < 11.3 & density < 0.99818 & sulphates > 0.38 → class 1 || masses: [0.1614906  0.01958253 0.8189269 ]
+class 1 :: alcohol < 11.3 & good == 0 & quality == 5 → class 1 || masses: [0.17551008 0.01800253 0.80648744]
+class 1 :: alcohol < 11.3 & good == 0 → class 1 || masses: [0.16057067 0.01840469 0.8210247 ]
+class 1 :: alcohol > 9.2 & density < 0.99699 & quality == 5 → class 1 || masses: [0.19441023 0.01500506 0.7905847 ]
+class 0 :: good == 0 & pH > 3.11 & sulphates > 0.43 → class 0 || masses: [0.01588434 0.17262027 0.81149536]
+class 1 :: alcohol < 11.3 & density < 0.99699 & quality == 5 → class 1 || masses: [0.17834069 0.01507836 0.80658096]
+class 1 :: density < 0.99699 & pH < 3.4 & quality == 5 → class 1 || masses: [0.17760076 0.01434943 0.80804986]
+class 1 :: density < 0.99818 & pH > 3.04 & sulphates > 0.43 → class 1 || masses: [0.19108048 0.01303665 0.7958829 ]
+class 1 :: density > 0.99486 → class 1 || masses: [0.17773779 0.01375776 0.80850446]
+class 1 :: alcohol < 12.1 & sulphates < 0.69 → class 1 || masses: [0.15562607 0.01523843 0.82913554]
+class 1 :: alcohol < 12.1 & quality == 6 & sulphates > 0.43 → class 1 || masses: [0.1636155  0.01070738 0.82567716]
+class 1 :: density < 0.99818 & good == 0 & pH < 3.4 → class 1 || masses: [0.17675109 0.00947865 0.81377023]
+class 1 :: quality == 6 → class 1 || masses: [0.16888744 0.00912973 0.82198286]
+class 1 :: alcohol < 11.3 & density < 0.99818 & quality == 6 → class 1 || masses: [0.16300756 0.00870471 0.8282877 ]
+class 1 :: alcohol > 9.2 & density > 0.991 & sulphates < 0.69 → class 1 || masses: [0.18067628 0.00781115 0.8115126 ]
+class 1 :: alcohol < 10.3 → class 1 || masses: [0.15782484 0.00839065 0.83378446]
+class 1 :: alcohol < 12.1 & pH > 3.04 & sulphates < 0.69 → class 1 || masses: [0.1666508  0.00597238 0.8273768 ]
+class 1 :: density < 0.99818 & good == 1 & pH > 3.04 → class 1 || masses: [0.221256   0.00426526 0.7744788 ]
+class 1 :: alcohol < 12.1 & quality == 7 → class 1 || masses: [0.20976111 0.00437908 0.7858598 ]
+class 1 :: density < 0.9924 → class 1 || masses: [0.21123603 0.00375057 0.78501344]
+class 1 :: alcohol < 11.3 & pH > 3.04 → class 1 || masses: [0.17663334 0.00429245 0.81907415]
+class 1 :: alcohol < 11.3 & pH > 3.11 & quality == 6 → class 1 || masses: [0.17884366 0.00324454 0.8179118 ]
+class 1 :: alcohol > 9.2 & pH > 3.11 & quality == 6 → class 1 || masses: [0.19426408 0.00181585 0.8039201 ]
+class 1 :: alcohol < 11.3 & density > 0.991 & quality == 5 → class 1 || masses: [0.19168143 0.00089319 0.8074254 ]

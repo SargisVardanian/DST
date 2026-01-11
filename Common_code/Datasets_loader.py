@@ -40,7 +40,7 @@ def _read_csv_any(csv_path: Path) -> pd.DataFrame:
 
 def _pick_label_column(df: pd.DataFrame) -> str:
     """Heuristically choose the label/target column name."""
-    preferred = {"label", "labels", "class", "target", "outcome", "diagnosis", "y", "result", "income"}
+    preferred = {"label", "labels", "class", "target", "outcome", "diagnosis", "y", "result", "income", "chd"}
     for c in df.columns:
         if c.strip().lower() in preferred:
             return c

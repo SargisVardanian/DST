@@ -1,267 +1,267 @@
-class 0 :: age < 66 & balance < 450 & day > 5 & duration < 586 & education == primary & marital == married & month == aug & pdays < 35 → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: age < 60 & balance < 597 & campaign > 1 & day < 10 & duration < 437 & marital == single & month == feb & previous < 1 → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: age < 60 & balance < 1293 & campaign > 1 & day < 10 & duration < 180 & month == feb & pdays > 183 → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: age < 60 & day > 6 & duration < 437 & housing == no & loan == yes & month == jul & previous < 1 → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: day > 16 & duration < 383 & housing == yes & month == nov & poutcome == failure → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: day > 15 & housing == yes & month == jan & poutcome == failure → class 0 || masses: 1.000000, 0.000000, 0.000000
-class 0 :: age > 26 & balance < 233.2 & day > 8 & duration < 353 & job == management & month == aug & pdays < 5 → class 0 || masses: 0.999995, 0.000000, 0.000005
-class 0 :: age < 53 & day > 27 & duration < 661 & housing == yes & month == jan & poutcome == unknown → class 0 || masses: 0.999994, 0.000000, 0.000006
-class 0 :: campaign > 1 & day < 8 & duration < 562.3 & education == secondary & month == feb & pdays < 43.5 → class 0 || masses: 0.999933, 0.000031, 0.000036
-class 0 :: day < 10 & duration < 168 & education == secondary & month == feb & previous < 1 → class 0 || masses: 0.999454, 0.000000, 0.000546
-class 0 :: contact == unknown & duration < 279 & marital == married & month == jun & poutcome == unknown → class 0 || masses: 0.980806, 0.003402, 0.015793
-class 0 :: age > 29 & balance < 2533.6 & duration < 214.1 & housing == no & marital == single & month == aug & previous < 1 → class 0 || masses: 0.964754, 0.011729, 0.023517
-class 0 :: day < 16 & duration < 279 & housing == yes & month == may → class 0 || masses: 0.955436, 0.007215, 0.037349
-class 0 :: day > 15 & duration < 437 & housing == no & month == jan & poutcome == other & previous < 3 → class 0 || masses: 0.949636, 0.000000, 0.050364
-class 0 :: campaign > 1 & contact == unknown & day > 6 & duration < 329 & previous < 1 → class 0 || masses: 0.947127, 0.001092, 0.051781
-class 1 :: age > 46 & campaign < 2 & contact == cellular & day > 15 & duration > 384 & month == may → class 1 || masses: 0.000000, 0.937899, 0.062101
-class 0 :: campaign < 2 & day < 20 & duration < 437 & education == secondary & housing == yes & month == apr & previous < 2 → class 0 || masses: 0.927044, 0.007443, 0.065513
-class 0 :: age > 38 & day < 16 & duration < 407 & month == may & pdays > 101 & poutcome == failure → class 0 || masses: 0.927367, 0.001220, 0.071414
-class 0 :: age > 30 & contact == unknown & duration < 426 & housing == yes & month == may & previous < 1 → class 0 || masses: 0.920246, 0.003569, 0.076185
-class 0 :: age < 39 & duration < 550 & education == secondary & month == apr & poutcome == failure → class 0 || masses: 0.914735, 0.007495, 0.077771
-class 0 :: duration < 267 & housing == yes & month == jul & poutcome == unknown → class 0 || masses: 0.885287, 0.015051, 0.099662
-class 0 :: age > 33 & balance < 450 & duration < 353 & month == jul & previous < 1 → class 0 || masses: 0.896149, 0.003040, 0.100811
-class 1 :: day > 20 & housing == yes & month == apr → class 1 || masses: 0.011159, 0.885327, 0.103513
-class 1 :: balance > 1125 & contact == cellular & day > 10 & month == feb → class 1 || masses: 0.021421, 0.858098, 0.120481
-class 0 :: balance < 1125 & duration < 563 & housing == yes & marital == married & month == nov & previous < 1 → class 0 || masses: 0.865494, 0.006936, 0.127570
-class 0 :: age < 59 & balance < 1125 & campaign < 6 & day > 15 & duration < 437 & education == secondary & month == aug & previous < 1 → class 0 || masses: 0.863881, 0.008493, 0.127626
-class 0 :: campaign > 1 & day > 15 & duration < 437 & month == apr & poutcome == failure → class 0 || masses: 0.857756, 0.013482, 0.128762
-class 0 :: age > 30 & campaign > 1 & duration < 202 & month == aug & poutcome == unknown → class 0 || masses: 0.855209, 0.011113, 0.133678
-class 0 :: day > 16 & duration < 364 & month == nov & previous < 1 → class 0 || masses: 0.854490, 0.011259, 0.134251
-class 1 :: day > 3 & duration > 298 & marital == married & month == jul & pdays > -1 → class 1 || masses: 0.000537, 0.860907, 0.138557
-class 1 :: balance < 211.4 & contact == cellular & day > 20 & duration > 279 & month == apr → class 1 || masses: 0.006568, 0.854575, 0.138857
-class 0 :: age < 59 & balance < 131 & campaign > 1 & duration < 288 & marital == married & month == aug & poutcome == unknown → class 0 || masses: 0.860497, 0.000000, 0.139503
-class 0 :: campaign < 2 & housing == no & month == feb & poutcome == other → class 0 || masses: 0.856760, 0.000000, 0.143240
-class 1 :: balance < 173.8 & campaign > 3 & contact == cellular & day > 29 & duration > 279 → class 1 || masses: 0.000000, 0.854584, 0.145416
-class 0 :: day > 8 & duration < 437 & education == primary & housing == yes & job == blue-collar & previous < 1 → class 0 || masses: 0.846930, 0.000000, 0.153070
-class 0 :: age < 62 & day > 16 & duration < 666 & month == jan & previous < 1 → class 0 || masses: 0.836767, 0.009676, 0.153557
-class 0 :: balance < 131 & day < 19 & duration < 595.2 & education == secondary & month == may & poutcome == failure → class 0 || masses: 0.825897, 0.013302, 0.160800
-class 0 :: age < 53 & balance < 131 & campaign < 2 & day > 6 & duration < 471 & month == jul & previous < 1 → class 0 || masses: 0.828065, 0.010885, 0.161050
-class 0 :: contact == unknown & day < 10 & duration < 507 & previous < 1 → class 0 || masses: 0.823733, 0.010018, 0.166249
-class 0 :: age < 53 & balance > 1125 & contact == cellular & day < 8 & duration < 862.75 & education == secondary & month == feb & pdays < 20.5 → class 0 || masses: 0.819582, 0.001563, 0.178856
-class 0 :: balance < 1125 & duration < 244 & housing == yes & marital == married & month == apr & poutcome == unknown → class 0 || masses: 0.815318, 0.000000, 0.184682
-class 0 :: age > 25 & balance < 692 & duration < 562 & job == management & marital == single & month == aug & poutcome == unknown → class 0 || masses: 0.803503, 0.007158, 0.189340
-class 0 :: duration < 245.8 & education == secondary & job == management & poutcome == success & previous < 2.1 → class 0 || masses: 0.810594, 0.000000, 0.189406
-class 1 :: balance > 728 & campaign > 2 & contact == cellular & duration > 394 & education == tertiary & month == may → class 1 || masses: 0.000000, 0.800367, 0.199633
-class 1 :: balance < 1125 & day > 10 & month == feb → class 1 || masses: 0.014763, 0.775008, 0.210228
-class 0 :: day < 10 & duration < 122 & month == feb & previous < 1 → class 0 || masses: 0.779922, 0.007663, 0.212415
-class 0 :: balance > 131 & campaign > 2 & duration > 180 & month == nov & poutcome == failure → class 0 || masses: 0.772208, 0.009142, 0.218650
-class 0 :: age > 33 & day > 15 & duration < 560 & month == nov & pdays > 101 & poutcome == failure → class 0 || masses: 0.770772, 0.004691, 0.224538
-class 0 :: age > 53 & balance > 319.9 & day < 9 & pdays > 101 & poutcome == other → class 0 || masses: 0.760499, 0.014162, 0.225339
-class 1 :: balance > 70 & contact == cellular & day < 5 & duration > 437 & month == may & pdays < 101 → class 1 || masses: 0.000000, 0.761374, 0.238626
-class 1 :: age < 32 & campaign > 2 & contact == cellular & day < 16 & duration > 437 & education == tertiary → class 1 || masses: 0.004263, 0.753659, 0.242078
-class 0 :: age > 37 & day > 16 & duration > 180 & month == jan & pdays < 318 & poutcome == failure → class 0 || masses: 0.750594, 0.006472, 0.242933
-class 0 :: balance < 615.5 & day < 10 & duration < 614.05 & housing == yes & month == feb → class 0 || masses: 0.742233, 0.012646, 0.245121
-class 1 :: duration > 152 & job == management & month == mar & pdays < 101 → class 1 || masses: 0.000459, 0.750118, 0.249424
-class 0 :: day < 15 & duration < 756.2 & housing == yes & month == may & poutcome == failure & previous < 3 → class 0 || masses: 0.738887, 0.007652, 0.253461
-class 0 :: age < 39 & balance > 1625 & campaign > 1 & day < 19 & duration < 279 & job == management & pdays < 47.6 → class 0 || masses: 0.735242, 0.008723, 0.256035
-class 0 :: campaign < 4 & day > 9 & duration < 644 & marital == married & month == jul & previous < 1 → class 0 || masses: 0.726018, 0.008473, 0.265509
-class 1 :: default == yes & duration > 279 & marital == single & month == jun → class 1 || masses: 0.001759, 0.728739, 0.269502
-class 0 :: age > 34 & campaign > 3 & duration < 131.6 & previous < 1 → class 0 || masses: 0.724913, 0.005037, 0.270050
-class 0 :: day < 20 & duration < 279 & education == primary & month == oct → class 0 || masses: 0.721427, 0.007076, 0.271497
-class 0 :: campaign > 1 & contact == unknown & duration > 437 & housing == yes & job == management & marital == married → class 0 || masses: 0.723765, 0.003715, 0.272520
-class 1 :: age < 47 & contact == cellular & day < 16 & duration > 411 & marital == divorced & month == aug → class 1 || masses: 0.000000, 0.707202, 0.292798
-class 1 :: balance > 76.7 & campaign < 2 & contact == cellular & duration > 437 & job == admin. & month == may → class 1 || masses: 0.000000, 0.700736, 0.299264
-class 0 :: day < 20 & duration < 160 & month == may → class 0 || masses: 0.690703, 0.007655, 0.301642
-class 0 :: day < 3 & duration > 180 & housing == no & marital == single & pdays < 318 & poutcome == failure → class 0 || masses: 0.697993, 0.000219, 0.301788
-class 0 :: age < 60 & duration < 404 & job == technician & month == aug & previous < 1 → class 0 || masses: 0.690196, 0.005341, 0.304463
-class 0 :: duration < 437 & marital == married & month == may & pdays > 318 → class 0 || masses: 0.686126, 0.008457, 0.305416
-class 0 :: campaign > 2 & day > 17 & duration < 198 & month == jul & poutcome == unknown → class 0 || masses: 0.683204, 0.011014, 0.305782
-class 0 :: day < 8 & duration > 180 & month == feb & pdays > 189 & poutcome == failure → class 0 || masses: 0.672712, 0.013737, 0.313551
-class 1 :: day > 20 & duration > 180 & pdays > -1 & poutcome == success → class 1 || masses: 0.004766, 0.679158, 0.316076
-class 1 :: contact == cellular & day > 9 & duration > 437 & education == tertiary & housing == no & job == management & month == apr → class 1 || masses: 0.000000, 0.681463, 0.318537
-class 0 :: age > 38 & day < 20 & duration < 608 & housing == yes & month == apr & previous < 2 → class 0 || masses: 0.670247, 0.009377, 0.320376
-class 0 :: balance < 268 & duration < 355 & month == may & pdays < 8 → class 0 || masses: 0.663710, 0.014455, 0.321835
-class 1 :: age < 53 & day > 16 & duration > 87.15 & month == oct → class 1 || masses: 0.010565, 0.663833, 0.325602
-class 0 :: duration < 180 & poutcome == failure → class 0 || masses: 0.651541, 0.021032, 0.327428
-class 0 :: age < 59 & balance > 450 & campaign < 4 & day > 6 & duration < 437 & education == secondary & month == jul & poutcome == unknown → class 0 || masses: 0.664419, 0.004437, 0.331144
-class 1 :: duration > 191 & housing == no & marital == single & month == apr & previous < 1 → class 1 || masses: 0.015791, 0.647344, 0.336865
-class 0 :: balance < 304.9 & day > 10 & duration < 240.9 & housing == no & month == sep & poutcome == unknown → class 0 || masses: 0.660940, 0.000000, 0.339060
-class 0 :: balance < 599 & campaign > 2 & day < 20 & duration < 437 & housing == yes & month == feb & previous < 1 → class 0 || masses: 0.660878, 0.000000, 0.339122
-class 0 :: age < 47 & balance < 1444 & campaign < 2 & day < 27 & duration < 540 & housing == no & month == feb & pdays < 35 → class 0 || masses: 0.652594, 0.004983, 0.342423
-class 1 :: age > 59 & balance < 1770 & contact == cellular & duration > 394 & education == primary & housing == no → class 1 || masses: 0.000000, 0.656268, 0.343732
-class 0 :: age > 27 & balance > 450 & day > 16 & duration > 437 & month == sep → class 0 || masses: 0.645533, 0.010468, 0.344000
-class 0 :: age < 59 & duration < 439 & marital == married & month == aug & poutcome == unknown → class 0 || masses: 0.637922, 0.016109, 0.345968
-class 0 :: balance > 2533.6 & campaign > 1 & contact == cellular & job == blue-collar & pdays > 94.4 → class 0 || masses: 0.650897, 0.003007, 0.346096
-class 0 :: age < 38 & day > 9 & duration < 878 & housing == yes & month == apr → class 0 || masses: 0.641405, 0.010891, 0.347705
-class 1 :: campaign > 1 & contact == cellular & duration > 108 & month == jun → class 1 || masses: 0.005660, 0.646538, 0.347802
-class 1 :: age < 33 & contact == cellular & day > 20 & duration > 366 & job == student & marital == single → class 1 || masses: 0.015479, 0.634108, 0.350414
-class 0 :: age < 62 & balance < 450 & day < 15 & duration < 476 & education == secondary & month == may & poutcome == unknown → class 0 || masses: 0.645204, 0.003702, 0.351095
-class 0 :: balance < 450 & day < 20 & duration > 279 & education == secondary & housing == yes & marital == married & month == apr & previous < 1 → class 0 || masses: 0.640274, 0.006773, 0.352953
-class 0 :: age < 60 & balance < 1363.4 & campaign > 1 & day > 19 & duration < 437 & education == primary & marital == married & previous < 1 → class 0 || masses: 0.639794, 0.000000, 0.360206
-class 1 :: contact == cellular & day < 16 & duration > 437 & job == services & marital == divorced → class 1 || masses: 0.001948, 0.631984, 0.366068
-class 0 :: campaign > 1 & day > 10 & duration < 437 & month == jun & pdays < 101 → class 0 || masses: 0.628318, 0.003642, 0.368040
-class 0 :: age > 47 & day < 20 & duration < 623.3 & education == secondary & marital == married & month == aug & pdays < 39.3 → class 0 || masses: 0.612610, 0.018568, 0.368822
-class 1 :: age < 27 & contact == cellular & duration > 409.5 & marital == single & month == sep → class 1 || masses: 0.000000, 0.630943, 0.369057
-class 0 :: age > 34 & balance < 1435.1 & campaign > 1 & day < 10 & duration < 709 & marital == married & month == feb & poutcome == unknown → class 0 || masses: 0.628604, 0.001880, 0.369516
-class 0 :: age < 53 & contact == cellular & day > 29 & duration < 240 & poutcome == unknown → class 0 || masses: 0.628044, 0.000000, 0.371956
-class 0 :: contact == cellular & day < 20 & job == admin. & month == oct & pdays > -1 → class 0 || masses: 0.614877, 0.012779, 0.372344
-class 1 :: campaign < 2 & contact == cellular & day < 16 & duration > 437 & education == tertiary & job == self-employed → class 1 || masses: 0.000513, 0.625178, 0.374309
-class 1 :: age < 39 & balance > 1125 & campaign < 2 & contact == cellular & day > 20 & duration > 437 & housing == no → class 1 || masses: 0.000000, 0.625279, 0.374721
-class 0 :: age > 46 & campaign > 2 & marital == divorced & month == jul → class 0 || masses: 0.617186, 0.000000, 0.382814
-class 1 :: campaign < 2 & duration > 144.6 & housing == yes & month == sep → class 1 || masses: 0.008882, 0.605356, 0.385762
-class 1 :: balance > 450 & contact == cellular & day < 16 & duration > 437 & education == secondary & month == aug → class 1 || masses: 0.003985, 0.609623, 0.386392
-class 1 :: day < 16 & month == nov → class 1 || masses: 0.016421, 0.596173, 0.387405
-class 0 :: duration < 485 & housing == yes & poutcome == other → class 0 || masses: 0.605889, 0.006385, 0.387725
-class 1 :: balance > 1125 & contact == telephone & duration > 284.5 & job == admin. → class 1 || masses: 0.000000, 0.610910, 0.389090
-class 0 :: duration < 148 & housing == no & poutcome == other → class 0 || masses: 0.603131, 0.007028, 0.389841
-class 0 :: age > 33 & balance < 228 & campaign < 3 & day < 20 & duration < 437 & housing == yes & month == may & previous < 1 → class 0 || masses: 0.602803, 0.000000, 0.397197
-class 0 :: day > 15 & month == nov & poutcome == other → class 0 || masses: 0.585231, 0.012812, 0.401957
-class 0 :: balance < 36.6 & campaign < 2 & day < 10 & duration < 279 & housing == no & poutcome == unknown → class 0 || masses: 0.590985, 0.004687, 0.404328
-class 0 :: campaign < 2 & contact == unknown & duration < 824.1 & month == jun & pdays < 40.2 → class 0 || masses: 0.581725, 0.008408, 0.409867
-class 0 :: month == jan & poutcome == other → class 0 || masses: 0.582564, 0.007380, 0.410056
-class 1 :: day < 20 & duration > 200 & housing == no & month == mar & pdays < 84 → class 1 || masses: 0.008316, 0.581111, 0.410573
-class 1 :: balance > 450 & contact == telephone & duration > 267 & education == unknown → class 1 || masses: 0.003597, 0.585360, 0.411044
-class 0 :: balance < 2533.6 & day < 9 & duration < 242 & education == primary & poutcome == unknown → class 0 || masses: 0.585546, 0.001562, 0.412891
-class 0 :: age < 46 & balance < 131 & day > 15 & job == technician & marital == married & month == aug → class 0 || masses: 0.582976, 0.000000, 0.417024
-class 0 :: day > 15 & duration < 117 → class 0 || masses: 0.581556, 0.001220, 0.417224
-class 0 :: age > 27 & balance > 250 & campaign > 3 & duration < 481 & month == jul & previous < 1 → class 0 || masses: 0.578071, 0.003001, 0.418928
-class 0 :: contact == unknown & day > 15 & duration < 717 & housing == no & previous < 1 → class 0 || masses: 0.566324, 0.014593, 0.419082
-class 1 :: month == mar → class 1 || masses: 0.033627, 0.546446, 0.419928
-class 0 :: campaign > 3 & day > 15 & duration < 788 & job == management & month == aug & pdays < 8.1 → class 0 || masses: 0.567076, 0.009754, 0.423170
-class 0 :: contact == unknown & duration < 539 & housing == yes & month == may & poutcome == unknown → class 0 || masses: 0.556345, 0.015737, 0.427918
-class 1 :: age > 57 & balance < 131 & campaign < 2 & contact == cellular & duration > 359 → class 1 || masses: 0.000000, 0.566647, 0.433353
-class 1 :: balance > 210.2 & contact == unknown & day > 5 & duration > 478.3 & marital == single → class 1 || masses: 0.010750, 0.554738, 0.434511
-class 1 :: balance < 53 & contact == cellular & day < 16 & duration > 437 & marital == single → class 1 || masses: 0.010926, 0.552827, 0.436247
-class 0 :: age < 60 & balance < 1299.5 & day > 15 & duration < 180 & month == jan & previous < 2 → class 0 || masses: 0.552250, 0.006769, 0.440981
-class 0 :: day > 16 & duration < 339 & housing == yes & month == nov & previous < 1 → class 0 || masses: 0.554691, 0.003243, 0.442065
-class 1 :: campaign < 2 & duration > 155.4 & housing == yes & month == mar → class 1 || masses: 0.007716, 0.548737, 0.443547
-class 1 :: age > 29 & campaign < 2 & contact == cellular & duration > 437 & housing == yes & previous > 3 → class 1 || masses: 0.010795, 0.542456, 0.446748
-class 0 :: balance < 2533.6 & day > 10 & duration < 246.8 & education == unknown & job == student & poutcome == unknown → class 0 || masses: 0.539976, 0.011134, 0.448891
-class 1 :: duration > 243 & housing == no & job == management & pdays > -1 & previous < 2 → class 1 || masses: 0.000086, 0.546325, 0.453590
-class 1 :: contact == cellular & duration > 437 & education == tertiary & housing == no & marital == divorced & pdays < 101 → class 1 || masses: 0.009117, 0.537044, 0.453839
-class 1 :: day > 15 & duration > 377 & housing == no & month == apr → class 1 || masses: 0.002721, 0.542994, 0.454285
-class 0 :: age < 47 & balance > 1612.3 & day < 8 & duration < 133 & pdays < 8 → class 0 || masses: 0.540924, 0.000554, 0.458521
-class 1 :: duration > 233 & housing == no & marital == married & pdays > 2.8 & poutcome == success → class 1 || masses: 0.005092, 0.531576, 0.463333
-class 0 :: age > 38 & duration < 650 & housing == yes & month == may & poutcome == unknown → class 0 || masses: 0.526501, 0.007919, 0.465580
-class 1 :: day < 14 & duration > 138 & housing == yes & poutcome == success → class 1 || masses: 0.018216, 0.516082, 0.465702
-class 1 :: age > 34 & balance > 704 & contact == cellular & duration > 437 & marital == single & pdays > -1 → class 1 || masses: 0.004375, 0.529352, 0.466272
-class 0 :: campaign > 2 & day > 16 & duration < 179 & month == aug & poutcome == unknown → class 0 || masses: 0.533590, 0.000000, 0.466410
-class 0 :: contact == unknown & duration < 768.45 & month == may & poutcome == unknown → class 0 || masses: 0.517562, 0.009616, 0.472822
-class 0 :: age < 53 & campaign > 1 & day > 10 & duration < 437 & housing == yes & month == apr & previous < 1 → class 0 || masses: 0.514578, 0.012192, 0.473231
-class 1 :: balance < 131 & contact == cellular & duration > 242.4 & poutcome == success → class 1 || masses: 0.000000, 0.521297, 0.478703
-class 0 :: age < 53 & balance > 1543.8 & contact == cellular & duration < 552.2 & housing == yes & marital == married & pdays < 4.2 → class 0 || masses: 0.516123, 0.004375, 0.479502
-class 0 :: balance > 271.6 & day > 10 & duration > 180 & job == management & poutcome == failure & previous > 3 → class 0 || masses: 0.507926, 0.008597, 0.483477
-class 1 :: age < 30.5 & job == admin. & month == feb → class 1 || masses: 0.000000, 0.516202, 0.483799
-class 1 :: age < 57 & duration > 414 & education == tertiary & housing == no & pdays > -1 & poutcome == success → class 1 || masses: 0.005770, 0.505898, 0.488332
-class 1 :: contact == unknown & duration > 517.8 & marital == divorced → class 1 || masses: 0.006438, 0.498611, 0.494952
-class 0 :: balance < 1460.5 & campaign > 1 & duration < 730 & month == jul & poutcome == unknown → class 0 || masses: 0.492432, 0.009839, 0.497729
-class 0 :: balance > 0 & day < 10 & duration > 756.2 & education == unknown → class 0 || masses: 0.487690, 0.006575, 0.505734
-class 1 :: duration > 88.6 & education == tertiary & pdays < 104.2 & poutcome == success → class 1 || masses: 0.001081, 0.489768, 0.509152
-class 0 :: age > 45.5 & campaign > 1 & education == primary & marital == married & pdays > -1 & previous < 2 → class 0 || masses: 0.480573, 0.004445, 0.514982
-class 1 :: age > 59 & contact == cellular & duration > 363.5 & education == tertiary & job == retired & marital == married → class 1 || masses: 0.005723, 0.473985, 0.520292
-class 0 :: age > 26 & balance < 131 & contact == unknown & day > 8 & duration < 380 & education == secondary & poutcome == unknown → class 0 || masses: 0.475564, 0.003295, 0.521141
-class 0 :: age < 56 & contact == telephone & duration < 237 & housing == no & previous < 1 → class 0 || masses: 0.475138, 0.002387, 0.522475
-class 0 :: day < 20 & month == apr & poutcome == failure → class 0 || masses: 0.462320, 0.013769, 0.523912
-class 1 :: age < 39 & campaign < 2 & contact == cellular & day > 15 & duration > 437 & month == may → class 1 || masses: 0.001265, 0.467702, 0.531033
-class 0 :: age < 30 & balance > 110 & day < 15 & education == tertiary & job == management & month == feb → class 0 || masses: 0.465401, 0.001642, 0.532957
-class 0 :: campaign < 2 & day > 16 & duration < 437 & month == nov & poutcome == success → class 0 || masses: 0.458952, 0.007139, 0.533908
-class 0 :: age < 53 & duration < 689 & education == tertiary & loan == yes & poutcome == unknown → class 0 || masses: 0.459820, 0.005958, 0.534222
-class 0 :: contact == unknown & duration < 645 & education == primary & housing == no & poutcome == unknown → class 0 || masses: 0.456899, 0.006648, 0.536453
-class 1 :: age > 53 & balance > 450 & campaign > 2 & contact == cellular & duration > 437 & housing == no & job == retired & marital == divorced → class 1 || masses: 0.005605, 0.457578, 0.536817
-class 0 :: age > 27 & balance < 254 & day < 10 & duration < 566 & month == apr & pdays < 39.7 → class 0 || masses: 0.446861, 0.006255, 0.546884
-class 0 :: balance > 241 & day < 25 & duration < 513 & housing == yes & marital == single & poutcome == unknown → class 0 || masses: 0.429349, 0.016673, 0.553978
-class 0 :: campaign > 1 & day > 10 & duration < 869 & marital == divorced & month == aug & poutcome == unknown → class 0 || masses: 0.438751, 0.005126, 0.556123
-class 0 :: day > 16 & duration < 246 & housing == yes & pdays > 195 & poutcome == failure → class 0 || masses: 0.431468, 0.007944, 0.560588
-class 1 :: contact == cellular & duration > 298 & month == jun → class 1 || masses: 0.031435, 0.402525, 0.566041
-class 1 :: age > 59 & balance > 786 & campaign > 1 & duration > 117 → class 1 || masses: 0.024787, 0.408675, 0.566538
-class 0 :: age < 59 & day < 24 & duration < 850.05 & month == nov & previous < 1 → class 0 || masses: 0.418202, 0.014082, 0.567716
-class 0 :: balance > 5768 & campaign > 1 & duration > 289.8 & marital == married & month == aug → class 0 || masses: 0.429711, 0.000000, 0.570289
-class 0 :: age > 53 & duration < 136 & pdays < 31.8 → class 0 || masses: 0.414384, 0.009585, 0.576031
-class 0 :: balance < 450 & duration < 885.95 & marital == divorced & month == apr & previous < 3 → class 0 || masses: 0.318850, 0.104596, 0.576554
-class 1 :: age < 37 & campaign > 2 & day < 20 & duration > 285 & education == tertiary → class 1 || masses: 0.019454, 0.403077, 0.577469
-class 0 :: age > 53 & campaign < 2 & day > 16 & duration > 756.2 & housing == no & previous < 1 → class 0 || masses: 0.404356, 0.008995, 0.586650
-class 0 :: balance < 297 & campaign < 3 & day > 11 & education == secondary & marital == single & month == jul → class 0 || masses: 0.396157, 0.015009, 0.588834
-class 0 :: campaign > 1 & duration < 261.3 & education == secondary & housing == yes & month == may & poutcome == unknown → class 0 || masses: 0.400032, 0.008908, 0.591060
-class 0 :: campaign > 2 & marital == divorced & pdays > -1 → class 0 || masses: 0.401218, 0.005633, 0.593149
-class 1 :: age > 39 & duration > 141 & housing == yes & poutcome == success & previous > 3 → class 1 || masses: 0.005664, 0.395113, 0.599224
-class 0 :: campaign < 2 & education == tertiary & housing == yes & month == jul → class 0 || masses: 0.383736, 0.014939, 0.601325
-class 0 :: age > 53 & campaign > 1 & contact == unknown & day > 10 → class 0 || masses: 0.392640, 0.005842, 0.601518
-class 0 :: age < 34.5 & balance > 851.5 & duration < 242.4 & housing == no & pdays > 93.3 & poutcome == other → class 0 || masses: 0.393329, 0.004080, 0.602591
-class 1 :: balance > 95.5 & contact == cellular & day < 16 & month == nov → class 1 || masses: 0.086356, 0.308805, 0.604839
-class 0 :: balance < 1555.2 & education == secondary & housing == no & pdays > 89 & poutcome == other & previous < 3 → class 0 || masses: 0.380329, 0.014350, 0.605321
-class 0 :: balance > 5768 & contact == unknown & day > 10 & duration > 756.2 → class 0 || masses: 0.393619, 0.000154, 0.606228
-class 0 :: balance > 450 & day > 15 & duration > 180 & education == primary & poutcome == failure → class 0 || masses: 0.382187, 0.008454, 0.609359
-class 0 :: balance > 0 & month == apr & pdays > -1 & poutcome == other & previous < 3 → class 0 || masses: 0.385373, 0.003857, 0.610771
-class 0 :: age < 39 & balance < 3232 & campaign > 1 & day < 15 & duration > 297 & housing == yes & marital == married & month == may → class 0 || masses: 0.384770, 0.002288, 0.612941
-class 0 :: balance > 108 & day < 10 & duration < 180 & pdays > 101 & poutcome == success → class 0 || masses: 0.374484, 0.011039, 0.614478
-class 0 :: day < 10 & duration > 437 & education == secondary & poutcome == unknown → class 0 || masses: 0.181133, 0.204213, 0.614654
-class 0 :: age < 34 & balance > 330.6 & duration > 252.9 & education == tertiary & month == oct & pdays < 93 → class 0 || masses: 0.379174, 0.000000, 0.620826
-class 1 :: campaign < 2 & duration < 180 & housing == no & month == apr → class 1 || masses: 0.006140, 0.366918, 0.626942
-class 1 :: balance < 954.2 & campaign > 1 & housing == no & month == apr → class 1 || masses: 0.019614, 0.353381, 0.627006
-class 0 :: balance < 2533.6 & duration > 437 & pdays > 95.3 & poutcome == other & previous > 3 → class 0 || masses: 0.362398, 0.009052, 0.628550
-class 0 :: age < 37 & balance > 1125 & campaign > 1 & duration > 180 & pdays < 185 & poutcome == failure → class 0 || masses: 0.354564, 0.008801, 0.636636
-class 0 :: balance > 450 & campaign < 3 & duration < 413 & month == may → class 0 || masses: 0.347644, 0.015169, 0.637188
-class 0 :: contact == unknown & day < 27 & duration < 247 & housing == yes & month == may → class 0 || masses: 0.357099, 0.003141, 0.639760
-class 1 :: age < 53 & balance > 1705.6 & contact == cellular & duration > 398 & education == tertiary & housing == no → class 1 || masses: 0.000000, 0.358751, 0.641249
-class 1 :: balance < 131 & month == aug & pdays > -1 → class 1 || masses: 0.003314, 0.355143, 0.641543
-class 0 :: balance > 829.5 & education == tertiary & month == jul & pdays < 96 → class 0 || masses: 0.342298, 0.014068, 0.643634
-class 0 :: day < 10 & duration < 279 & pdays < 80 → class 0 || masses: 0.317051, 0.032539, 0.650410
-class 0 :: age < 34 & balance > 890 & duration < 157.25 → class 0 || masses: 0.283181, 0.057506, 0.659312
-class 0 :: age > 46 & balance > 450 & duration > 437 & education == tertiary & previous < 2 → class 0 || masses: 0.227543, 0.102349, 0.670108
-class 0 :: age > 46 & balance > 332.7 & day > 16 & education == tertiary & month == jul & previous < 1 → class 0 || masses: 0.311846, 0.017126, 0.671029
-class 1 :: month == sep → class 1 || masses: 0.005199, 0.322681, 0.672121
-class 1 :: contact == unknown & duration > 682.15 & job == blue-collar & marital == married → class 1 || masses: 0.008613, 0.313540, 0.677847
-class 1 :: balance < 173.2 & contact == cellular & duration > 276 → class 1 || masses: 0.005536, 0.312623, 0.681841
-class 1 :: balance > 82 & contact == cellular & duration > 437 & previous < 1 → class 1 || masses: 0.003459, 0.312799, 0.683742
-class 1 :: age < 30 & day < 25 & duration > 138 & housing == no & job == student → class 1 || masses: 0.003329, 0.306906, 0.689765
-class 1 :: age < 32 & duration > 208 & housing == no & pdays > -1 → class 1 || masses: 0.006244, 0.302340, 0.691416
-class 1 :: balance > 1443.6 & campaign < 2 & contact == telephone & day < 5 & duration > 287 → class 1 || masses: 0.000000, 0.305784, 0.694216
-class 1 :: age < 30 & campaign > 1 & duration > 109.3 & housing == no → class 1 || masses: 0.015920, 0.288954, 0.695126
-class 1 :: age > 36 & campaign > 1 & contact == unknown & duration > 592.55 → class 1 || masses: 0.059767, 0.244851, 0.695382
-class 0 :: age > 39 & balance < 131 & education == tertiary & month == feb → class 0 || masses: 0.235234, 0.064125, 0.700641
-class 0 :: balance > 2533.6 & campaign < 2 & day < 6 & duration < 243 & poutcome == success → class 0 || masses: 0.134834, 0.164132, 0.701033
-class 1 :: balance < 131 & contact == unknown & day > 6 & duration > 646.3 → class 1 || masses: 0.016120, 0.281884, 0.701996
-class 1 :: age < 27 & balance < 1624 & contact == cellular & day > 6 & duration > 437 & housing == no & job == student & marital == single → class 1 || masses: 0.008394, 0.286740, 0.704866
-class 1 :: age > 59 & balance < 450 & duration > 127.7 → class 1 || masses: 0.036830, 0.255179, 0.707991
-class 0 :: age < 37 & balance < 3091.5 & day > 10 & duration < 611 & education == tertiary & job == technician → class 0 || masses: 0.247288, 0.043571, 0.709140
-class 1 :: balance > 73.2 & contact == cellular & day < 16 & duration > 392 & education == tertiary & month == jun → class 1 || masses: 0.208338, 0.082220, 0.709441
-class 0 :: age > 34 & balance > 450 & campaign < 3 & day > 16 & month == apr & pdays < 83.3 → class 0 || masses: 0.281091, 0.003407, 0.715502
-class 1 :: campaign < 2 & contact == cellular & month == jun → class 1 || masses: 0.041143, 0.239359, 0.719498
-class 1 :: duration > 279 & housing == no & pdays > -1 & poutcome == success → class 1 || masses: 0.002432, 0.274132, 0.723436
-class 0 :: age < 32 & day > 6 & duration > 421 & education == secondary & loan == yes & month == may → class 0 || masses: 0.265803, 0.009701, 0.724495
-class 1 :: balance > 450 & duration > 238.5 & housing == yes & pdays > -1 → class 1 || masses: 0.017323, 0.250260, 0.732418
-class 0 :: duration > 437 & education == tertiary & housing == yes & marital == married → class 0 || masses: 0.077650, 0.188065, 0.734285
-class 1 :: contact == unknown & duration > 387.4 & job == technician & marital == married → class 1 || masses: 0.003385, 0.261863, 0.734753
-class 1 :: age < 39 & day < 16 & housing == no & job == services → class 1 || masses: 0.007541, 0.257070, 0.735390
-class 1 :: age > 57 & campaign < 2 & duration > 211 & housing == no & job == retired → class 1 || masses: 0.007192, 0.256000, 0.736808
-class 1 :: age > 33 & duration < 180 & pdays > -1 & poutcome == success → class 1 || masses: 0.000618, 0.256245, 0.743137
-class 1 :: contact == telephone & duration > 229 & previous < 1 → class 1 || masses: 0.012604, 0.240988, 0.746408
-class 0 :: contact == unknown & day < 14.5 & education == tertiary → class 0 || masses: 0.210513, 0.038183, 0.751304
-class 1 :: balance > 131 & campaign < 2 & duration > 126 & housing == no → class 1 || masses: 0.015151, 0.231357, 0.753491
-class 1 :: age > 57 & balance > 450 & contact == cellular & day < 9 & duration > 437 & job == retired → class 1 || masses: 0.016833, 0.226137, 0.757031
-class 0 :: age < 59 & balance > 739 & campaign > 1 & contact == unknown & day < 20 & duration > 437 & job == technician & marital == married → class 0 || masses: 0.231426, 0.006022, 0.762552
-class 0 :: age > 34 & balance > 3615.9 & marital == single → class 0 || masses: 0.021664, 0.212304, 0.766032
-class 0 :: campaign < 2 & duration > 180 & poutcome == failure → class 0 || masses: 0.187165, 0.040516, 0.772319
-class 1 :: duration > 246 & housing == yes & month == jun → class 1 || masses: 0.010461, 0.216837, 0.772701
-class 0 :: age < 46 & balance > 131 & campaign < 2 & day > 8 & marital == married & previous < 1 → class 0 || masses: 0.207807, 0.016586, 0.775607
-class 0 :: age > 36 & campaign < 2 & duration < 507.1 → class 0 || masses: 0.198522, 0.022760, 0.778718
-class 0 :: age < 30.9 & campaign < 2 & job == admin. → class 0 || masses: 0.133383, 0.083055, 0.783562
-class 1 :: contact == unknown & day > 20 & duration > 401.1 → class 1 || masses: 0.014683, 0.183116, 0.802201
-class 0 :: duration < 162.6 & poutcome == success → class 0 || masses: 0.181157, 0.015668, 0.803176
-class 0 :: age > 34 & day > 11 & duration < 249.5 & housing == no & poutcome == unknown → class 0 || masses: 0.173772, 0.018137, 0.808091
-class 0 :: education == tertiary & month == feb → class 0 || masses: 0.146772, 0.036537, 0.816692
-class 0 :: duration > 279 & education == primary & previous < 1 → class 0 || masses: 0.180665, 0.000000, 0.819335
-class 0 :: age < 46 & balance > 0 & campaign < 3 & day < 10 & duration > 279 & education == tertiary → class 0 || masses: 0.160692, 0.015538, 0.823771
-class 0 :: campaign > 1 → class 0 || masses: 0.170421, 0.002790, 0.826789
-class 0 :: balance < 24.3 & marital == married → class 0 || masses: 0.141099, 0.012325, 0.846576
-class 0 :: balance < 131 → class 0 || masses: 0.146697, 0.006075, 0.847228
-class 0 :: age > 34 & balance > 450 & duration > 279 & education == tertiary & marital == married & month == jun → class 0 || masses: 0.042802, 0.106432, 0.850765
-class 1 :: contact == telephone & duration > 249 & education == tertiary & previous < 1 → class 1 || masses: 0.000000, 0.148810, 0.851190
-class 0 :: age < 39 & balance > 279.5 & campaign > 1 & day > 10 & education == secondary & previous < 1 → class 0 || masses: 0.145690, 0.000000, 0.854310
-class 0 :: day > 10 & marital == divorced → class 0 || masses: 0.006647, 0.136985, 0.856368
-class 1 :: campaign < 2 & contact == cellular & duration > 146.7 & previous < 1 → class 1 || masses: 0.084397, 0.056991, 0.858612
-class 0 :: age > 34 & balance > 176 & duration > 289.8 & education == secondary & previous < 2 → class 0 || masses: 0.121104, 0.011711, 0.867184
-class 0 :: age < 35 & balance > 131 → class 0 || masses: 0.122396, 0.008098, 0.869506
-class 1 :: campaign < 2 & duration > 349.5 & month == may → class 1 || masses: 0.048658, 0.076032, 0.875310
-class 1 :: campaign < 2 & contact == cellular & duration > 371 & education == secondary & housing == no & month == jun → class 1 || masses: 0.010758, 0.096299, 0.892943
-class 0 :: month == aug → class 0 || masses: 0.106515, 0.000000, 0.893485
-class 0 :: age > 34 & campaign > 2 & duration < 437 → class 0 || masses: 0.101625, 0.002343, 0.896033
-class 0 :: education == unknown → class 0 || masses: 0.092602, 0.008666, 0.898732
-class 1 :: duration > 180 & housing == no & pdays > 74.7 → class 1 || masses: 0.000000, 0.093680, 0.906320
-class 1 :: campaign < 2 & contact == cellular & month == oct & previous < 1 → class 1 || masses: 0.040569, 0.052408, 0.907023
-class 1 :: balance > 131 & campaign > 1 & contact == cellular & duration > 150.1 → class 1 || masses: 0.000000, 0.073631, 0.926369
-class 0 :: age > 34 & previous > 1 → class 0 || masses: 0.014202, 0.056818, 0.928980
-class 0 :: campaign > 1 & previous > 1 → class 0 || masses: 0.034197, 0.019076, 0.946727
-class 0 :: balance < 694 & day > 10 & marital == single & previous < 1 → class 0 || masses: 0.040445, 0.000000, 0.959555
-class 1 :: pdays > -1 → class 1 || masses: 0.000000, 0.021802, 0.978198
-class 1 :: balance > 79 & contact == telephone & duration > 437 & job == retired → class 1 || masses: 0.004845, 0.000000, 0.995155
+class 0 :: age < 60 & day > 6 & duration < 437 & housing == no & loan == yes & month == jul & previous < 1 || masses: [9.9700636e-01 2.6205047e-09 2.9936470e-03]
+class 0 :: day > 16 & duration < 383 & housing == yes & month == nov & poutcome == failure || masses: [9.9570364e-01 3.1116978e-09 4.2963927e-03]
+class 0 :: day > 15 & housing == yes & month == jan & poutcome == failure || masses: [9.9451953e-01 3.2613865e-09 5.4805218e-03]
+class 0 :: age < 60 & balance < 1293 & campaign > 1 & day < 10 & duration < 180 & month == feb & pdays > 183 || masses: [9.9267149e-01 3.9685668e-09 7.3285173e-03]
+class 0 :: age < 60 & balance < 597 & campaign > 1 & day < 10 & duration < 437 & marital == single & month == feb & previous < 1 || masses: [9.9200082e-01 4.3220902e-09 7.9992171e-03]
+class 0 :: age < 53 & day > 27 & duration < 661 & housing == yes & month == jan & poutcome == unknown || masses: [9.9091715e-01 3.8903725e-09 9.0828352e-03]
+class 0 :: campaign > 1 & day < 8 & duration < 562.3 & education == secondary & month == feb & pdays < 43.5 || masses: [9.9087018e-01 4.1907446e-09 9.1298204e-03]
+class 0 :: age > 26 & balance < 233.2 & day > 8 & duration < 353 & job == management & month == aug & pdays < 5 || masses: [9.9019927e-01 4.7774518e-09 9.8006492e-03]
+class 0 :: age < 66 & balance < 450 & day > 5 & duration < 586 & education == primary & marital == married & month == aug & pdays < 35 || masses: [9.8958558e-01 4.9265192e-09 1.0414406e-02]
+class 0 :: age < 59 & balance < 131 & campaign > 1 & duration < 288 & marital == married & month == aug & poutcome == unknown || masses: [9.7883397e-01 6.9833845e-09 2.1166090e-02]
+class 0 :: day < 10 & duration < 168 & education == secondary & month == feb & previous < 1 || masses: [9.7758782e-01 6.4593149e-09 2.2412207e-02]
+class 0 :: contact == unknown & duration < 279 & marital == married & month == jun & poutcome == unknown || masses: [9.7182298e-01 7.0760495e-09 2.8177023e-02]
+class 0 :: campaign < 2 & day < 20 & duration < 437 & education == secondary & housing == yes & month == apr & previous < 2 || masses: [9.7061390e-01 7.7216873e-09 2.9386172e-02]
+class 1 :: balance < 211.4 & contact == cellular & day > 20 & duration > 279 & month == apr || masses: [8.3933580e-09 9.6825212e-01 3.1747933e-02]
+class 0 :: balance < 1125 & duration < 244 & housing == yes & marital == married & month == apr & poutcome == unknown || masses: [9.5387936e-01 9.7630606e-09 4.6120584e-02]
+class 0 :: age > 29 & balance < 2534 & duration < 214.1 & housing == no & marital == single & month == aug & previous < 1 || masses: [9.4850075e-01 1.0190433e-08 5.1499225e-02]
+class 0 :: day > 15 & duration < 437 & housing == no & month == jan & poutcome == other & previous < 3 || masses: [9.4783467e-01 1.0086278e-08 5.2165348e-02]
+class 0 :: day < 16 & duration < 279 & housing == yes & month == may || masses: [9.463759e-01 9.888069e-09 5.362410e-02]
+class 0 :: campaign > 1 & contact == unknown & day > 6 & duration < 329 & previous < 1 || masses: [9.442564e-01 9.848796e-09 5.574355e-02]
+class 0 :: balance < 599 & campaign > 2 & day < 20 & duration < 437 & housing == yes & month == feb & previous < 1 || masses: [9.437601e-01 1.121981e-08 5.623994e-02]
+class 0 :: age > 30 & contact == unknown & duration < 426 & housing == yes & month == may & previous < 1 || masses: [9.4074106e-01 1.0296409e-08 5.9258956e-02]
+class 0 :: age < 60 & balance < 1363 & campaign > 1 & day > 19 & duration < 437 & education == primary & marital == married & previous < 1 || masses: [9.35498536e-01 1.12672085e-08 6.45013973e-02]
+class 0 :: campaign > 1 & day > 15 & duration < 437 & month == apr & poutcome == failure || masses: [9.0762013e-01 1.4045753e-08 9.2379868e-02]
+class 1 :: age > 46 & campaign < 2 & contact == cellular & day > 15 & duration > 384 & month == may || masses: [1.45452494e-08 8.98801327e-01 1.01198696e-01]
+class 0 :: duration < 267 & housing == yes & month == jul & poutcome == unknown || masses: [8.9836115e-01 1.3867164e-08 1.0163890e-01]
+class 0 :: age < 39 & duration < 550 & education == secondary & month == apr & poutcome == failure || masses: [8.9082992e-01 1.5040186e-08 1.0917003e-01]
+class 1 :: age < 32 & campaign > 2 & contact == cellular & day < 16 & duration > 437 & education == tertiary || masses: [1.5567963e-08 8.8159311e-01 1.1840689e-01]
+class 0 :: day > 16 & duration < 364 & month == nov & previous < 1 || masses: [8.7897772e-01 1.4559157e-08 1.2102230e-01]
+class 0 :: age > 38 & day < 16 & duration < 407 & month == may & pdays > 101 & poutcome == failure || masses: [8.7711924e-01 1.5889331e-08 1.2288077e-01]
+class 0 :: age > 33 & balance < 450 & duration < 353 & month == jul & previous < 1 || masses: [8.7671643e-01 1.5607112e-08 1.2328354e-01]
+class 1 :: balance > 728 & campaign > 2 & contact == cellular & duration > 394 & education == tertiary & month == may || masses: [1.5949190e-08 8.7409705e-01 1.2590300e-01]
+class 0 :: day > 8 & duration < 437 & education == primary & housing == yes & job == blue-collar & previous < 1 || masses: [8.6963403e-01 1.5397108e-08 1.3036601e-01]
+class 0 :: age > 30 & campaign > 1 & duration < 202 & month == aug & poutcome == unknown || masses: [8.6503875e-01 1.5226094e-08 1.3496125e-01]
+class 0 :: campaign > 2 & day > 16 & duration < 179 & month == aug & poutcome == unknown || masses: [8.6235815e-01 1.5776106e-08 1.3764183e-01]
+class 1 :: balance < 173.8 & campaign > 3 & contact == cellular & day > 29 & duration > 279 || masses: [1.7194465e-08 8.5020304e-01 1.4979693e-01]
+class 0 :: duration < 245.8 & education == secondary & job == management & poutcome == success & previous < 2.1 || masses: [8.4911507e-01 1.7058790e-08 1.5088491e-01]
+class 1 :: day > 3 & duration > 298 & marital == married & month == jul & pdays > -1 || masses: [1.7297554e-08 8.4867519e-01 1.5132481e-01]
+class 1 :: balance > 1125 & contact == cellular & day > 10 & month == feb || masses: [1.7257912e-08 8.4583437e-01 1.5416558e-01]
+class 0 :: contact == unknown & day < 10 & duration < 507 & previous < 1 || masses: [8.3988327e-01 1.6271887e-08 1.6011669e-01]
+class 1 :: age < 39 & balance > 1125 & campaign < 2 & contact == cellular & day > 20 & duration > 437 & housing == no || masses: [1.4852273e-08 8.3784467e-01 1.6215530e-01]
+class 0 :: age < 59 & balance < 1125 & campaign < 6 & day > 15 & duration < 437 & education == secondary & month == aug & previous < 1 || masses: [8.216942e-01 1.854586e-08 1.783058e-01]
+class 1 :: balance > 70 & contact == cellular & day < 5 & duration > 437 & month == may & pdays < 101 || masses: [1.8522559e-08 8.2099217e-01 1.7900789e-01]
+class 0 :: day < 10 & duration < 122 & month == feb & previous < 1 || masses: [8.1913650e-01 1.7575069e-08 1.8086351e-01]
+class 0 :: campaign < 2 & housing == no & month == feb & poutcome == other || masses: [8.1426889e-01 1.8866491e-08 1.8573111e-01]
+class 1 :: contact == cellular & day > 9 & duration > 437 & education == tertiary & housing == no & job == management & month == apr || masses: [1.8896493e-08 8.1072176e-01 1.8927826e-01]
+class 0 :: age < 53 & balance < 131 & campaign < 2 & day > 6 & duration < 471 & month == jul & previous < 1 || masses: [8.1028003e-01 1.8831164e-08 1.8971995e-01]
+class 0 :: balance < 1125 & duration < 563 & housing == yes & marital == married & month == nov & previous < 1 || masses: [8.0500966e-01 1.9189420e-08 1.9499032e-01]
+class 0 :: age > 25 & balance < 692 & duration < 562 & job == management & marital == single & month == aug & poutcome == unknown || masses: [8.0397868e-01 1.9164844e-08 1.9602132e-01]
+class 0 :: age < 62 & day > 16 & duration < 666 & month == jan & previous < 1 || masses: [8.0103832e-01 1.7123936e-08 1.9896169e-01]
+class 0 :: balance < 131 & day < 19 & duration < 595.2 & education == secondary & month == may & poutcome == failure || masses: [7.9567093e-01 1.9536023e-08 2.0432912e-01]
+class 1 :: age < 27 & contact == cellular & duration > 409.5 & marital == single & month == sep || masses: [1.9661829e-08 7.9359210e-01 2.0640796e-01]
+class 1 :: default == yes & duration > 279 & marital == single & month == jun || masses: [1.9776422e-08 7.8837180e-01 2.1162821e-01]
+class 0 :: day < 20 & duration < 160 & month == may || masses: [7.8375435e-01 1.9012534e-08 2.1624565e-01]
+class 0 :: campaign > 2 & day > 17 & duration < 198 & month == jul & poutcome == unknown || masses: [7.7999973e-01 1.9964387e-08 2.2000021e-01]
+class 0 :: age < 53 & balance > 1125 & contact == cellular & day < 8 & duration < 862.8 & education == secondary & month == feb & pdays < 20.5 || masses: [7.7316540e-01 1.4169404e-08 2.2683465e-01]
+class 0 :: age > 33 & day > 15 & duration < 560 & month == nov & pdays > 101 & poutcome == failure || masses: [7.6438081e-01 2.0053271e-08 2.3561916e-01]
+class 0 :: age > 37 & day > 16 & duration > 180 & month == jan & pdays < 318 & poutcome == failure || masses: [7.5689423e-01 1.8094507e-08 2.4310577e-01]
+class 0 :: balance < 615.5 & day < 10 & duration < 614.1 & housing == yes & month == feb || masses: [7.5400865e-01 2.0694252e-08 2.4599132e-01]
+class 1 :: balance < 1125 & day > 10 & month == feb || masses: [2.0727891e-08 7.5305510e-01 2.4694492e-01]
+class 1 :: balance > 76.7 & campaign < 2 & contact == cellular & duration > 437 & job == admin. & month == may || masses: [2.0934690e-08 7.4762219e-01 2.5237784e-01]
+class 0 :: balance > 131 & campaign > 2 & duration > 180 & month == nov & poutcome == failure || masses: [7.4108279e-01 2.1282741e-08 2.5891727e-01]
+class 1 :: age > 57 & balance < 131 & campaign < 2 & contact == cellular & duration > 359 || masses: [2.1223032e-08 7.3562711e-01 2.6437292e-01]
+class 0 :: day < 20 & duration < 279 & education == primary & month == oct || masses: [7.3356056e-01 1.7547862e-08 2.6643947e-01]
+class 0 :: age < 39 & balance > 1625 & campaign > 1 & day < 19 & duration < 279 & job == management & pdays < 47.6 || masses: [7.3186189e-01 2.1502942e-08 2.6813820e-01]
+class 0 :: age > 34 & campaign > 3 & duration < 131.6 & previous < 1 || masses: [7.2986966e-01 2.0211315e-08 2.7013034e-01]
+class 0 :: day < 15 & duration < 756.2 & housing == yes & month == may & poutcome == failure & previous < 3 || masses: [7.2964060e-01 2.1358865e-08 2.7035943e-01]
+class 0 :: age > 53 & balance > 319.9 & day < 9 & pdays > 101 & poutcome == other || masses: [7.2880542e-01 1.9858195e-08 2.7119458e-01]
+class 1 :: age > 59 & balance < 1770 & contact == cellular & duration > 394 & education == primary & housing == no || masses: [2.1485816e-08 7.2610044e-01 2.7389956e-01]
+class 1 :: duration > 152 & job == management & month == mar & pdays < 101 || masses: [2.1607859e-08 7.2607219e-01 2.7392781e-01]
+class 0 :: age < 60 & duration < 404 & job == technician & month == aug & previous < 1 || masses: [7.0883948e-01 2.1531559e-08 2.9116052e-01]
+class 0 :: day < 3 & duration > 180 & housing == no & marital == single & pdays < 318 & poutcome == failure || masses: [7.0855749e-01 1.6496083e-08 2.9144245e-01]
+class 1 :: age < 33 & contact == cellular & day > 20 & duration > 366 & job == student & marital == single || masses: [2.1986811e-08 7.0846605e-01 2.9153395e-01]
+class 1 :: age < 47 & contact == cellular & day < 16 & duration > 411 & marital == divorced & month == aug || masses: [2.2063235e-08 7.0414460e-01 2.9585534e-01]
+class 1 :: campaign < 2 & contact == cellular & day < 16 & duration > 437 & education == tertiary & job == self-employed || masses: [2.2192589e-08 6.9963020e-01 3.0036977e-01]
+class 1 :: balance > 1125 & contact == telephone & duration > 284.5 & job == admin. || masses: [2.2171003e-08 6.9937372e-01 3.0062625e-01]
+class 1 :: campaign < 2 & duration > 144.6 & housing == yes & month == sep || masses: [2.2184532e-08 6.9752967e-01 3.0247036e-01]
+class 0 :: campaign < 4 & day > 9 & duration < 644 & marital == married & month == jul & previous < 1 || masses: [6.9281662e-01 2.0875584e-08 3.0718347e-01]
+class 0 :: age > 34 & balance < 1435 & campaign > 1 & day < 10 & duration < 709 & marital == married & month == feb & poutcome == unknown || masses: [6.8480957e-01 1.9114008e-08 3.1519043e-01]
+class 1 :: contact == cellular & day < 16 & duration > 437 & job == services & marital == divorced || masses: [2.2491978e-08 6.8194360e-01 3.1805640e-01]
+class 0 :: campaign > 1 & contact == unknown & duration > 437 & housing == yes & job == management & marital == married || masses: [6.7801660e-01 2.2605009e-08 3.2198337e-01]
+class 0 :: duration < 437 & marital == married & month == may & pdays > 318 || masses: [6.7534196e-01 2.2577334e-08 3.2465807e-01]
+class 1 :: day > 20 & duration > 180 & pdays > -1 & poutcome == success || masses: [2.2407862e-08 6.7395574e-01 3.2604420e-01]
+class 0 :: age < 59 & balance > 450 & campaign < 4 & day > 6 & duration < 437 & education == secondary & month == jul & poutcome == unknown || masses: [6.6690177e-01 1.6679881e-08 3.3309823e-01]
+class 0 :: age < 59 & duration < 439 & marital == married & month == aug & poutcome == unknown || masses: [6.6172415e-01 2.0660357e-08 3.3827585e-01]
+class 0 :: day < 8 & duration > 180 & month == feb & pdays > 189 & poutcome == failure || masses: [6.5753245e-01 2.2932804e-08 3.4246758e-01]
+class 0 :: balance < 268 & duration < 355 & month == may & pdays < 8 || masses: [6.5288210e-01 2.2459744e-08 3.4711793e-01]
+class 0 :: age > 38 & day < 20 & duration < 608 & housing == yes & month == apr & previous < 2 || masses: [6.5186656e-01 2.0414866e-08 3.4813344e-01]
+class 1 :: duration > 191 & housing == no & marital == single & month == apr & previous < 1 || masses: [2.313491e-08 6.421737e-01 3.578263e-01]
+class 0 :: day > 16 & duration < 339 & housing == yes & month == nov & previous < 1 || masses: [6.3908327e-01 2.1737707e-08 3.6091679e-01]
+class 0 :: contact == cellular & day < 20 & job == admin. & month == oct & pdays > -1 || masses: [6.3810235e-01 2.3373463e-08 3.6189765e-01]
+class 1 :: balance > 450 & contact == cellular & day < 16 & duration > 437 & education == secondary & month == aug || masses: [2.3065988e-08 6.3353920e-01 3.6646071e-01]
+class 1 :: balance > 450 & contact == telephone & duration > 267 & education == unknown || masses: [2.3305143e-08 6.2987757e-01 3.7012243e-01]
+class 0 :: age < 62 & balance < 450 & day < 15 & duration < 476 & education == secondary & month == may & poutcome == unknown || masses: [6.2339568e-01 2.3237311e-08 3.7660432e-01]
+class 0 :: age > 27 & balance > 250 & campaign > 3 & duration < 481 & month == jul & previous < 1 || masses: [6.2320471e-01 1.9108889e-08 3.7679532e-01]
+class 0 :: balance < 36.6 & campaign < 2 & day < 10 & duration < 279 & housing == no & poutcome == unknown || masses: [6.2143445e-01 2.3459306e-08 3.7856552e-01]
+class 0 :: contact == unknown & duration < 539 & housing == yes & month == may & poutcome == unknown || masses: [6.2084281e-01 2.1198026e-08 3.7915727e-01]
+class 0 :: age < 53 & campaign > 1 & day > 10 & duration < 437 & housing == yes & month == apr & previous < 1 || masses: [6.2049967e-01 2.0428219e-08 3.7950033e-01]
+class 1 :: age < 53 & day > 16 & duration > 87.15 & month == oct || masses: [2.3539354e-08 6.1778492e-01 3.8221508e-01]
+class 0 :: balance > 2534 & campaign > 1 & contact == cellular & job == blue-collar & pdays > 94.4 || masses: [6.1375290e-01 2.3629003e-08 3.8624707e-01]
+class 0 :: balance < 304.9 & day > 10 & duration < 240.9 & housing == no & month == sep & poutcome == unknown || masses: [6.1130673e-01 2.3697256e-08 3.8869324e-01]
+class 1 :: contact == cellular & duration > 437 & education == tertiary & housing == no & marital == divorced & pdays < 101 || masses: [2.3460496e-08 6.0917956e-01 3.9082044e-01]
+class 0 :: age < 60 & balance < 1300 & day > 15 & duration < 180 & month == jan & previous < 2 || masses: [6.0861892e-01 2.1561364e-08 3.9138108e-01]
+class 0 :: duration < 180 & poutcome == failure || masses: [6.0843003e-01 2.3106315e-08 3.9156997e-01]
+class 0 :: balance < 450 & day < 20 & duration > 279 & education == secondary & housing == yes & marital == married & month == apr & previous < 1 || masses: [5.9967953e-01 2.3824237e-08 4.0032047e-01]
+class 0 :: campaign > 1 & day > 10 & duration < 437 & month == jun & pdays < 101 || masses: [5.9410989e-01 2.1046954e-08 4.0589008e-01]
+class 0 :: balance < 2534 & day < 9 & duration < 242 & education == primary & poutcome == unknown || masses: [5.9266299e-01 2.1145603e-08 4.0733695e-01]
+class 1 :: age > 34 & balance > 704 & contact == cellular & duration > 437 & marital == single & pdays > -1 || masses: [2.3748955e-08 5.9083265e-01 4.0916729e-01]
+class 1 :: age > 29 & campaign < 2 & contact == cellular & duration > 437 & housing == yes & previous > 3 || masses: [2.3774867e-08 5.8437228e-01 4.1562772e-01]
+class 0 :: age < 47 & balance < 1444 & campaign < 2 & day < 27 & duration < 540 & housing == no & month == feb & pdays < 35 || masses: [5.8218849e-01 1.9902496e-08 4.1781154e-01]
+class 0 :: age < 46 & balance < 131 & day > 15 & job == technician & marital == married & month == aug || masses: [5.7380503e-01 2.4032531e-08 4.2619494e-01]
+class 0 :: age > 33 & balance < 228 & campaign < 3 & day < 20 & duration < 437 & housing == yes & month == may & previous < 1 || masses: [5.732907e-01 2.396135e-08 4.267093e-01]
+class 1 :: balance < 53 & contact == cellular & day < 16 & duration > 437 & marital == single || masses: [2.3682052e-08 5.7164401e-01 4.2835599e-01]
+class 0 :: day > 15 & duration < 117 || masses: [5.6861049e-01 2.1946743e-08 4.3138957e-01]
+class 0 :: duration < 485 & housing == yes & poutcome == other || masses: [5.6755543e-01 2.3715938e-08 4.3244451e-01]
+class 0 :: age > 26 & balance < 131 & contact == unknown & day > 8 & duration < 380 & education == secondary & poutcome == unknown || masses: [5.6613177e-01 2.3977295e-08 4.3386820e-01]
+class 1 :: duration > 243 & housing == no & job == management & pdays > -1 & previous < 2 || masses: [2.3868115e-08 5.6588584e-01 4.3411419e-01]
+class 0 :: day > 15 & month == nov & poutcome == other || masses: [5.586400e-01 2.389191e-08 4.413600e-01]
+class 1 :: duration > 233 & housing == no & marital == married & pdays > 2.8 & poutcome == success || masses: [2.3778316e-08 5.5758226e-01 4.4241765e-01]
+class 1 :: campaign > 1 & contact == cellular & duration > 108 & month == jun || masses: [2.3761874e-08 5.5485821e-01 4.4514179e-01]
+class 0 :: age > 47 & day < 20 & duration < 623.3 & education == secondary & marital == married & month == aug & pdays < 39.3 || masses: [5.5445397e-01 2.1426807e-08 4.4554603e-01]
+class 0 :: age < 53 & contact == cellular & day > 29 & duration < 240 & poutcome == unknown || masses: [5.4930729e-01 2.2555229e-08 4.5069274e-01]
+class 0 :: age > 46 & campaign > 2 & marital == divorced & month == jul || masses: [5.4832596e-01 2.4064773e-08 4.5167404e-01]
+class 1 :: day < 20 & duration > 200 & housing == no & month == mar & pdays < 84 || masses: [2.4010554e-08 5.4647309e-01 4.5352691e-01]
+class 0 :: contact == unknown & day < 27 & duration < 247 & housing == yes & month == may || masses: [5.4323387e-01 2.2522512e-08 4.5676613e-01]
+class 0 :: month == jan & poutcome == other || masses: [5.3984427e-01 2.2429287e-08 4.6015576e-01]
+class 0 :: contact == unknown & day > 15 & duration < 717 & housing == no & previous < 1 || masses: [5.3693193e-01 2.1818341e-08 4.6306801e-01]
+class 1 :: campaign < 2 & duration > 155.4 & housing == yes & month == mar || masses: [2.4154323e-08 5.3305399e-01 4.6694601e-01]
+class 0 :: age < 47 & balance > 1612 & day < 8 & duration < 133 & pdays < 8 || masses: [5.3255004e-01 2.4151657e-08 4.6744999e-01]
+class 1 :: day > 15 & duration > 377 & housing == no & month == apr || masses: [2.3936934e-08 5.3156763e-01 4.6843240e-01]
+class 0 :: duration < 148 & housing == no & poutcome == other || masses: [5.2725685e-01 2.4145477e-08 4.7274315e-01]
+class 0 :: age < 38 & day > 9 & duration < 878 & housing == yes & month == apr || masses: [5.2683657e-01 2.2863441e-08 4.7316343e-01]
+class 0 :: balance > 271.6 & day > 10 & duration > 180 & job == management & poutcome == failure & previous > 3 || masses: [5.2577418e-01 2.3164281e-08 4.7422588e-01]
+class 0 :: age < 53 & balance > 1544 & contact == cellular & duration < 552.2 & housing == yes & marital == married & pdays < 4.2 || masses: [5.2325857e-01 2.3996682e-08 4.7674143e-01]
+class 1 :: balance < 131 & contact == cellular & duration > 242.4 & poutcome == success || masses: [2.4086718e-08 5.1774222e-01 4.8225778e-01]
+class 0 :: campaign > 1 & duration < 261.3 & education == secondary & housing == yes & month == may & poutcome == unknown || masses: [5.1572293e-01 2.1898737e-08 4.8427707e-01]
+class 0 :: campaign > 3 & day > 15 & duration < 788 & job == management & month == aug & pdays < 8.1 || masses: [5.1163596e-01 2.2580460e-08 4.8836407e-01]
+class 1 :: age > 59 & contact == cellular & duration > 363.5 & education == tertiary & job == retired & marital == married || masses: [2.4263324e-08 5.0356001e-01 4.9643999e-01]
+class 1 :: age > 53 & balance > 450 & campaign > 2 & contact == cellular & duration > 437 & housing == no & job == retired & marital == divorced || masses: [2.4278533e-08 5.0213528e-01 4.9786475e-01]
+class 0 :: campaign < 2 & contact == unknown & duration < 824.1 & month == jun & pdays < 40.2 || masses: [5.0108981e-01 2.1961968e-08 4.9891019e-01]
+class 0 :: contact == unknown & duration < 645 & education == primary & housing == no & poutcome == unknown || masses: [4.9922490e-01 2.2249841e-08 5.0077510e-01]
+class 1 :: duration > 88.6 & education == tertiary & pdays < 104.2 & poutcome == success || masses: [2.4059101e-08 4.9824014e-01 5.0175989e-01]
+class 1 :: contact == cellular & duration > 298 & month == jun || masses: [2.4217215e-08 4.9280715e-01 5.0719279e-01]
+class 0 :: balance < 2534 & day > 10 & duration < 246.8 & education == unknown & job == student & poutcome == unknown || masses: [4.8558345e-01 2.0961350e-08 5.1441646e-01]
+class 1 :: day < 14 & duration > 138 & housing == yes & poutcome == success || masses: [2.4051170e-08 4.8555762e-01 5.1444232e-01]
+class 0 :: age > 38 & duration < 650 & housing == yes & month == may & poutcome == unknown || masses: [4.8427850e-01 2.1890614e-08 5.1572150e-01]
+class 0 :: day > 16 & duration < 246 & housing == yes & pdays > 195 & poutcome == failure || masses: [4.7441605e-01 2.4220421e-08 5.2558386e-01]
+class 0 :: age < 56 & contact == telephone & duration < 237 & housing == no & previous < 1 || masses: [4.5944792e-01 2.2203519e-08 5.4055202e-01]
+class 0 :: balance > 241 & day < 25 & duration < 513 & housing == yes & marital == single & poutcome == unknown || masses: [4.4940570e-01 1.9566889e-08 5.5059421e-01]
+class 0 :: campaign < 2 & day > 16 & duration < 437 & month == nov & poutcome == success || masses: [4.4743517e-01 2.4197394e-08 5.5256480e-01]
+class 0 :: day < 20 & month == apr & poutcome == failure || masses: [4.4407794e-01 2.4011966e-08 5.5592203e-01]
+class 1 :: month == mar || masses: [2.3970435e-08 4.3818170e-01 5.6181824e-01]
+class 0 :: age > 27 & balance > 450 & day > 16 & duration > 437 & month == sep || masses: [4.3714768e-01 2.4151252e-08 5.6285226e-01]
+class 1 :: age < 39 & campaign < 2 & contact == cellular & day > 15 & duration > 437 & month == may || masses: [2.3947427e-08 4.3316430e-01 5.6683570e-01]
+class 0 :: balance < 1460 & campaign > 1 & duration < 730 & month == jul & poutcome == unknown || masses: [4.2678612e-01 2.2537387e-08 5.7321382e-01]
+class 0 :: age > 53 & duration < 136 & pdays < 31.8 || masses: [4.2492238e-01 2.2474067e-08 5.7507759e-01]
+class 0 :: age < 30 & balance > 110 & day < 15 & education == tertiary & job == management & month == feb || masses: [4.1112193e-01 2.0148200e-08 5.8887804e-01]
+class 0 :: age > 27 & balance < 254 & day < 10 & duration < 566 & month == apr & pdays < 39.7 || masses: [4.0951717e-01 2.3925471e-08 5.9048271e-01]
+class 0 :: age < 53 & duration < 689 & education == tertiary & loan == yes & poutcome == unknown || masses: [3.9952859e-01 2.2792678e-08 6.0047138e-01]
+class 0 :: contact == unknown & duration < 768.4 & month == may & poutcome == unknown || masses: [3.9511755e-01 2.1539799e-08 6.0488248e-01]
+class 0 :: campaign > 1 & day > 10 & duration < 869 & marital == divorced & month == aug & poutcome == unknown || masses: [3.9438739e-01 2.3678352e-08 6.0561264e-01]
+class 1 :: age < 27 & balance < 1624 & contact == cellular & day > 6 & duration > 437 & housing == no & job == student & marital == single || masses: [2.3464919e-08 3.6845604e-01 6.3154387e-01]
+class 1 :: age < 32 & duration > 208 & housing == no & pdays > -1 || masses: [2.3075355e-08 3.6704546e-01 6.3295448e-01]
+class 1 :: age < 53 & balance > 1706 & contact == cellular & duration > 398 & education == tertiary & housing == no || masses: [2.3115641e-08 3.6680454e-01 6.3319540e-01]
+class 0 :: balance > 0 & day < 10 & duration > 756.2 & education == unknown || masses: [3.6460164e-01 2.3405383e-08 6.3539827e-01]
+class 0 :: balance > 450 & campaign < 3 & duration < 413 & month == may || masses: [3.6392245e-01 1.7659973e-08 6.3607752e-01]
+class 1 :: age < 57 & duration > 414 & education == tertiary & housing == no & pdays > -1 & poutcome == success || masses: [2.3370426e-08 3.6077708e-01 6.3922286e-01]
+class 0 :: age < 34.5 & balance > 851.5 & duration < 242.4 & housing == no & pdays > 93.3 & poutcome == other || masses: [3.5569274e-01 1.7695305e-08 6.4430732e-01]
+class 0 :: age < 39 & balance < 3232 & campaign > 1 & day < 15 & duration > 297 & housing == yes & marital == married & month == may || masses: [3.5155758e-01 2.3123226e-08 6.4844245e-01]
+class 0 :: balance > 108 & day < 10 & duration < 180 & pdays > 101 & poutcome == success || masses: [3.495904e-01 2.201961e-08 6.504096e-01]
+class 0 :: age > 45.5 & campaign > 1 & education == primary & marital == married & pdays > -1 & previous < 2 || masses: [3.4608606e-01 2.3142563e-08 6.5391386e-01]
+class 0 :: balance > 5768 & campaign > 1 & duration > 289.8 & marital == married & month == aug || masses: [3.4384072e-01 2.3047951e-08 6.5615922e-01]
+class 0 :: campaign > 2 & marital == divorced & pdays > -1 || masses: [3.3859321e-01 2.2985313e-08 6.6140670e-01]
+class 0 :: balance < 297 & campaign < 3 & day > 11 & education == secondary & marital == single & month == jul || masses: [3.3710814e-01 2.2979567e-08 6.6289181e-01]
+class 1 :: age > 39 & duration > 141 & housing == yes & poutcome == success & previous > 3 || masses: [2.2857121e-08 3.3382931e-01 6.6617066e-01]
+class 0 :: age < 37 & balance > 1125 & campaign > 1 & duration > 180 & pdays < 185 & poutcome == failure || masses: [3.2698134e-01 2.2793992e-08 6.7301863e-01]
+class 1 :: age > 57 & balance > 450 & contact == cellular & day < 9 & duration > 437 & job == retired || masses: [2.2754286e-08 3.2585081e-01 6.7414916e-01]
+class 0 :: campaign < 2 & education == tertiary & housing == yes & month == jul || masses: [3.2261255e-01 2.2234536e-08 6.7738742e-01]
+class 0 :: balance > 0 & month == apr & pdays > -1 & poutcome == other & previous < 3 || masses: [3.2160720e-01 2.2711534e-08 6.7839283e-01]
+class 1 :: age < 30 & day < 25 & duration > 138 & housing == no & job == student || masses: [2.2405640e-08 3.0698222e-01 6.9301772e-01]
+class 0 :: balance > 450 & day > 15 & duration > 180 & education == primary & poutcome == failure || masses: [3.0438495e-01 2.2004581e-08 6.9561505e-01]
+class 0 :: age > 53 & campaign < 2 & day > 16 & duration > 756.2 & housing == no & previous < 1 || masses: [3.0048811e-01 2.2309656e-08 6.9951189e-01]
+class 0 :: age > 46 & balance > 332.7 & day > 16 & education == tertiary & month == jul & previous < 1 || masses: [2.8975859e-01 1.9101460e-08 7.1024144e-01]
+class 0 :: age < 59 & day < 24 & duration < 850 & month == nov & previous < 1 || masses: [2.8634673e-01 2.1284865e-08 7.1365321e-01]
+class 0 :: balance < 1555 & education == secondary & housing == no & pdays > 89 & poutcome == other & previous < 3 || masses: [2.8347319e-01 1.9023265e-08 7.1652675e-01]
+class 0 :: age < 34 & balance > 890 & duration < 157.2 || masses: [2.7535108e-01 1.7089384e-08 7.2464889e-01]
+class 0 :: balance < 2534 & duration > 437 & pdays > 95.3 & poutcome == other & previous > 3 || masses: [2.7534696e-01 2.1760275e-08 7.2465301e-01]
+class 0 :: age > 53 & campaign > 1 & contact == unknown & day > 10 || masses: [2.7431303e-01 2.0016611e-08 7.2568697e-01]
+class 0 :: balance > 829.5 & education == tertiary & month == jul & pdays < 96 || masses: [2.6502043e-01 1.6723769e-08 7.3497951e-01]
+class 1 :: balance > 1444 & campaign < 2 & contact == telephone & day < 5 & duration > 287 || masses: [2.1334957e-08 2.6013210e-01 7.3986781e-01]
+class 0 :: day < 10 & duration < 279 & pdays < 80 || masses: [2.5934786e-01 1.8918620e-08 7.4065208e-01]
+class 0 :: age < 34 & balance > 330.6 & duration > 252.9 & education == tertiary & month == oct & pdays < 93 || masses: [2.5806570e-01 2.1087818e-08 7.4193430e-01]
+class 1 :: age > 57 & campaign < 2 & duration > 211 & housing == no & job == retired || masses: [2.0841911e-08 2.4636421e-01 7.5363576e-01]
+class 0 :: age < 37 & balance < 3092 & day > 10 & duration < 611 & education == tertiary & job == technician || masses: [2.2809587e-01 1.8610489e-08 7.7190411e-01]
+class 1 :: duration > 279 & housing == no & pdays > -1 & poutcome == success || masses: [1.9824899e-08 2.1815629e-01 7.8184366e-01]
+class 0 :: balance < 450 & duration < 886 & marital == divorced & month == apr & previous < 3 || masses: [2.0216125e-01 1.9609661e-08 7.9783875e-01]
+class 0 :: balance > 5768 & contact == unknown & day > 10 & duration > 756.2 || masses: [1.7384826e-01 1.8448574e-08 8.2615179e-01]
+class 0 :: age < 59 & balance > 739 & campaign > 1 & contact == unknown & day < 20 & duration > 437 & job == technician & marital == married || masses: [1.7135707e-01 1.8354109e-08 8.2864290e-01]
+class 0 :: age > 34 & balance > 450 & campaign < 3 & day > 16 & month == apr & pdays < 83.3 || masses: [1.7132038e-01 1.7046586e-08 8.2867962e-01]
+class 0 :: age < 32 & day > 6 & duration > 421 & education == secondary & loan == yes & month == may || masses: [1.6453382e-01 1.8065194e-08 8.3546615e-01]
+class 0 :: age > 39 & balance < 131 & education == tertiary & month == feb || masses: [1.6371195e-01 1.8046581e-08 8.3628803e-01]
+class 0 :: age < 46 & balance > 131 & campaign < 2 & day > 8 & marital == married & previous < 1 || masses: [1.5634984e-01 1.5055615e-08 8.4365010e-01]
+class 0 :: education == tertiary & month == feb || masses: [1.4087129e-01 1.6928613e-08 8.5912865e-01]
+class 0 :: balance < 24.3 & marital == married || masses: [1.3911277e-01 1.6385822e-08 8.6088723e-01]
+class 0 :: campaign < 2 & duration > 180 & poutcome == failure || masses: [1.3155481e-01 1.6449665e-08 8.6844516e-01]
+class 1 :: campaign < 2 & contact == cellular & duration > 371 & education == secondary & housing == no & month == jun || masses: [1.6220380e-08 1.2759396e-01 8.7240601e-01]
+class 0 :: age > 34 & day > 11 & duration < 249.5 & housing == no & poutcome == unknown || masses: [1.2170715e-01 1.4438235e-08 8.7829280e-01]
+class 0 :: age > 36 & campaign < 2 & duration < 507.1 || masses: [1.15340188e-01 1.44111905e-08 8.84659827e-01]
+class 0 :: duration > 279 & education == primary & previous < 1 || masses: [1.1067702e-01 1.5197095e-08 8.8932294e-01]
+class 0 :: contact == unknown & day < 14.5 & education == tertiary || masses: [1.09279804e-01 1.42691121e-08 8.90720248e-01]
+class 0 :: age < 39 & balance > 279.5 & campaign > 1 & day > 10 & education == secondary & previous < 1 || masses: [1.0897147e-01 1.2341525e-08 8.9102846e-01]
+class 0 :: balance > 2534 & campaign < 2 & day < 6 & duration < 243 & poutcome == success || masses: [1.00964546e-01 1.46895722e-08 8.99035394e-01]
+class 0 :: month == aug || masses: [9.5955387e-02 1.3920443e-08 9.0404457e-01]
+class 0 :: age > 46 & balance > 450 & duration > 437 & education == tertiary & previous < 2 || masses: [9.4900124e-02 1.4354565e-08 9.0509993e-01]
+class 0 :: age < 46 & balance > 0 & campaign < 3 & day < 10 & duration > 279 & education == tertiary || masses: [8.7794371e-02 1.3817794e-08 9.1220558e-01]
+class 0 :: day < 10 & duration > 437 & education == secondary & poutcome == unknown || masses: [8.6371437e-02 1.3799942e-08 9.1362852e-01]
+class 1 :: duration > 180 & housing == no & pdays > 74.7 || masses: [1.3003449e-08 8.2263194e-02 9.1773677e-01]
+class 0 :: age > 34 & campaign > 2 & duration < 437 || masses: [8.1898183e-02 1.2003801e-08 9.1810179e-01]
+class 1 :: balance > 79 & contact == telephone & duration > 437 & job == retired || masses: [1.3143869e-08 7.9039797e-02 9.2096019e-01]
+class 0 :: campaign > 1 || masses: [7.7361360e-02 1.1391477e-08 9.2263860e-01]
+class 0 :: duration < 162.6 & poutcome == success || masses: [7.6609492e-02 1.2984859e-08 9.2339045e-01]
+class 0 :: balance < 131 || masses: [6.9877625e-02 1.1683246e-08 9.3012238e-01]
+class 0 :: age > 34 & balance > 176 & duration > 289.8 & education == secondary & previous < 2 || masses: [6.5979391e-02 1.2049532e-08 9.3402058e-01]
+class 0 :: education == unknown || masses: [6.2926456e-02 1.1825039e-08 9.3707353e-01]
+class 1 :: balance > 73.2 & contact == cellular & day < 16 & duration > 392 & education == tertiary & month == jun || masses: [1.1692031e-08 6.0995195e-02 9.3900484e-01]
+class 0 :: age < 30.9 & campaign < 2 & job == admin. || masses: [6.04994856e-02 1.16561525e-08 9.39500451e-01]
+class 0 :: age < 35 & balance > 131 || masses: [5.9012860e-02 1.0407118e-08 9.4098717e-01]
+class 0 :: age > 34 & balance > 450 & duration > 279 & education == tertiary & marital == married & month == jun || masses: [5.8852442e-02 1.1048805e-08 9.4114757e-01]
+class 0 :: campaign > 1 & previous > 1 || masses: [5.22739515e-02 1.08586224e-08 9.47726011e-01]
+class 0 :: balance < 694 & day > 10 & marital == single & previous < 1 || masses: [3.1860605e-02 8.4432612e-09 9.6813935e-01]
+class 0 :: age > 34 & previous > 1 || masses: [6.2294169e-03 3.8487209e-09 9.9377054e-01]
+class 0 :: duration > 437 & education == tertiary & housing == yes & marital == married || masses: [6.1717788e-03 3.8398080e-09 9.9382824e-01]
+class 0 :: age > 34 & balance > 3616 & marital == single || masses: [4.6311910e-03 3.3206506e-09 9.9536884e-01]
+class 0 :: day > 10 & marital == divorced || masses: [9.5672772e-04 1.5075873e-09 9.9904329e-01]
+class 1 :: campaign < 2 & contact == cellular & month == oct & previous < 1 || masses: [6.3429572e-02 1.1900893e-08 9.3657041e-01]
+class 1 :: campaign < 2 & contact == cellular & duration > 146.7 & previous < 1 || masses: [3.2932207e-02 8.7007406e-09 9.6706778e-01]
+class 1 :: pdays > -1 || masses: [1.9157667e-02 6.5773298e-09 9.8084235e-01]
+class 1 :: contact == unknown & duration > 387.4 & job == technician & marital == married || masses: [9.9355178e-03 4.8441282e-09 9.9006444e-01]
+class 1 :: campaign < 2 & contact == cellular & month == jun || masses: [8.2120625e-03 4.4168407e-09 9.9178797e-01]
+class 1 :: duration > 246 & housing == yes & month == jun || masses: [8.0854418e-03 4.3774304e-09 9.9191451e-01]
+class 1 :: campaign < 2 & duration > 349.5 & month == may || masses: [7.2888224e-03 4.1720041e-09 9.9271119e-01]
+class 1 :: contact == telephone & duration > 229 & previous < 1 || masses: [6.4863823e-03 3.9316985e-09 9.9351358e-01]
+class 1 :: age < 39 & day < 16 & housing == no & job == services || masses: [5.2919881e-03 3.5487966e-09 9.9470794e-01]
+class 1 :: balance > 450 & duration > 238.5 & housing == yes & pdays > -1 || masses: [5.1285075e-03 3.5025864e-09 9.9487150e-01]
+class 1 :: contact == unknown & duration > 682.1 & job == blue-collar & marital == married || masses: [5.1263934e-03 3.4922805e-09 9.9487358e-01]
+class 1 :: balance > 131 & campaign > 1 & contact == cellular & duration > 150.1 || masses: [4.191520e-03 3.058214e-09 9.958085e-01]
+class 1 :: age > 36 & campaign > 1 & contact == unknown & duration > 592.6 || masses: [4.0464806e-03 3.1133101e-09 9.9595356e-01]
+class 1 :: balance < 954.2 & campaign > 1 & housing == no & month == apr || masses: [3.8565963e-03 3.0345553e-09 9.9614340e-01]
+class 1 :: age > 59 & balance < 450 & duration > 127.7 || masses: [2.9061036e-03 2.6401312e-09 9.9709392e-01]
+class 1 :: age < 30 & campaign > 1 & duration > 109.3 & housing == no || masses: [2.8492631e-03 2.6193949e-09 9.9715072e-01]
+class 1 :: campaign < 2 & duration < 180 & housing == no & month == apr || masses: [2.3999754e-03 2.3939928e-09 9.9760002e-01]
+class 1 :: balance > 131 & campaign < 2 & duration > 126 & housing == no || masses: [2.3536717e-03 2.3929350e-09 9.9764627e-01]
+class 1 :: age < 30.5 & job == admin. & month == feb || masses: [2.2591292e-03 2.3197533e-09 9.9774086e-01]
+class 1 :: contact == unknown & day > 20 & duration > 401.1 || masses: [2.2322712e-03 2.3147768e-09 9.9776769e-01]
+class 1 :: contact == telephone & duration > 249 & education == tertiary & previous < 1 || masses: [2.1972049e-03 2.2882385e-09 9.9780279e-01]
+class 1 :: balance < 131 & month == aug & pdays > -1 || masses: [2.0894352e-03 2.2331292e-09 9.9791056e-01]
+class 1 :: balance < 131 & contact == unknown & day > 6 & duration > 646.3 || masses: [1.8911635e-03 2.1284587e-09 9.9810886e-01]
+class 1 :: balance < 173.2 & contact == cellular & duration > 276 || masses: [1.7311464e-03 2.0488289e-09 9.9826884e-01]
+class 1 :: age > 33 & duration < 180 & pdays > -1 & poutcome == success || masses: [1.3419067e-03 1.7944812e-09 9.9865806e-01]
+class 1 :: age > 59 & balance > 786 & campaign > 1 & duration > 117 || masses: [5.0321734e-04 1.1012045e-09 9.9949682e-01]
+class 1 :: age < 37 & campaign > 2 & day < 20 & duration > 285 & education == tertiary || masses: [4.0581048e-04 9.8760111e-10 9.9959415e-01]
+class 1 :: balance > 95.5 & contact == cellular & day < 16 & month == nov || masses: [3.3711604e-04 8.9977703e-10 9.9966288e-01]
+class 1 :: balance > 82 & contact == cellular & duration > 437 & previous < 1 || masses: [2.6197193e-04 8.0197343e-10 9.9973804e-01]
+class 1 :: contact == unknown & duration > 517.8 & marital == divorced || masses: [2.6252549e-04 7.9373413e-10 9.9973744e-01]
+class 1 :: month == sep || masses: [2.485086e-04 7.739840e-10 9.997515e-01]
+class 1 :: balance > 210.2 & contact == unknown & day > 5 & duration > 478.3 & marital == single || masses: [1.7261022e-04 6.4346772e-10 9.9982738e-01]
+class 1 :: day < 16 & month == nov || masses: [1.2873764e-04 5.5671562e-10 9.9987125e-01]
+class 1 :: day > 20 & housing == yes & month == apr || masses: [7.6603777e-05 4.2854159e-10 9.9992335e-01]

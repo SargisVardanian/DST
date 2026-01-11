@@ -33,6 +33,51 @@ except Exception:
     _HAS_TORCH = False
 
 
+# -----------------------------------------------------------------------------
+# Reproducible train/test split helper (shared across scripts)
+# -----------------------------------------------------------------------------
+def split_train_test(
+    X,
+    y,
+    *,
+    test_size: float = 0.16,
+    seed: int = 42,
+    stratify: bool = True,
+):
+    """Return (X_train, X_test, y_train, y_test, train_idx, test_idx).
+
+    This is a thin wrapper that matches the project-wide split convention and
+    falls back to an unstratified split if stratification is impossible.
+    """
+    from sklearn.model_selection import train_test_split
+
+    X = np.asarray(X)
+    y = np.asarray(y)
+    if len(X) != len(y):
+        raise ValueError(f"X and y must have same length, got {len(X)} and {len(y)}")
+
+    idx_all = np.arange(len(y))
+    strat = y if (stratify and y is not None) else None
+    try:
+        X_tr, X_te, y_tr, y_te, idx_tr, idx_te = train_test_split(
+            X,
+            y,
+            idx_all,
+            test_size=float(test_size),
+            random_state=int(seed),
+            stratify=strat,
+        )
+    except ValueError:
+        X_tr, X_te, y_tr, y_te, idx_tr, idx_te = train_test_split(
+            X,
+            y,
+            idx_all,
+            test_size=float(test_size),
+            random_state=int(seed),
+        )
+    return X_tr, X_te, y_tr, y_te, idx_tr, idx_te
+
+
 # ----------------------------- Helpers -----------------------------
 def _to_numpy(x: ArrayLike) -> np.ndarray:
     """Convert torch tensor to numpy (detach+cpu), or return numpy as is."""
@@ -84,9 +129,31 @@ def params_to_mass(W: ArrayLike) -> ArrayLike:
     return _to_same_backend(mass, W)
 
 
+
 def logits_to_mass(W: ArrayLike) -> ArrayLike:
-    """Alias kept for readability at call sites that deal with logits explicitly."""
-    return params_to_mass(W)
+    """Convert unconstrained logits to a valid mass vector on the simplex (softmax)."""
+    if _HAS_TORCH and isinstance(W, torch.Tensor):
+        # stable softmax
+        x = W - W.max(dim=-1, keepdim=True).values
+        return F.softmax(x, dim=-1)
+
+    x = _to_numpy(W).astype(np.float32, copy=False)
+    x = x - np.max(x, axis=-1, keepdims=True)
+    e = np.exp(x)
+    s = np.sum(e, axis=-1, keepdims=True)
+    out = e / np.clip(s, 1e-12, None)
+    return _to_same_backend(out, W)
+
+
+def mass_to_logits(m: ArrayLike) -> ArrayLike:
+    """Convert a mass vector (on simplex) to logits (log-space). Useful for reparameterization."""
+    if _HAS_TORCH and isinstance(m, torch.Tensor):
+        eps = 1e-12
+        return torch.log(m.clamp_min(eps))
+    x = _to_numpy(m).astype(np.float32, copy=False)
+    eps = 1e-12
+    return _to_same_backend(np.log(np.clip(x, eps, None)), m)
+
 
 
 # ----------------------------- Pignistic -----------------------------
@@ -211,11 +278,35 @@ def dempster_rule_kt(m1: np.ndarray, m2: np.ndarray, return_conflict: bool = Fal
 
 
 # ----------------------------- Misc helpers -----------------------------
-def unique_rules(rules: Sequence) -> list:
+def unique_rules(rules: Sequence):
     """Deduplicate rule objects by their .caption (case-insensitive)."""
-    seen = {}
+    seen = set()
+    out = []
     for r in rules:
-        key = str(getattr(r, "caption", "")).strip().lower()
-        if key and key not in seen:
-            seen[key] = r
-    return list(seen.values())
+        cap = str(r.caption).strip().lower()
+        if cap not in seen:
+            seen.add(cap)
+            out.append(r)
+    return out
+
+
+def load_classifier_for_dataset(ds_name: str, algo: str = "RIPPER"):
+    """Helper used by evaluate_outliers.py to load a saved model."""
+    from DSClassifierMultiQ import DSClassifierMultiQ
+    from pathlib import Path
+    
+    # Standard repo structure assumed
+    THIS_DIR = Path(__file__).resolve().parent
+    pkl_dir = THIS_DIR / "pkl_rules"
+    pkl_file = pkl_dir / f"{algo.lower()}_{ds_name}_dst.pkl"
+    
+    if not pkl_file.exists():
+        # Fallback to current dir if pkl_rules doesn't exist or file not there
+        pkl_file = THIS_DIR / f"{algo.lower()}_{ds_name}_dst.pkl"
+
+    if not pkl_file.exists():
+        raise FileNotFoundError(f"Model pkl not found: {pkl_file}")
+        
+    clf = DSClassifierMultiQ(k=2) # k doesn't matter much for loading
+    clf.load_model(str(pkl_file))
+    return clf

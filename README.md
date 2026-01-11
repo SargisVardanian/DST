@@ -242,7 +242,7 @@ High H-Score = rule is both **certain** (low Ω) and **discriminative** (prefers
 
 ## 5. Empirical Results
 
-Full results in `Common_code/results/benchmark_dataset_*_metrics.csv`.
+Full results in `Common_code/results/benchmark_*_metrics.csv`.
 
 ### 5.0 RAW Rules vs DST-Enhanced: The Key Improvement
 
@@ -277,7 +277,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** Near-perfect separation with simple rules. DST adds minimal refinement.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_Brain%20Tumor_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_BrainTumor_metrics.png" width="85%">
 </p>
 
 ### 5.2 Breast Cancer Wisconsin
@@ -289,7 +289,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** Clinically interpretable rules (Bare_Nuclei, Clump_Thickness) achieve near-ceiling performance.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_breast-cancer-wisconsin_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_breast-cancer-wisconsin_metrics.png" width="85%">
 </p>
 
 ### 5.3 Adult Income
@@ -302,7 +302,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** FOIL gives broader coverage (higher recall); RIPPER is more compact (higher precision). DST combines weak signals (education, occupation, capital gain) into confident predictions.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_adult_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_adult_metrics.png" width="85%">
 </p>
 
 ### 5.4 Bank Marketing (Highly Imbalanced — 11.7% positive)
@@ -315,7 +315,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Key insight:** Without DST, raw rules achieve ~0.25 recall on minority class. With DST combination of weak signals (poutcome, duration, contacts), recall doubles to ~0.58.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_bank-full_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_bank-full_metrics.png" width="85%">
 </p>
 
 ### 5.5 Wine Quality
@@ -328,7 +328,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** Feature interactions (alcohol × sulphates) are key. High Ω reflects limited data and task complexity.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_df_wine_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_df_wine_metrics.png" width="85%">
 </p>
 
 ### 5.6 Gas Drift (126 features, 6 classes)
@@ -342,7 +342,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** FOIL generates few but decisive rules → near-deterministic predictions (Ω→0). STATIC's dense rule set creates conflicts → high Ω correctly reflects noise.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_gas_drift_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_gas_drift_metrics.png" width="85%">
 </p>
 
 ### 5.7 German Credit
@@ -356,7 +356,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** When rules conflict ("good salary" vs "bad payment history"), DST outputs high Ω — a natural signal for manual review of borderline cases.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_german_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_german_metrics.png" width="85%">
 </p>
 
 ### 5.8 SAheart (Cardiovascular Risk)
@@ -369,7 +369,7 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 **Interpretation:** Small dataset with high noise. FOIL_DST achieves best F1 while maintaining appropriate uncertainty.
 
 <p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_dataset_SAheart_metrics.png" width="85%">
+  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_SAheart_metrics.png" width="85%">
 </p>
 
 ---
@@ -389,11 +389,8 @@ pip install numpy pandas scikit-learn matplotlib seaborn torch
 ```bash
 cd Common_code
 
-# Run experiment on gas_drift
-python test_Ripper_DST.py --dataset gas_drift --experiment stable
-
-# Other datasets: adult, bank-full, german, df_wine, SAheart, breast-cancer-wisconsin
-python test_Ripper_DST.py --dataset adult --experiment stable
+# Run benchmark on gas_drift (use --run-tag to avoid overwriting old results)
+python test_Ripper_DST.py --dataset gas_drift --run-tag _stable
 
 # Specify device and epochs
 python test_Ripper_DST.py --dataset gas_drift --device cuda --epochs 100

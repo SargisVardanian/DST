@@ -33,6 +33,7 @@ from sklearn.metrics import (
     roc_auc_score,
     silhouette_score,
 )
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
 
 # Keep compatibility with configs that define defaults for this module.
@@ -50,6 +51,64 @@ except Exception:  # pragma: no cover
 # ---------------------------------------------------------------------------
 # Small numeric helpers
 # ---------------------------------------------------------------------------
+
+def split_train_test(
+    X: np.ndarray,
+    y: np.ndarray | None = None,
+    *,
+    test_size: float = 0.16,
+    random_state: int = 42,
+    stratify: bool = True,
+    return_indices: bool = False,
+):
+    """Train/test split with a safe stratification fallback.
+
+    This centralizes the split behavior used across scripts so experiments
+    (and outlier mining) can reuse the exact same split parameters.
+
+    If stratified split fails (e.g., a class has too few samples), falls back
+    to an unstratified split.
+    """
+    X = np.asarray(X)
+    if y is not None:
+        y = np.asarray(y, dtype=int)
+
+    idx_all = np.arange(X.shape[0])
+    strat = y if (stratify and y is not None) else None
+
+    try:
+        if return_indices:
+            return train_test_split(
+                X,
+                y,
+                idx_all,
+                test_size=float(test_size),
+                random_state=int(random_state),
+                stratify=strat,
+            )
+        return train_test_split(
+            X,
+            y,
+            test_size=float(test_size),
+            random_state=int(random_state),
+            stratify=strat,
+        )
+    except ValueError:
+        if return_indices:
+            return train_test_split(
+                X,
+                y,
+                idx_all,
+                test_size=float(test_size),
+                random_state=int(random_state),
+            )
+        return train_test_split(
+            X,
+            y,
+            test_size=float(test_size),
+            random_state=int(random_state),
+        )
+
 
 def is_categorical(arr: np.ndarray, max_cat: int = 20) -> bool:
     """Heuristic: a column is categorical if it has a small number of unique values.
@@ -77,6 +136,74 @@ def normalize(a: np.ndarray, eps: float = 1e-12) -> np.ndarray:
     sd = np.nanstd(a)
     sd = sd if sd > eps else 1.0
     return (a - mu) / sd
+
+
+def nll_log_loss(y_true: Sequence[int] | np.ndarray, proba: np.ndarray, eps: float = 1e-12) -> float:
+    """Negative log-likelihood (log-loss) from predicted probabilities.
+
+    `proba` must be shaped (N, K) with rows summing to 1 (will be renormalized).
+    """
+    y = np.asarray(y_true, dtype=int).ravel()
+    p = np.asarray(proba, dtype=float)
+    if p.ndim != 2:
+        raise ValueError("proba must be 2D (N, K)")
+    if p.shape[0] != y.shape[0]:
+        raise ValueError(f"y_true and proba must have same length, got {y.shape[0]} and {p.shape[0]}")
+
+    p = np.clip(p, eps, 1.0)
+    p = p / np.clip(p.sum(axis=1, keepdims=True), eps, None)
+    rows = np.arange(y.shape[0])
+    if y.min() < 0 or y.max() >= p.shape[1]:
+        raise ValueError("y_true contains class index outside probability columns")
+    py = p[rows, y]
+    return float(-np.mean(np.log(py)))
+
+
+def expected_calibration_error(
+    y_true: Sequence[int] | np.ndarray,
+    proba: np.ndarray,
+    *,
+    n_bins: int = 15,
+    eps: float = 1e-12,
+) -> float:
+    """Expected Calibration Error (ECE) using max-prob confidence binning.
+
+    Standard definition:
+      ECE = Σ_b (|acc(b) - conf(b)| * |b|/N)
+    where conf(b) is the mean predicted confidence (max prob) in bin b.
+    """
+    y = np.asarray(y_true, dtype=int).ravel()
+    p = np.asarray(proba, dtype=float)
+    if p.ndim != 2:
+        raise ValueError("proba must be 2D (N, K)")
+    if p.shape[0] != y.shape[0]:
+        raise ValueError(f"y_true and proba must have same length, got {y.shape[0]} and {p.shape[0]}")
+    if n_bins < 1:
+        raise ValueError("n_bins must be >= 1")
+
+    p = np.clip(p, eps, 1.0)
+    p = p / np.clip(p.sum(axis=1, keepdims=True), eps, None)
+    y_pred = np.argmax(p, axis=1).astype(int)
+    conf = np.max(p, axis=1)
+    acc = (y_pred == y).astype(float)
+
+    bin_edges = np.linspace(0.0, 1.0, int(n_bins) + 1)
+    ece = 0.0
+    n = float(len(y))
+    for i in range(int(n_bins)):
+        lo, hi = bin_edges[i], bin_edges[i + 1]
+        # include left edge for first bin, right edge for all bins
+        if i == 0:
+            mask = (conf >= lo) & (conf <= hi)
+        else:
+            mask = (conf > lo) & (conf <= hi)
+        if not np.any(mask):
+            continue
+        frac = float(np.mean(mask))
+        acc_b = float(np.mean(acc[mask]))
+        conf_b = float(np.mean(conf[mask]))
+        ece += abs(acc_b - conf_b) * frac
+    return float(ece)
 
 
 def one_hot(n: Sequence[int] | np.ndarray, k: int) -> np.ndarray:

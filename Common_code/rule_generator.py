@@ -19,10 +19,13 @@ def _normalise_value(v):
 
 def _values_equal(a, b):
     an, bn = _normalise_value(a), _normalise_value(b)
-    return abs(float(an) - float(bn)) <= 1e-9 if isinstance(an, float) or isinstance(bn, float) else an == bn
+    if isinstance(an, float) or isinstance(bn, float):
+        return abs(float(an) - float(bn)) <= 1e-9
+    return an == bn
 
 def _canonicalize_condition(lits):
-    if not lits: return ()
+    if not lits:
+        return ()
     scope = {}
     for n, o, rv in lits:
         if o not in _ALLOWED_OPS: raise ValueError(f"Unsupported op {o!r}")
@@ -41,9 +44,15 @@ def _canonicalize_condition(lits):
             res.append((n, "==", eq))
         else:
             if gt is not None and lt is not None and gt >= lt - _EPS: return None
-            if gt is not None: res.append((n, ">", gt))
-            if lt is not None: res.append((n, "<", lt))
-    return tuple(sorted(res, key=lambda x: (x[0], {"==": 0, ">": 1, "<": 2}[x[1]], repr(_normalise_value(x[2])))))
+            if gt is not None:
+                res.append((n, ">", gt))
+            if lt is not None:
+                res.append((n, "<", lt))
+    
+    def sort_key(x):
+        return (x[0], {"==": 0, ">": 1, "<": 2}[x[1]], repr(_normalise_value(x[2])))
+        
+    return tuple(sorted(res, key=sort_key))
 
 def _condition_signature(c):
     parts = []
@@ -69,21 +78,41 @@ def _condition_caption(c, vn, l=None):
     return f"{b} → class {l}" if l is not None else b
 
 def _mask_from_literal(c, o, v):
-    if o == "==": return np.isfinite(c) & np.isclose(c, float(v), atol=1e-9) if np.issubdtype(c.dtype, np.number) else c == v
-    return np.isfinite(c) & (c < float(v) if o == "<" else c > float(v))
+    if o == "==":
+        if np.issubdtype(c.dtype, np.number):
+            return np.isfinite(c) & np.isclose(c, float(v), atol=1e-9)
+        return c == v
+    
+    if o == "<":
+        return np.isfinite(c) & (c < float(v))
+    return np.isfinite(c) & (c > float(v))
 
 def _feature_score(c):
-    if c.size == 0: return 0.0
-    if np.issubdtype(c.dtype, np.number): return float(np.var(c[np.isfinite(c)])) if c[np.isfinite(c)].size else 0.0
-    v, cnt = np.unique(c, return_counts=True); return float(1.0 - (cnt / cnt.sum()).max()) if cnt.size else 0.0
+    if c.size == 0:
+        return 0.0
+    if np.issubdtype(c.dtype, np.number):
+        fin_c = c[np.isfinite(c)]
+        return float(np.var(fin_c)) if fin_c.size else 0.0
+    
+    v, cnt = np.unique(c, return_counts=True)
+    if not cnt.size:
+        return 0.0
+    return float(1.0 - (cnt / cnt.sum()).max())
 
 def _split_feature_kinds(X, names, decs, *, cat_threshold=32):
     num, cat = [], []
     for i, n in enumerate(names):
-        if (decs and n in decs) or not np.issubdtype(X[:, i].dtype, np.number): cat.append(i); continue
+        is_categorical_v = (decs and n in decs) or not np.issubdtype(X[:, i].dtype, np.number)
+        if is_categorical_v:
+            cat.append(i)
+            continue
+            
         u = np.unique(X[:, i][np.isfinite(X[:, i])])
-        if u.size > cat_threshold or not np.all(np.isclose(u, np.round(u))): num.append(i)
-        else: cat.append(i)
+        is_discrete = u.size <= cat_threshold and np.all(np.isclose(u, np.round(u)))
+        if is_discrete:
+            cat.append(i)
+        else:
+            num.append(i)
     return num, cat
 
 
@@ -112,8 +141,17 @@ class RuleGenerator:
             {"min_precision": 0.40, "max_literals": 5, "min_literals": 1},
             {"min_precision": 0.20, "max_literals": 4, "min_literals": 1},
         ]
-        self._rng, self.ruleset, self._ordered_rules, self._rule_metrics = np.random.default_rng(0), defaultdict(list), [], {}
-        self._X = self._y = self._default_label = None; self._feat = []; self._is_cat = []; self._seen_signatures = set()
+        self._rng = np.random.default_rng(0)
+        self.ruleset = defaultdict(list)
+        self._ordered_rules = []
+        self._rule_metrics = {}
+        
+        self._X = None
+        self._y = None
+        self._default_label = None
+        self._feat = []
+        self._is_cat = []
+        self._seen_signatures = set()
 
     def _filter_redundant_rules(self, rules, X, threshold=0.75):
         if not rules: return rules
@@ -210,8 +248,12 @@ class RuleGenerator:
         X_np, names, decs, y_np = np.asarray(X), list(feature_names), value_decoders or {}, np.asarray(y, dtype=int) if y is not None else None
         if X_np.ndim != 2: raise ValueError("X must be 2D")
         pool = literal_pool or self._stat_literal_pool(X_np, names, decs, y_np)
-        seen, v_flag, f_scores = seen_signatures or set(), bool(verbose or self.verbose), [_feature_score(X_np[:, i]) for i in range(X_np.shape[1])]
-        rules, _sel = [], lambda e, l: sorted(e, key=lambda x: (float(x.get("score", 0)), float(x.get("coverage", 0))), reverse=True)[:l]
+        seen, v_flag = seen_signatures or set(), bool(verbose or self.verbose)
+        f_scores = [_feature_score(X_np[:, i]) for i in range(X_np.shape[1])]
+        rules = []
+        
+        def _sel(entries, limit):
+            return sorted(entries, key=lambda x: (float(x.get("score", 0)), float(x.get("coverage", 0))), reverse=True)[:limit]
 
         pairs = sorted(itertools.combinations(range(X_np.shape[1]), 2), key=lambda p: f_scores[p[0]] + f_scores[p[1]], reverse=True)[:max(1, pair_top)]
         for i, j in pairs:
@@ -280,21 +322,49 @@ class RuleGenerator:
                     return rules
         return rules
 
-    def build_static_rules(self, X, *, feature_names, y=None, value_decoders=None, verbose=False, breaks=7, top_k_cats=12, pair_top=8, triple_top=24, max_rules=None):
+    def build_static_rules(self, X, *, feature_names, y=None, value_decoders=None, verbose=False, breaks=7, top_k_cats=12, pair_top=8, triple_top=24, max_rules=2000):
         X_np, names, decs, y_np = np.asarray(X), list(feature_names), value_decoders or {}, np.asarray(y, dtype=int) if y is not None else None
         if X_np.ndim != 2: raise ValueError("X must be 2D")
         pool = self._stat_literal_pool(X_np, names, decs, y_np, breaks=breaks, top_k_cats=top_k_cats)
         seen, v_flag = set(), bool(verbose or self.verbose)
         s_rules = self._static_single_rules_from_pool(pool, decs, seen, v_flag, y=y_np)
-        m_rules = self.generate_mult_pair_rules(X_np, feature_names=names, y=y_np, value_decoders=decs, literal_pool=pool, seen_signatures=seen, pair_top=pair_top, triple_top=triple_top, max_rules=None if max_rules is None else max(0, max_rules - len(s_rules)), verbose=v_flag)
+
+        # Adaptive cap for statistical (static) rule generation to avoid rule explosion
+        if max_rules is None:
+            n_samples, n_features = X_np.shape
+            cap_by_features = 40 * int(n_features)
+            cap_by_samples = max(100, int(0.2 * int(n_samples)))
+            max_rules_mp = min(self._MAX_TOTAL_RULES, cap_by_features, cap_by_samples)
+            max_rules_mp = max(60, int(max_rules_mp))
+            total_cap = max_rules_mp + len(s_rules)
+        else:
+            total_cap = int(max_rules)
+            max_rules_mp = max(0, total_cap - len(s_rules))
+
+        m_rules = self.generate_mult_pair_rules(
+            X_np,
+            feature_names=names,
+            y=y_np,
+            value_decoders=decs,
+            literal_pool=pool,
+            seen_signatures=seen,
+            pair_top=pair_top,
+            triple_top=triple_top,
+            max_rules=max_rules_mp,
+            verbose=v_flag,
+        )
         all_r = list(m_rules) + list(s_rules)
         if self._enable_diversity_filter:
             self._feat = names; all_r = self._filter_redundant_rules(all_r, X_np, threshold=float(self._diversity_threshold))
-        return all_r[:max_rules] if max_rules is not None else all_r
+        return all_r[:total_cap]
 
     # ------------------------- FOIL / RIPPER -------------------------
     @staticmethod
-    def _is_categorical(col): return col.dtype.kind in {"U", "S", "O"} or np.unique(col[np.isfinite(col)] if col.dtype.kind == "f" else col).size <= 20
+    def _is_categorical(col):
+        if col.dtype.kind in {"U", "S", "O"}:
+            return True
+        col_fin = col[np.isfinite(col)] if col.dtype.kind == "f" else col
+        return np.unique(col_fin).size <= 20
 
     def _subset_mask(self, m, r, *, minimum=1):
         idx = np.where(m)[0]
@@ -557,9 +627,53 @@ class RuleGenerator:
         return self
 
     @property
-    def ordered_rules(self): return list(self._ordered_rules)
+    def ordered_rules(self):
+        return list(self._ordered_rules)
 
     @property
-    def default_label(self): return self._default_label
+    def default_label(self):
+        return self._default_label
+
+    def generate(self, X, y, **kwargs):
+        """Unified interface to generate rules (STATIC/RIPPER/FOIL)."""
+        feature_names = kwargs.get("feature_names")
+        value_decoders = kwargs.get("value_decoders") or {}
+        
+        if feature_names:
+            self._feat = list(feature_names) 
+            
+        if self.algo == "static":
+            # Extract only relevant args to avoid TypeError
+            valid_args = ["breaks", "top_k_cats", "pair_top", "triple_top", "max_rules"]
+            sub_kw = {k: v for k, v in kwargs.items() if k in valid_args}
+            return self.build_static_rules(
+                X, 
+                feature_names=self._feat if hasattr(self, '_feat') else [f"X{i}" for i in range(X.shape[1])],
+                y=y, 
+                value_decoders=value_decoders, 
+                verbose=self.verbose,
+                **sub_kw
+            )
+            
+        # RIPPER / FOIL
+        self.fit(X, y, feature_names=feature_names)
+        
+        res = []
+        for label, cond_dict, stats in self.ordered_rules:
+            # Convert {n: (o, v)} -> ((n, o, v), ...) sorted by name
+            specs = []
+            for name in sorted(cond_dict.keys()):
+                op, val = cond_dict[name]
+                specs.append((name, op, val))
+            
+            cap = _condition_caption(specs, value_decoders, label)
+            
+            res.append({
+                "specs": tuple(specs),
+                "label": int(label),
+                "caption": cap,
+                "stats": stats
+            })
+        return res
 
 __all__ = ["RuleGenerator", "Literal", "Condition"]
