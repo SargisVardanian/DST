@@ -167,9 +167,9 @@ STATIC casts a "wide net" by combining simple candidates:
 - Fixed base uncertainty (default 0.8) goes to Ω
 
 **DSGD++ initialization** (`init_masses_dsgdpp`):
-- Uses labeled rules (RIPPER/FOIL)
-- Sets Ω around 0.6
-- Assigns remaining mass to the rule's target class (falls back to class prior / uniform if label is missing)
+- Does **not** require a stored rule label (works for RIPPER/FOIL and also STATIC predicates)
+- Estimates each rule’s dominant class from the training samples it covers (coverage × purity / representativeness)
+- Assigns the remaining mass to Ω (so weak/noisy rules remain cautious)
 
 ---
 
@@ -242,7 +242,46 @@ High H-Score = rule is both **certain** (low Ω) and **discriminative** (prefers
 
 ## 5. Empirical Results
 
-Full results in `Common_code/results/benchmark_*_metrics.csv`.
+### 5.1 Paper-ready consolidated plots (all datasets)
+
+This repo uses **global, consolidated** plots/tables (instead of per-dataset `benchmark_*` artifacts).
+
+**Full test split (no outlier/inlier subdivision):**
+- Plots: `Common_code/results/ALL_DATASETS_*.png`
+- Table: `Common_code/results/ALL_DATASETS_metrics.csv`
+
+**Outliers vs inliers diagnostic (feature/clustering-based outliers, not DST-based):**
+- Plots: `Common_code/results/outlier_plots/ALL_DATASETS_*_OUTLIERS_INLIERS.png`
+- Rule-base stats: `Common_code/results/outlier_plots/rule_counts_pastel.png`, `Common_code/results/outlier_plots/combined_rule_literals.png`
+- Table: `Common_code/results/ALL_DATASETS_metrics_OUTLIERS_INLIERS.csv`
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_Accuracy.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_F1Score.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_NLL.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_ECE.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_Precision.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_Recall.png" width="95%">
+</p>
+
+<p align="center">
+  <img src="Common_code/results/ALL_DATASETS_Uncertainty.png" width="95%">
+</p>
 
 ### 5.0 RAW Rules vs DST-Enhanced: The Key Improvement
 
@@ -267,112 +306,10 @@ DST transforms rigid rules into "soft" evidence sources. The table below shows h
 
 ---
 
-### 5.1 Brain Tumor MRI (Binary, Near-Separable)
+### 5.2 Per-dataset notes (optional)
 
-| Model | Accuracy | F1 | Ω |
-|:------|:---------|:---|:--|
-| RIPPER_DST | **0.990** | **0.989** | 0.48 |
-| FOIL_DST | 0.988 | 0.987 | 0.36 |
-
-**Interpretation:** Near-perfect separation with simple rules. DST adds minimal refinement.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_BrainTumor_metrics.png" width="85%">
-</p>
-
-### 5.2 Breast Cancer Wisconsin
-
-| Model | Accuracy | F1 | Precision | Recall | Ω |
-|:------|:---------|:---|:----------|:-------|:--|
-| RIPPER_DST | **0.964** | **0.949** | 0.925 | 0.974 | 0.70 |
-
-**Interpretation:** Clinically interpretable rules (Bare_Nuclei, Clump_Thickness) achieve near-ceiling performance.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_breast-cancer-wisconsin_metrics.png" width="85%">
-</p>
-
-### 5.3 Adult Income
-
-| Model | Accuracy | F1 | Precision | Recall | Ω |
-|:------|:---------|:---|:----------|:-------|:--|
-| FOIL_DST | **0.851** | 0.678 | 0.734 | 0.629 | 0.53 |
-| RIPPER_DST | 0.849 | **0.692** | 0.705 | 0.679 | 0.62 |
-
-**Interpretation:** FOIL gives broader coverage (higher recall); RIPPER is more compact (higher precision). DST combines weak signals (education, occupation, capital gain) into confident predictions.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_adult_metrics.png" width="85%">
-</p>
-
-### 5.4 Bank Marketing (Highly Imbalanced — 11.7% positive)
-
-| Model | Accuracy | F1 | Precision | Recall | Ω |
-|:------|:---------|:---|:----------|:-------|:--|
-| RIPPER_DST | **0.893** | **0.559** | 0.538 | 0.580 | 0.62 |
-| FOIL_DST | 0.896 | 0.509 | 0.569 | 0.461 | 0.49 |
-
-**Key insight:** Without DST, raw rules achieve ~0.25 recall on minority class. With DST combination of weak signals (poutcome, duration, contacts), recall doubles to ~0.58.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_bank-full_metrics.png" width="85%">
-</p>
-
-### 5.5 Wine Quality
-
-| Model | Accuracy | F1 | Recall | Ω |
-|:------|:---------|:---|:-------|:--|
-| RIPPER_DST | **0.723** | **0.769** | 0.818 | 0.78 |
-| STATIC_DST | 0.704 | 0.744 | 0.789 | 0.80 |
-
-**Interpretation:** Feature interactions (alcohol × sulphates) are key. High Ω reflects limited data and task complexity.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_df_wine_metrics.png" width="85%">
-</p>
-
-### 5.6 Gas Drift (126 features, 6 classes)
-
-| Model | Accuracy | F1 | Ω |
-|:------|:---------|:---|:--|
-| FOIL_DST | **0.982** | **0.982** | **0.03** |
-| RIPPER_DST | 0.979 | 0.979 | 0.19 |
-| STATIC_DST | 0.934 | 0.934 | 0.65 |
-
-**Interpretation:** FOIL generates few but decisive rules → near-deterministic predictions (Ω→0). STATIC's dense rule set creates conflicts → high Ω correctly reflects noise.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_gas_drift_metrics.png" width="85%">
-</p>
-
-### 5.7 German Credit
-
-| Model | Accuracy | F1 | Ω |
-|:------|:---------|:---|:--|
-| RIPPER_DST | **0.744** | 0.506 | 0.75 |
-| STATIC_DST | 0.731 | **0.574** | 0.80 |
-| FOIL_DST | 0.731 | 0.442 | 0.61 |
-
-**Interpretation:** When rules conflict ("good salary" vs "bad payment history"), DST outputs high Ω — a natural signal for manual review of borderline cases.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_german_metrics.png" width="85%">
-</p>
-
-### 5.8 SAheart (Cardiovascular Risk)
-
-| Model | Accuracy | F1 | Ω |
-|:------|:---------|:---|:--|
-| FOIL_DST | **0.649** | **0.552** | 0.71 |
-| STATIC_DST | 0.608 | 0.525 | 0.80 |
-
-**Interpretation:** Small dataset with high noise. FOIL_DST achieves best F1 while maintaining appropriate uncertainty.
-
-<p align="center">
-  <img src="https://github.com/SargisVardanian/DST/raw/main/Common_code/results/benchmark_SAheart_metrics.png" width="85%">
-</p>
-
----
+Per-dataset `benchmark_<dataset>_metrics.(csv|png)` files may be generated locally by `Common_code/test_Ripper_DST.py`,
+but the repo’s **paper-facing** artifacts are the consolidated `ALL_DATASETS_*` plots/tables above.
 
 ## 6. Usage
 
@@ -389,16 +326,43 @@ pip install numpy pandas scikit-learn matplotlib seaborn torch
 ```bash
 cd Common_code
 
-# Run benchmark on gas_drift (use --run-tag to avoid overwriting old results)
+# Train + evaluate on a single dataset (writes *_dst.dsb and *_dst.pkl)
 python test_Ripper_DST.py --dataset gas_drift --run-tag _stable
 
 # Specify device and epochs
 python test_Ripper_DST.py --dataset gas_drift --device cuda --epochs 100
 ```
 
-Results saved to `Common_code/results/`.
+Artifacts:
+- Trained rulebases: `Common_code/dsb_rules/*_dst.dsb`
+- Trained models: `Common_code/pkl_rules/*_dst.pkl`
 
-### 6.3 Inspecting Individual Predictions
+Note: per-dataset `benchmark_<dataset>_metrics.(csv|png)` may be created locally, but the repo’s
+paper-facing artifacts are the consolidated `Common_code/results/ALL_DATASETS_*.png` and `Common_code/results/ALL_DATASETS_metrics.csv`.
+
+### 6.3 Global evaluation (all datasets) + outlier audit
+
+```bash
+cd DST
+
+# 1) Build outliers/inliers subsets on the benchmark test split using feature-only clustering detectors
+./.venv/bin/python -u Common_code/outlier_pipeline.py \
+  --mode feature \
+  --detectors kmeans_margin,gmm_entropy \
+  --datasets adult,bank-full,BrainTumor,breast-cancer-wisconsin,df_wine,gas_drift,german,SAheart
+
+# 2) Evaluate trained models on:
+#    - full test split (no outlier/inlier subdivision) -> Common_code/results/ALL_DATASETS_*.png
+#    - outliers vs inliers diagnostic               -> Common_code/results/outlier_plots/*_OUTLIERS_INLIERS.png
+./.venv/bin/python -u Common_code/evaluate_outliers.py \
+  --datasets auto \
+  --algos STATIC,RIPPER,FOIL \
+  --scenario both \
+  --out-dir Common_code/results/outlier_plots \
+  --full-out-dir Common_code/results
+```
+
+### 6.4 Inspecting Individual Predictions
 
 ```bash
 # Inspect sample #5 on gas_drift with RIPPER rules
@@ -408,7 +372,7 @@ python sample_rule_inspector.py --algo RIPPER --dataset gas_drift --idx 5
 python sample_rule_inspector.py --algo FOIL --dataset gas_drift --idx 5
 ```
 
-### 6.4 Programmatic API
+### 6.5 Programmatic API
 
 ```python
 from Common_code.DSClassifierMultiQ import DSClassifierMultiQ
@@ -437,7 +401,7 @@ print("Train accuracy:", (y_pred == y).mean())
 clf.model.print_rules(top_n=5)
 ```
 
-### 6.5 Key Files
+### 6.6 Key Files
 
 | File | Purpose |
 |:-----|:--------|
@@ -466,4 +430,4 @@ This project was developed by **S. Vardanian**, in collaboration with **A. Tarkh
 
 ---
 
-_Last updated: 2024-12-03_
+_Last updated: 2026-02-01_
