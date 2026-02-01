@@ -20,6 +20,7 @@ import torch.nn as nn
 
 from rule_generator import RuleGenerator
 from core import params_to_mass, ds_combine_pair, masses_to_pignistic as core_masses_to_pignistic
+from device_utils import resolve_torch_device
 
 
 def _lazy_pickle():
@@ -65,7 +66,7 @@ class DSModelMultiQ(nn.Module):
         self,
         k: int,
         algo: str = "STATIC",
-        device: str = "cpu",
+        device: str = "auto",
         feature_names=None,
         value_decoders=None,
         rule_uncertainty=0.8,
@@ -77,7 +78,7 @@ class DSModelMultiQ(nn.Module):
         Args:
             k (int): Number of classes.
             algo (str): Rule generation algorithm ('STATIC', 'RIPPER', 'FOIL').
-            device (str): Device to run on ('cpu', 'cuda').
+            device (str): Device to run on ('auto', 'cpu', 'cuda', 'cuda:0', 'mps'). 'metal' is accepted as an alias for 'mps'.
             feature_names (list): List of feature names for interpretability.
             value_decoders (dict): Dictionary mapping feature names to value decoders.
             rule_uncertainty (float): Initial uncertainty mass for rules (0.0 to 1.0).
@@ -86,7 +87,7 @@ class DSModelMultiQ(nn.Module):
         super().__init__()
         self.num_classes, self.k = int(k), int(k)
         self.algo = str(algo).upper()
-        self.device = torch.device(device)
+        self.device = resolve_torch_device(device)
         self.feature_names = list(feature_names) if feature_names else None
         self.value_names = value_decoders or {}
         self.rule_uncertainty = float(rule_uncertainty)

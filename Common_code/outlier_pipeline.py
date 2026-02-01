@@ -189,7 +189,8 @@ def _anomaly_scores_fit_train_score_test(
             n_train = int(X_train.shape[0])
             k_req = int(max(2, int(kmeans_k)))
             k_eff = int(max(2, min(k_req, n_train)))
-            km = KMeans(n_clusters=k_eff, random_state=int(seed), n_init="auto")
+            # Use a fixed integer n_init for better compatibility across scikit-learn versions.
+            km = KMeans(n_clusters=k_eff, random_state=int(seed), n_init=10)
             km.fit(X_train)
             centers = np.asarray(km.cluster_centers_, dtype=np.float64)
             # distance to nearest centroid (higher => more anomalous)
@@ -203,7 +204,8 @@ def _anomaly_scores_fit_train_score_test(
             n_train = int(X_train.shape[0])
             k_req = int(max(2, int(kmeans_k)))
             k_eff = int(max(2, min(k_req, n_train)))
-            km = KMeans(n_clusters=k_eff, random_state=int(seed), n_init="auto")
+            # Use a fixed integer n_init for better compatibility across scikit-learn versions.
+            km = KMeans(n_clusters=k_eff, random_state=int(seed), n_init=10)
             km.fit(X_train)
             centers = np.asarray(km.cluster_centers_, dtype=np.float64)
             # ambiguity score: smaller gap between 1st and 2nd closest centroid => larger score

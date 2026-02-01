@@ -113,8 +113,14 @@ def _thread_env(seed: int, device: str) -> dict[str, str]:
         "VECLIB_MAXIMUM_THREADS",
     ):
         env.setdefault(k, "1")
-    if str(device).lower() == "cpu":
+    dev = str(device).strip().lower()
+    if dev == "metal":
+        dev = "mps"
+    if dev == "cpu":
         env.setdefault("CUDA_VISIBLE_DEVICES", "")
+    if dev == "mps":
+        # Allows CPU fallback for ops that are not implemented on MPS.
+        env.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
     return env
 
 
@@ -123,7 +129,11 @@ def run_single(argv=None) -> int:
     ap.add_argument("dataset", nargs="?", default=None)
     ap.add_argument("--dataset", dest="dataset_opt", default=None)
     ap.add_argument("--epochs", type=int, default=50)
-    ap.add_argument("--device", default="cpu")
+    ap.add_argument(
+        "--device",
+        default="auto",
+        help="Device: auto|cpu|cuda|cuda:0|mps (Apple Metal). 'metal' is accepted as alias for 'mps'.",
+    )
     ap.add_argument("--batch-size", type=int, default=None)
     ap.add_argument("--debug-rules", action="store_true")
     ap.add_argument("--ece-bins", type=int, default=15, help="Bins for Expected Calibration Error (ECE)")

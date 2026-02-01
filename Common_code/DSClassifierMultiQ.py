@@ -58,7 +58,7 @@ class DSClassifierMultiQ(ClassifierMixin):
     def __init__(
         self,
         k,
-        device="cpu",
+        device="auto",
         rule_algo="STATIC",
         max_iter=50,
         batch_size=512,

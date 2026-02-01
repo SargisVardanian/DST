@@ -302,8 +302,13 @@ git clone https://github.com/SargisVardanian/DST.git
 cd DST
 python -m venv .venv
 .venv/bin/pip install -U pip
-.venv/bin/pip install numpy pandas scikit-learn matplotlib seaborn torch
+.venv/bin/pip install -r requirements.txt
 ```
+
+Notes on PyTorch / GPU backends:
+- CPU: `pip install -r requirements.txt` is enough (works everywhere).
+- NVIDIA CUDA: you must install a CUDA-enabled PyTorch build (see the official PyTorch install instructions), then install the remaining deps.
+- Apple Silicon (Metal): PyTorch uses the `mps` backend (use `--device mps`).
 
 ### 6.2 Running Benchmarks
 
@@ -311,10 +316,10 @@ python -m venv .venv
 cd Common_code
 
 # Train + evaluate on a single dataset (writes *_dst.dsb and *_dst.pkl)
-python test_Ripper_DST.py --dataset gas_drift --run-tag _stable
+.venv/bin/python test_Ripper_DST.py --dataset gas_drift --run-tag _stable
 
-# Specify device and epochs
-python test_Ripper_DST.py --dataset gas_drift --device cuda --epochs 100
+# Specify device and epochs (device supports: auto|cpu|cuda|cuda:0|mps; 'metal' is alias for 'mps')
+.venv/bin/python test_Ripper_DST.py --dataset gas_drift --device auto --epochs 100
 ```
 
 Artifacts:
@@ -323,6 +328,13 @@ Artifacts:
 
 Note: per-dataset `benchmark_<dataset>_metrics.(csv|png)` may be created locally, but the repo’s
 paper-facing artifacts are the consolidated `Common_code/results/ALL_DATASETS_*.png` and `Common_code/results/ALL_DATASETS_metrics.csv`.
+
+### 6.2.1 Devices, reproducibility, and performance (short)
+
+- `--device auto` selects the best available backend (CUDA → MPS → CPU).
+- CPU is typically the most stable for bitwise reproducibility; CUDA/MPS may introduce small numerical differences.
+- For speed, increase `--batch-size` on GPU and keep `--device auto` (or explicitly `cuda` / `mps`).
+- On Apple MPS, you can enable fallback for unsupported ops: `PYTORCH_ENABLE_MPS_FALLBACK=1` (slower, but more robust).
 
 ### 6.3 Global evaluation (all datasets) + outlier audit
 

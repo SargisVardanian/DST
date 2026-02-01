@@ -1,0 +1,11 @@
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+# PyTorch backend depends on platform (CPU / CUDA / MPS).
+# For CUDA builds, install torch following the official PyTorch instructions, then install the rest.
+torch
+# Optional: faster / more robust model serialization if installed (fallback is built-in pickle).
+dill
+
