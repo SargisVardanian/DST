@@ -1,7 +1,7 @@
 # DST: Interpretable Rule-Based Classification via Dempster-Shafer Theory
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.8%2B-green" alt="Python">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-green" alt="Python">
   <img src="https://img.shields.io/badge/Framework-PyTorch-orange" alt="PyTorch">
 </p>
 
@@ -300,6 +300,7 @@ Outliers/inliers plots are meant as a **diagnostic**, not a headline benchmark:
 ```bash
 git clone https://github.com/SargisVardanian/DST.git
 cd DST
+python --version  # requires Python 3.10+
 python -m venv .venv
 .venv/bin/pip install -U pip
 .venv/bin/pip install -r requirements.txt
