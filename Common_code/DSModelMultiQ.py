@@ -445,6 +445,101 @@ class DSModelMultiQ(nn.Module):
         combined[~has_votes, -1] = 1.0
         return combined
 
+    @staticmethod
+    def _combine_yager_pair(mA: torch.Tensor, mB: torch.Tensor, *, eps: float = 1e-12) -> torch.Tensor:
+        """Vectorized Yager-style pairwise combination (singletons+Omega)."""
+        k = mA.shape[-1] - 1
+        a_s, a_o = mA[..., :k], mA[..., -1:]
+        b_s, b_o = mB[..., :k], mB[..., -1:]
+
+        num_s = a_s * b_s + a_s * b_o + a_o * b_s
+        num_o = a_o * b_o
+
+        tot = a_s.sum(dim=-1, keepdim=True) * b_s.sum(dim=-1, keepdim=True)
+        diag = (a_s * b_s).sum(dim=-1, keepdim=True)
+        kappa = (tot - diag).clamp(min=0.0)
+
+        out = torch.cat([num_s, num_o + kappa], dim=-1)
+        out = out / out.sum(dim=-1, keepdim=True).clamp_min(eps)
+        return out
+
+    def _combine_active_masses_iterative(
+        self,
+        *,
+        act_flat: torch.Tensor,
+        masses: torch.Tensor,
+        vac: torch.Tensor,
+        rule: str,
+    ) -> torch.Tensor:
+        """Iterative (masked) fusion over the union of active rules in a batch."""
+        n = int(act_flat.shape[0])
+        k_plus_one = int(masses.shape[-1])
+        acc = vac.expand(n, -1).clone()
+
+        active_rids = act_flat.any(dim=0).nonzero(as_tuple=False).flatten()
+        if active_rids.numel() == 0:
+            return acc
+
+        if rule == "dempster":
+            for rid in active_rids:
+                combined = ds_combine_pair(acc, masses[rid].view(1, k_plus_one))
+                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
+            return acc
+
+        if rule == "yager":
+            for rid in active_rids:
+                combined = self._combine_yager_pair(acc, masses[rid].view(1, k_plus_one))
+                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
+            return acc
+
+        raise ValueError(f"Unknown combination rule '{rule}'")
+
+    def _combine_active_masses_tree(
+        self,
+        *,
+        act_flat: torch.Tensor,
+        masses: torch.Tensor,
+        vac: torch.Tensor,
+        rule: str,
+        max_elements: int = 15_000_000,
+    ) -> torch.Tensor:
+        """Tree-reduction fusion (parallel over rules) for the active-rule union of a batch."""
+        n = int(act_flat.shape[0])
+        k_plus_one = int(masses.shape[-1])
+
+        active_mask = act_flat.any(dim=0)
+        if not bool(active_mask.any().item()):
+            return vac.expand(n, -1)
+
+        act_u = act_flat[:, active_mask]  # (N, R_act)
+        masses_u = masses[active_mask]    # (R_act, K+1)
+        r_act = int(act_u.shape[1])
+        if r_act == 0:
+            return vac.expand(n, -1)
+
+        # If too large, fall back to the iterative implementation to avoid big allocations.
+        est = int(n) * int(r_act) * int(k_plus_one)
+        if est > int(max_elements) or r_act < 32:
+            return self._combine_active_masses_iterative(act_flat=act_u, masses=masses_u, vac=vac, rule=rule)
+
+        vac3 = vac.view(1, 1, k_plus_one)
+        m3 = masses_u.view(1, r_act, k_plus_one).expand(n, -1, -1)
+        x = torch.where(act_u.unsqueeze(-1), m3, vac3)  # (N, R_act, K+1)
+
+        while x.shape[1] > 1:
+            if x.shape[1] % 2 == 1:
+                x = torch.cat([x, vac3.expand(n, 1, k_plus_one)], dim=1)
+            a = x[:, 0::2, :]
+            b = x[:, 1::2, :]
+            if rule == "dempster":
+                x = ds_combine_pair(a, b)
+            elif rule == "yager":
+                x = self._combine_yager_pair(a, b)
+            else:
+                raise ValueError(f"Unknown combination rule '{rule}'")
+
+        return x[:, 0, :]
+
     def _combine_active_masses(self, masses, act, *, combination_rule=None):
         """
         Combine active rules using Dempster, Yager, or vote.
@@ -475,45 +570,13 @@ class DSModelMultiQ(nn.Module):
         if masses.numel() == 0 or act_flat.numel() == 0:
             return vac.expand(act_flat.shape[0], -1).reshape(*batch_shape, k_plus_one)
 
-        # --- Vote (majority) ---
         if rule == "vote":
             combined = self._combine_vote_masses(act_flat, k_plus_one, dtype=masses.dtype)
             return combined.reshape(*batch_shape, k_plus_one)
 
-        # --- Standard Dempster's Rule ---
-        # Conflict is normalized away via 1/(1-k).
-        # This is the standard implementation per DSGD/DSGD-Enhanced.
-        if rule == "dempster":
-            acc = vac.expand(act_flat.shape[0], -1).clone()
-            for rid in act_flat.any(dim=0).nonzero(as_tuple=False).flatten():
-                combined = ds_combine_pair(acc, masses[rid].view(1, -1))
-                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
-            return acc.reshape(*batch_shape, k_plus_one)
-
-        # --- Yager ---
-        # Conflict (κ) is transferred to Omega, preserving uncertainty.
-        # Use for inference/explanation when you want conflict-aware uncertainty.
-        if rule == "yager":
-            k = k_plus_one - 1
-            acc = vac.expand(act_flat.shape[0], -1).clone()
-            
-            for rid in act_flat.any(dim=0).nonzero(as_tuple=False).flatten():
-                mA, mB = acc, masses[rid].view(1, -1)
-                a_s, a_o = mA[:, :k], mA[:, -1:]
-                b_s, b_o = mB[:, :k], mB[:, -1:]
-                
-                # Conjunctive combination (unnormalized)
-                num_s = a_s * b_s + a_s * b_o + a_o * b_s
-                num_o = a_o * b_o
-                
-                # Conflict → Omega
-                kappa = (a_s.sum(dim=-1, keepdim=True) * b_s.sum(dim=-1, keepdim=True) - 
-                         (a_s * b_s).sum(dim=-1, keepdim=True)).clamp(min=0.0)
-                combined = torch.cat([num_s, num_o + kappa], dim=-1)
-                combined = combined / combined.sum(dim=-1, keepdim=True).clamp_min(1e-12)
-                acc = torch.where(act_flat[:, rid].unsqueeze(1), combined, acc)
-            
-            return acc.reshape(*batch_shape, k_plus_one)
+        # Dempster/Yager fusion: associative/commutative, so we can tree-reduce across rules for speed.
+        fused = self._combine_active_masses_tree(act_flat=act_flat, masses=masses, vac=vac, rule=rule)
+        return fused.reshape(*batch_shape, k_plus_one)
         
         raise ValueError(f"Unknown combination rule '{rule}'")
 
