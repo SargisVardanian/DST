@@ -1,0 +1,53 @@
+{
+  "dataset": "adult",
+  "subset": "test_only",
+  "label_column": "labels",
+  "mode": "feature",
+  "n_samples_total": 30162,
+  "n_train": 25336,
+  "n_test": 4826,
+  "n_outliers": 483,
+  "n_inliers": 4343,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.10008288437629506,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.001450777202072539,
+    "p25": 0.36062176165803106,
+    "median": 0.5182383419689119,
+    "p75": 0.6570984455958548,
+    "max": 0.9955440414507772
+  },
+  "label_distribution": {
+    "test": {
+      "0": 3625,
+      "1": 1201
+    },
+    "outliers": {
+      "0": 352,
+      "1": 131
+    },
+    "inliers": {
+      "0": 3273,
+      "1": 1070
+    }
+  }
+}

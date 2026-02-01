@@ -216,7 +216,7 @@ class RuleGenerator:
             pool[names[i]] = entries
         return pool
 
-    def _static_single_rules_from_pool(self, pool, decs, seen, verbose, *, y=None):
+    def _static_single_rules_from_pool(self, pool, decs, seen, verbose):
         rules = []
         for n, entries in pool.items():
             sorted_entries = sorted(entries, key=lambda x: (float(x.get("score", 0)), float(x.get("coverage", 0))), reverse=True)
@@ -227,15 +227,11 @@ class RuleGenerator:
                 sig = _condition_signature(cond)
                 if sig in seen:
                     continue
-                
-                maj = None
-                if y is not None and e["mask"].any():
-                    maj = int(np.argmax(np.bincount(y[e["mask"]], minlength=int(y.max())+1)))
-                
-                cap = _condition_caption(cond, decs, maj)
+
+                cap = _condition_caption(cond, decs, None)
                 rules.append({
                     "specs": cond,
-                    "label": maj,
+                    "label": None,
                     "caption": cap,
                     "stats": {"kind": "static", "stage": "single", "coverage": float(e.get("coverage", 0)), "literals": 1}
                 })
@@ -272,11 +268,10 @@ class RuleGenerator:
                 if m.sum() == 0:
                     continue
                 
-                maj = int(np.argmax(np.bincount(y_np[m], minlength=int(y_np.max())+1))) if y_np is not None else None
-                cap = _condition_caption(cond, decs, maj)
+                cap = _condition_caption(cond, decs, None)
                 rules.append({
                     "specs": cond,
-                    "label": maj,
+                    "label": None,
                     "caption": cap,
                     "stats": {"kind": "static", "stage": "pair", "support": int(m.sum()), "coverage": float(m.mean()), "literals": len(cond)}
                 })
@@ -307,11 +302,10 @@ class RuleGenerator:
                 if m.sum() == 0:
                     continue
                 
-                maj = int(np.argmax(np.bincount(y_np[m], minlength=int(y_np.max())+1))) if y_np is not None else None
-                cap = _condition_caption(cond, decs, maj)
+                cap = _condition_caption(cond, decs, None)
                 rules.append({
                     "specs": cond,
-                    "label": maj,
+                    "label": None,
                     "caption": cap,
                     "stats": {"kind": "static", "stage": "triple", "support": int(m.sum()), "coverage": float(m.mean()), "literals": len(cond)}
                 })
@@ -327,7 +321,7 @@ class RuleGenerator:
         if X_np.ndim != 2: raise ValueError("X must be 2D")
         pool = self._stat_literal_pool(X_np, names, decs, y_np, breaks=breaks, top_k_cats=top_k_cats)
         seen, v_flag = set(), bool(verbose or self.verbose)
-        s_rules = self._static_single_rules_from_pool(pool, decs, seen, v_flag, y=y_np)
+        s_rules = self._static_single_rules_from_pool(pool, decs, seen, v_flag)
 
         # Adaptive cap for statistical (static) rule generation to avoid rule explosion
         if max_rules is None:
@@ -407,7 +401,6 @@ class RuleGenerator:
         fp = int((m & n).sum())
         return tp / (tp + fp + 1e-12)
 
-    @staticmethod
     @staticmethod
     def _foil_gain(p, n, cm, nm):
         p0 = int((cm & p).sum())

@@ -1,0 +1,53 @@
+{
+  "dataset": "german",
+  "subset": "test_only",
+  "label_column": "target",
+  "mode": "feature",
+  "n_samples_total": 1000,
+  "n_train": 840,
+  "n_test": 160,
+  "n_outliers": 16,
+  "n_inliers": 144,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.1,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.04402515723270441,
+    "p25": 0.37735849056603776,
+    "median": 0.5031446540880504,
+    "p75": 0.6477987421383649,
+    "max": 0.9685534591194969
+  },
+  "label_distribution": {
+    "test": {
+      "0": 112,
+      "1": 48
+    },
+    "outliers": {
+      "0": 13,
+      "1": 3
+    },
+    "inliers": {
+      "0": 99,
+      "1": 45
+    }
+  }
+}

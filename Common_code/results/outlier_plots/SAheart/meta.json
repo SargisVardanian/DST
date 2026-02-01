@@ -1,0 +1,52 @@
+{
+  "dataset": "SAheart",
+  "subset": "test_only",
+  "label_column": "chd",
+  "mode": "feature",
+  "n_samples_total": 462,
+  "n_train": 388,
+  "n_test": 74,
+  "n_outliers": 7,
+  "n_inliers": 67,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.0945945945945946,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.0410958904109589,
+    "p25": 0.3476027397260274,
+    "median": 0.5034246575342466,
+    "p75": 0.6506849315068493,
+    "max": 0.9931506849315068
+  },
+  "label_distribution": {
+    "test": {
+      "0": 48,
+      "1": 26
+    },
+    "outliers": {
+      "0": 7
+    },
+    "inliers": {
+      "0": 41,
+      "1": 26
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "dataset": "bank-full",
+  "subset": "test_only",
+  "label_column": "labels",
+  "mode": "feature",
+  "n_samples_total": 45211,
+  "n_train": 37977,
+  "n_test": 7234,
+  "n_outliers": 723,
+  "n_inliers": 6511,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.0999447055570915,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.0017281902391815289,
+    "p25": 0.34731439236831185,
+    "median": 0.5084335683672059,
+    "p75": 0.6717648278722521,
+    "max": 0.9932946218719756
+  },
+  "label_distribution": {
+    "test": {
+      "0": 6388,
+      "1": 846
+    },
+    "outliers": {
+      "0": 638,
+      "1": 85
+    },
+    "inliers": {
+      "0": 5750,
+      "1": 761
+    }
+  }
+}

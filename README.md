@@ -20,7 +20,7 @@ Our framework bridges this gap:
 
 We support three rule generation strategies — **RIPPER**, **FOIL**, and **STATIC** — and show how DST turns them into robust, differentiable classifiers with explicit epistemic uncertainty.
 
-We provide two mass initialization modes: a **normal** random init with base uncertainty 0.8, and **DSGD++** which uses labeled rules (RIPPER/FOIL) to set Ω around 0.6 and assign the remaining mass to the rule's class.
+We provide two mass initialization modes: a **normal** random init with base uncertainty (e.g., 0.8), and **DSGD++-style** initialization which estimates a rule’s dominant class from the training samples it covers (coverage × purity / representativeness) and assigns the remaining mass to Ω. This initialization does **not** require storing a hard class label inside the rule itself (so it also applies to STATIC predicates).
 
 ---
 
@@ -88,7 +88,7 @@ The end-to-end classifier has three layers:
 All strategies operate on a shared representation:
 
 - A **literal** is a simple condition `(feature, operator, threshold/value)`: numeric (`Vj < t`, `Vj > t`) or categorical (`Vj == value`)
-- A **rule** is a conjunction of literals: IF $\ell_1 \land \ell_2 \land \dots \land \ell_L$ THEN class $c$
+- A **rule** is a conjunction of literals: IF $\ell_1 \land \ell_2 \land \dots \land \ell_L$ THEN class $c$ (for RIPPER/FOIL). For STATIC, rules are **unlabeled predicates**; their class support is expressed only through the learned mass vector.
 
 #### 2.1.1 FOIL (First Order Inductive Learner)
 

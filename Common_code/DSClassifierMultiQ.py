@@ -7,6 +7,7 @@ including training via Projected Gradient Descent (PGD), early stopping, and cla
 from __future__ import annotations
 
 import copy
+import random
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
@@ -148,6 +149,22 @@ class DSClassifierMultiQ(ClassifierMixin):
         X = _as_numpy(X)
         y = _as_numpy(y).astype(int)
 
+        # Best-effort reproducibility when this class is used standalone (outside benchmark scripts).
+        try:
+            random.seed(int(self.seed))
+        except Exception:
+            pass
+        try:
+            np.random.seed(int(self.seed))
+        except Exception:
+            pass
+        try:
+            torch.manual_seed(int(self.seed))
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(int(self.seed))
+        except Exception:
+            pass
+
         if feature_names is not None:
             self.model.feature_names = list(feature_names)
             self.model._feature_to_idx = {name: idx for idx, name in enumerate(feature_names)}
@@ -212,8 +229,9 @@ class DSClassifierMultiQ(ClassifierMixin):
 
         # Init masses (DSGD++ if requested).
         try:
-            # for STATIC rules we keep the classic initialization.
-            use_dsgdpp = (self.init_mode == "dsgdpp") and (self.rule_algo != "STATIC")
+            # DSGD++ init does not require rule labels; it uses (rule coverage × class purity)
+            # estimated from (X_train, y_train), so it is valid for STATIC as well.
+            use_dsgdpp = (self.init_mode == "dsgdpp")
             if use_dsgdpp:
                 self.model.init_masses_dsgdpp(
                     X_train_t.to(device=device, dtype=torch.float32),

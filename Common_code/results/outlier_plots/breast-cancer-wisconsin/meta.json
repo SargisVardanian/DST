@@ -1,0 +1,53 @@
+{
+  "dataset": "breast-cancer-wisconsin",
+  "subset": "test_only",
+  "label_column": "labels",
+  "mode": "feature",
+  "n_samples_total": 683,
+  "n_train": 573,
+  "n_test": 110,
+  "n_outliers": 11,
+  "n_inliers": 99,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.1,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.0045871559633027525,
+    "p25": 0.37155963302752293,
+    "median": 0.4885321100917432,
+    "p75": 0.6135321100917432,
+    "max": 0.9678899082568808
+  },
+  "label_distribution": {
+    "test": {
+      "0": 72,
+      "1": 38
+    },
+    "outliers": {
+      "0": 4,
+      "1": 7
+    },
+    "inliers": {
+      "0": 68,
+      "1": 31
+    }
+  }
+}
