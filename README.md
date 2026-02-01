@@ -242,74 +242,30 @@ High H-Score = rule is both **certain** (low Ω) and **discriminative** (prefers
 
 ## 5. Empirical Results
 
-### 5.1 Paper-ready consolidated plots (all datasets)
+### 5.1 Paper-ready consolidated artifacts
 
-This repo uses **global, consolidated** plots/tables (instead of per-dataset `benchmark_*` artifacts).
+The repo’s **paper-facing** artifacts are global (all datasets) and live here:
 
-**Full test split (no outlier/inlier subdivision):**
-- Plots: `Common_code/results/ALL_DATASETS_*.png`
-- Table: `Common_code/results/ALL_DATASETS_metrics.csv`
-
-**Outliers vs inliers diagnostic (feature/clustering-based outliers, not DST-based):**
-- Plots: `Common_code/results/outlier_plots/ALL_DATASETS_*_OUTLIERS_INLIERS.png`
-- Rule-base stats: `Common_code/results/outlier_plots/rule_counts_pastel.png`, `Common_code/results/outlier_plots/combined_rule_literals.png`
-- Table: `Common_code/results/ALL_DATASETS_metrics_OUTLIERS_INLIERS.csv`
+- Full test split (no outlier/inlier subdivision):
+  - Plots: `Common_code/results/ALL_DATASETS_*.png`
+  - Table: `Common_code/results/ALL_DATASETS_metrics.csv`
+- Outlier audit (feature/clustering-based outliers, not DST-based):
+  - Plots: `Common_code/results/outlier_plots/ALL_DATASETS_*_OUTLIERS_INLIERS.png`
+  - Rule-base stats: `Common_code/results/outlier_plots/rule_counts_pastel.png`, `Common_code/results/outlier_plots/combined_rule_literals.png`
+  - Table: `Common_code/results/ALL_DATASETS_metrics_OUTLIERS_INLIERS.csv`
+- Complete combined table (full + outliers + inliers): `Common_code/results/ALL_DATASETS_evaluation_summary.csv`
 
 <p align="center">
   <img src="Common_code/results/ALL_DATASETS_Accuracy.png" width="95%">
 </p>
 
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_F1Score.png" width="95%">
-</p>
+### 5.2 Key idea (short)
 
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_NLL.png" width="95%">
-</p>
+DSGD-Auto is a two-stage pipeline:
+1) induce an interpretable rule base (STATIC / RIPPER / FOIL) and freeze the rule logic,
+2) learn only a singleton+Ω mass vector per rule on the simplex.
 
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_ECE.png" width="95%">
-</p>
-
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_Precision.png" width="95%">
-</p>
-
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_Recall.png" width="95%">
-</p>
-
-<p align="center">
-  <img src="Common_code/results/ALL_DATASETS_Uncertainty.png" width="95%">
-</p>
-
-### 5.0 RAW Rules vs DST-Enhanced: The Key Improvement
-
-DST transforms rigid rules into "soft" evidence sources. The table below shows how DST improves upon raw rule-based predictions:
-
-| Dataset | Algorithm | RAW Acc | DST Acc | RAW Recall | DST Recall | Improvement |
-|:--------|:----------|:--------|:--------|:-----------|:-----------|:------------|
-| **Bank Marketing** | RIPPER | 0.89 | **0.89** | 0.25 | **0.58** | +132% Recall |
-| **Bank Marketing** | FOIL | 0.88 | **0.90** | 0.30 | **0.46** | +53% Recall |
-| **Adult** | RIPPER | 0.83 | **0.85** | 0.55 | **0.68** | +24% Recall |
-| **German Credit** | FOIL | 0.70 | **0.73** | 0.35 | **0.44** | +26% Recall |
-
-**Key insight:** DST allows weaker rules to contribute evidence. Even if no single rule fires with high confidence, the **combination** of multiple partial signals produces accurate predictions with appropriate uncertainty.
-
-### Why RIPPER/FOIL outperform STATIC:
-
-| Aspect | RIPPER/FOIL | STATIC |
-|:-------|:------------|:-------|
-| Rule quality | Few, precise rules | Many noisy rules |
-| Final Ω | Lower (0.3-0.6) | Higher (0.6-0.8) |
-| Interpretation | Each rule meaningful | Many redundant rules |
-
----
-
-### 5.2 Per-dataset notes (optional)
-
-Per-dataset `benchmark_<dataset>_metrics.(csv|png)` files may be generated locally by `Common_code/test_Ripper_DST.py`,
-but the repo’s **paper-facing** artifacts are the consolidated `ALL_DATASETS_*` plots/tables above.
+At inference time, the model activates fired rules, fuses their learned masses, and outputs class probabilities plus explicit ignorance mass Ω.
 
 ## 6. Usage
 
@@ -318,7 +274,9 @@ but the repo’s **paper-facing** artifacts are the consolidated `ALL_DATASETS_*
 ```bash
 git clone https://github.com/SargisVardanian/DST.git
 cd DST
-pip install numpy pandas scikit-learn matplotlib seaborn torch
+python -m venv .venv
+.venv/bin/pip install -U pip
+.venv/bin/pip install numpy pandas scikit-learn matplotlib seaborn torch
 ```
 
 ### 6.2 Running Benchmarks
@@ -349,7 +307,7 @@ cd DST
 ./.venv/bin/python -u Common_code/outlier_pipeline.py \
   --mode feature \
   --detectors kmeans_margin,gmm_entropy \
-  --datasets adult,bank-full,BrainTumor,breast-cancer-wisconsin,df_wine,gas_drift,german,SAheart
+  --datasets all
 
 # 2) Evaluate trained models on:
 #    - full test split (no outlier/inlier subdivision) -> Common_code/results/ALL_DATASETS_*.png
