@@ -1,11 +1,15 @@
-numpy
-pandas
-scikit-learn
-matplotlib
-seaborn
+# Pinned versions used to generate the paper-facing artifacts (2026-02-01).
+# If you need a different Python/PyTorch build (CUDA/MPS), keep the versions aligned where possible.
+
+numpy==2.3.3
+pandas==2.3.3
+scikit-learn==1.7.2
+matplotlib==3.10.6
+seaborn==0.13.2
+
 # PyTorch backend depends on platform (CPU / CUDA / MPS).
 # For CUDA builds, install torch following the official PyTorch instructions, then install the rest.
-torch
-# Optional: faster / more robust model serialization if installed (fallback is built-in pickle).
-dill
+torch==2.8.0
 
+# Optional: faster / more robust model serialization if installed (fallback is built-in pickle).
+dill==0.4.0

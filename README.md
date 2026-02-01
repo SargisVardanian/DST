@@ -302,8 +302,8 @@ git clone https://github.com/SargisVardanian/DST.git
 cd DST
 python --version  # requires Python 3.10+
 python -m venv .venv
-.venv/bin/pip install -U pip
-.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pip install -U pip
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
 Notes on PyTorch / GPU backends:
