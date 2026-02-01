@@ -267,6 +267,32 @@ DSGD-Auto is a two-stage pipeline:
 
 At inference time, the model activates fired rules, fuses their learned masses, and outputs class probabilities plus explicit ignorance mass Ω.
 
+### 5.3 Metrics snapshot (mean across 8 datasets)
+
+The table below is a compact snapshot computed from `Common_code/results/ALL_DATASETS_metrics.csv` (full test split).
+
+Notes:
+- `Vote` is a simple readout baseline for RIPPER/FOIL (Ω is not defined for vote).
+- `Yager` is an inference-time diagnostic (conflict is transferred to Ω); training uses Dempster.
+- Use `Common_code/results/ALL_DATASETS_evaluation_summary.csv` for per-dataset numbers.
+
+| Algo | Method | Acc (mean) | Macro-F1 (mean) | NLL (mean) | ECE (mean) | Ω (mean) |
+|:-----|:-------|-----------:|----------------:|-----------:|-----------:|---------:|
+| FOIL | Dempster | 0.8503 | 0.7926 | 0.3381 | 0.0596 | 0.2208 |
+| FOIL | Yager | 0.8494 | 0.7906 | 0.3373 | 0.0594 | 0.2425 |
+| FOIL | Vote | 0.8376 | 0.7780 | 1.8795 | 0.0732 | — |
+| RIPPER | Dempster | 0.8388 | 0.7875 | 0.3301 | 0.0550 | 0.2112 |
+| RIPPER | Yager | 0.8428 | 0.7890 | 0.3285 | 0.0525 | 0.2421 |
+| RIPPER | Vote | 0.8252 | 0.7710 | 0.6952 | 0.0724 | — |
+| STATIC | Dempster | 0.7892 | 0.6320 | 3.5121 | 0.1498 | 0.0738 |
+| STATIC | Yager | 0.7190 | 0.5634 | 1.2161 | 0.1681 | 0.1992 |
+
+### 5.4 Comment on outlier metrics
+
+Outliers/inliers plots are meant as a **diagnostic**, not a headline benchmark:
+- outliers are selected by feature-only clustering/ambiguity detectors (so they are not guaranteed to be “hard” cases),
+- some datasets have very small outlier subsets (e.g., SAheart), so variance is high and outliers can look “better” by chance.
+
 ## 6. Usage
 
 ### 6.1 Installation
@@ -389,3 +415,11 @@ This project was developed by **S. Vardanian**, in collaboration with **A. Tarkh
 ---
 
 _Last updated: 2026-02-01_
+
+---
+
+## Paper recommendations (high level)
+
+- Use **full test split** plots/tables (`Common_code/results/ALL_DATASETS_*`) as the main results section.
+- Treat the outlier analysis (`*_OUTLIERS_INLIERS`) as a separate diagnostic subsection about uncertainty behavior and rule-base density.
+- When presenting uncertainty, explicitly state which Ω is reported (fused Ω after combination; vote has no Ω).
