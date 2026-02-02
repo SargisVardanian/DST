@@ -96,62 +96,70 @@ Alongside standard calibration metrics (ECE/NLL), we therefore report DS-specifi
 % ============================================================
 \begin{figure}[t]
 \centering
+\begin{adjustbox}{max width=\linewidth,center}
 \begin{tikzpicture}[
-  font=\small,
-  node distance = 6mm and 8mm,
-  block/.style={draw=black!65, line width=0.55pt, rounded corners=2pt,
-                align=center, inner sep=4pt, minimum height=10mm, fill=black!2},
-  blockwide/.style={block, text width=3.90cm},
-  blocknarrow/.style={block, text width=2.85cm},
-  arrow/.style={-Latex, line width=0.55pt, draw=black!70},
-  darrow/.style={-Latex, line width=0.55pt, draw=black!55, dashed},
-  phase/.style={draw=black!35, dashed, rounded corners=3pt, inner sep=3mm}
+  font=\scriptsize,
+  node distance=7mm and 7mm,
+  box/.style={draw=black!65, rounded corners=2pt, line width=0.6pt, align=center,
+              minimum height=9mm, text width=3.05cm, fill=blue!7},
+  boxwide/.style={box, text width=6.50cm},
+  online/.style={draw=black!65, rounded corners=2pt, line width=0.6pt, align=center,
+                 minimum height=8.5mm, text width=2.70cm, fill=green!7},
+  fuse/.style={draw=black!65, rounded corners=2pt, line width=0.6pt, align=center,
+               minimum height=9mm, text width=3.40cm, fill=orange!12},
+  explain/.style={draw=black!65, rounded corners=2pt, line width=0.6pt, align=center,
+                  minimum height=8.5mm, text width=3.40cm, fill=purple!9},
+  arr/.style={-{Latex[length=2.6mm]}, line width=0.65pt, draw=black!70},
+  darr/.style={-{Latex[length=2.3mm]}, line width=0.65pt, draw=black!55, dashed},
+  phase/.style={draw=black!35, dashed, rounded corners=3pt, inner sep=3.0mm, fill=black!1}
 ]
 
-% ===== OFFLINE (training) =====
-\node[blocknarrow] (train) {Training data\\$D_{\mathrm{train}}=\{(x_i,y_i)\}$};
-\node[blockwide, right=of train] (induce) {Rule induction\\STATIC / RIPPER / FOIL\\\vspace{0.5mm}\footnotesize canonicalize + filter};
-\node[blocknarrow, right=of induce] (rules) {Frozen rule logic\\$\mc{R}=\{r_j\}_{j=1}^{R}$};
+% ---------------- Training (offline) ----------------
+\node[box] (data) {Training data\\$D_{\mathrm{train}}=\{(x_i,y_i)\}$};
+\node[box, right=of data] (prep) {Preprocess\\encode categorical\\\scriptsize (optional scale)};
+\node[box, right=of prep] (induce) {Rule induction\\STATIC / RIPPER / FOIL\\\scriptsize canonicalize + filter};
+\node[box, right=of induce] (rules) {Frozen rule logic\\$\mc{R}=\{r_j\}_{j=1}^{R}$};
 
-\node[blockwide, below=11mm of induce] (learn) {Mass learning (DSGD-Auto)\\Optimize $\{\mb{m}_j\}$ on $\Delta^{k+1}$\\\footnotesize fuse: $A(x)\rightarrow \oplus$,\ \ readout: $\BetP$\\\footnotesize loss: MSE / NLL + projection};
+\node[boxwide, below=10mm of induce] (learn) {Mass learning (DSGD-Auto)\\learn singleton+$\Theta$ masses $\{\mb{m}_j\}\subset\Delta^{k+1}$\\\scriptsize loss: MSE / NLL,\ \ projection};
 
-% arrows (offline)
-\draw[arrow] (train) -- (induce);
-\draw[arrow] (induce) -- (rules);
-\draw[arrow] (train) |- (learn.west);
-\draw[darrow] (rules) |- (learn.north);
+\draw[arr] (data) -- (prep);
+\draw[arr] (prep) -- (induce);
+\draw[arr] (induce) -- (rules);
+\draw[arr] (data) |- (learn.west);
+\draw[darr] (rules) |- (learn.north);
 
-% ===== ONLINE (inference) =====
-\node[blocknarrow, below=29mm of learn.west, anchor=west] (xin) {Input\\$x$};
-\node[blocknarrow, right=of xin] (act) {Activate\\$A(x)=\{j:r_j(x)=1\}$};
-\node[blockwide, right=of act] (fuse) {Fuse + readout\\$\mb{m}(x)=\bigoplus_{j\in A(x)} \mb{m}_j$\\$\hat p=\BetP(\cdot\mid \mb{m}(x))$};
-\node[blocknarrow, right=of fuse] (out) {Output\\$\hat y,\, m_\Theta(x)$};
+% ---------------- Inference (online) ----------------
+\node[online, below=18mm of prep] (xin) {Input instance\\$x$};
+\node[online, right=of xin] (act) {Activate rules\\$A(x)=\{j:r_j(x)=1\}$};
+\node[online, right=of act] (masses) {Per-rule masses\\$\mb{m}_j$ (learned)};
+\node[fuse, right=of masses] (fuse) {Fuse evidence\\$\mb{m}(x)=\bigoplus_{j\in A(x)}\mb{m}_j$\\\scriptsize Dempster (train), Yager (diag)};
+\node[online, right=of fuse] (out) {Readout + output\\$\hat p=\BetP(\cdot\mid\mb{m}(x))$\\$\hat y,\ m_\Theta(x)$};
 
-\node[blockwide, below=10mm of fuse] (explain) {Readable explanation (inspection only)\\fired rules + combined condition summary};
+\node[explain, below=9mm of fuse] (expl) {Inspection-only explanation\\fired rules + combined condition};
 
-\draw[arrow] (xin) -- (act);
-\draw[arrow] (act) -- (fuse);
-\draw[arrow] (fuse) -- (out);
-\draw[darrow] (act) |- (explain.west);
-\draw[darrow] (fuse) -- (explain);
+\draw[arr] (xin) -- (act);
+\draw[arr] (act) -- (masses);
+\draw[arr] (masses) -- (fuse);
+\draw[arr] (fuse) -- (out);
 
-% shared artifacts (cross-phase)
-\draw[darrow] (rules.south) |- ([yshift=2mm]act.north);
-\draw[darrow] (learn.east) |- node[pos=0.25, above, font=\footnotesize, text=black!55]{learned $\{\mb{m}_j\}$} ([yshift=2mm]fuse.north);
+% cross-links + explanation links
+\draw[darr] (rules.south) .. controls +(0,-0.75) and +(-0.75,0.85) .. (act.north);
+\draw[darr] (learn.south east) .. controls +(2.10,-1.10) and +(-0.70,1.10) .. (masses.north);
+\draw[darr] (act) |- (expl.west);
+\draw[darr] (fuse) -- (expl);
 
-% phase boxes (background)
+% phase boxes
 \begin{pgfonlayer}{background}
-\node[phase, fit=(train)(rules)(learn)] (offline) {};
-\node[phase, fit=(xin)(out)(explain)] (online) {};
+\node[phase, fit=(data)(rules)(learn)] (offline) {};
+\node[phase, fit=(xin)(out)(expl)] (online_phase) {};
 \end{pgfonlayer}
-
-% phase labels
 \node[anchor=south west, font=\footnotesize\bfseries, text=black!70]
   at ([yshift=1.5mm]offline.north west) {OFFLINE: rule induction + mass learning};
 \node[anchor=south west, font=\footnotesize\bfseries, text=black!70]
-  at ([yshift=1.5mm]online.north west) {ONLINE: inference + explanations};
+  at ([yshift=1.5mm]online_phase.north west) {ONLINE: inference + explanations};
 
 \end{tikzpicture}
+\end{adjustbox}
 \caption{DSGD-Auto pipeline. Rule logic is induced once and frozen; only singleton+$\Theta$ masses are learned on the simplex. At inference, fired rules are fused and read out via the pignistic transformation to obtain calibrated probabilities and the ignorance mass $m_\Theta(x)$. For interpretability, we also provide an inspection-only combined-condition summary.}
 \label{fig:dsgd-auto-pipeline}
 \end{figure}
