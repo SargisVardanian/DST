@@ -536,6 +536,145 @@ For a separate clustering-based audit on challenging subsets, the repository als
 
 \FloatBarrier
 
+\subsection{Aggregate summary on the full test split}
+Figures~\ref{fig:all-acc}--\ref{fig:all-unc} provide a per-dataset view, while Table~\ref{tab:mean-metrics-full} summarizes the mean behavior across datasets.
+On average, \textbf{FOIL} achieves the strongest predictive performance (Acc $0.8503$, Macro-F1 $0.7926$ under Dempster), while \textbf{RIPPER} is slightly better calibrated (lower mean NLL $0.3301$ and ECE $0.0550$ under Dempster).
+\textbf{STATIC} shows a notably worse calibration profile (mean NLL $3.5121$, mean ECE $0.1498$ under Dempster), consistent with the ``dense rule base $\Rightarrow$ deep fusion'' regime discussed next.
+
+\paragraph{About the Vote baseline.}
+Vote is included as a \emph{diagnostic ablation} for RIPPER/FOIL: it replaces DS fusion with a rule-voting aggregation.
+It is not trained to produce calibrated probabilities, which is reflected in much larger NLL values (e.g., mean NLL $1.8795$ for FOIL-Vote; Table~\ref{tab:mean-metrics-full}).
+
+\begin{table}[t]
+\centering
+\caption{Mean metrics across datasets on the full test split (no outlier/inlier subdivision). Lower is better for NLL and ECE. Vote is a diagnostic baseline and is not a calibrated probabilistic model.}
+\label{tab:mean-metrics-full}
+\begin{tabular}{l l S[table-format=1.4] S[table-format=1.4] S[table-format=2.4] S[table-format=1.4] S[table-format=1.4]}
+\toprule
+Algo & Method & {Acc} & {Macro-F1} & {NLL} & {ECE} & {$\mathbb{E}_x[m_\Theta(x)]$} \\
+\midrule
+FOIL & Dempster & 0.8503 & 0.7926 & 0.3381 & 0.0596 & 0.2208 \\
+FOIL & Yager & 0.8494 & 0.7906 & 0.3373 & 0.0594 & 0.2425 \\
+FOIL & Vote & 0.8376 & 0.7780 & 1.8795 & 0.0732 & -- \\
+RIPPER & Dempster & 0.8388 & 0.7875 & 0.3301 & 0.0550 & 0.2112 \\
+RIPPER & Yager & 0.8428 & 0.7890 & 0.3285 & 0.0525 & 0.2421 \\
+RIPPER & Vote & 0.8252 & 0.7710 & 0.6952 & 0.0724 & -- \\
+STATIC & Dempster & 0.7892 & 0.6320 & 3.5121 & 0.1498 & 0.0738 \\
+STATIC & Yager & 0.7190 & 0.5634 & 1.2161 & 0.1681 & 0.1992 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Why NLL can be large (e.g., 6--10).}
+NLL is a negative log-likelihood: for a single instance it is $-\log p_{\text{true}}$.
+Therefore it is \emph{not} bounded by $1$: a mean NLL of $6$ corresponds to a typical true-class probability scale of about $\exp(-6)\approx 0.0025$, i.e., overconfident mistakes.
+Table~\ref{tab:worst-nll-full} highlights a few full-split cases with very large NLL.
+
+\begin{table}[t]
+\centering
+\caption{Largest NLL values on the full test split (examples of overconfident errors).}
+\label{tab:worst-nll-full}
+\begin{tabular}{l l l S[table-format=1.4] S[table-format=1.4] S[table-format=2.4] S[table-format=1.4] S[table-format=1.4]}
+\toprule
+Dataset & Algo & Method & {Acc} & {Macro-F1} & {NLL} & {ECE} & {$\mathbb{E}_x[m_\Theta(x)]$} \\
+\midrule
+SAheart & STATIC & Dempster & 0.6486 & 0.3934 & 9.7082 & 0.3514 & 0.0000 \\
+gas\_drift & STATIC & Dempster & 0.6685 & 0.5065 & 8.6727 & 0.2961 & 0.0000 \\
+german & STATIC & Dempster & 0.7000 & 0.4118 & 8.0336 & 0.3000 & 0.0000 \\
+SAheart & FOIL & Vote & 0.6486 & 0.5899 & 5.8413 & 0.2390 & -- \\
+german & FOIL & Vote & 0.7250 & 0.6204 & 4.4888 & 0.1610 & -- \\
+german & STATIC & Yager & 0.7000 & 0.4118 & 4.2407 & 0.2999 & 0.0001 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Clustering-based outlier audit (diagnostic)}
+In addition to the full-split benchmark, we perform a diagnostic audit on \textbf{outliers vs.\ inliers} selected \emph{only from features} on the held-out test split, using clustering-based detectors (10\% test contamination; see \texttt{Common\_code/outlier\_pipeline.py}).
+These subsets are intended to stress-test uncertainty behavior, not to replace the primary benchmark.
+Importantly, the outlier selection can skew the label distribution (e.g., in \texttt{SAheart} the outlier subset contains only class~0 in our run), so outlier-vs-inlier \emph{accuracy} can be misleading in small-sample regimes; calibration (ECE/NLL) and fused ignorance are more informative.
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_Accuracy_OUTLIERS_INLIERS.png}
+  \caption{Accuracy (outliers vs.\ inliers).}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_F1Score_OUTLIERS_INLIERS.png}
+  \caption{Macro-F1 (outliers vs.\ inliers).}
+\end{subfigure}
+\caption{Diagnostic: predictive performance on clustering-selected outliers vs.\ inliers.}
+\label{fig:outliers-inliers-performance}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_NLL_OUTLIERS_INLIERS.png}
+  \caption{NLL (lower is better).}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_ECE_OUTLIERS_INLIERS.png}
+  \caption{ECE (lower is better).}
+\end{subfigure}
+\caption{Diagnostic: calibration on clustering-selected outliers vs.\ inliers.}
+\label{fig:outliers-inliers-calibration}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_Precision_OUTLIERS_INLIERS.png}
+  \caption{Macro-precision.}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \safeincludegraphics[width=\linewidth]{ALL_DATASETS_Recall_OUTLIERS_INLIERS.png}
+  \caption{Macro-recall.}
+\end{subfigure}
+\caption{Diagnostic: precision/recall on clustering-selected outliers vs.\ inliers.}
+\label{fig:outliers-inliers-prec-rec}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Outliers minus inliers (mean across datasets). Outliers are selected on the test split by feature-only clustering detectors (10\% contamination). Positive $\Delta\mathbb{E}_x[m_\Theta(x)]$ indicates higher fused ignorance on outliers (desirable for uncertainty).}
+\label{tab:outliers-inliers-deltas}
+\begin{tabular}{l l S[table-format=+1.4] S[table-format=+1.4] S[table-format=+2.4] S[table-format=+1.4] S[table-format=+1.4]}
+\toprule
+Algo & Method & {$\Delta$Acc} & {$\Delta$F1} & {$\Delta$NLL} & {$\Delta$ECE} & {$\Delta\mathbb{E}_x[m_\Theta(x)]$} \\
+\midrule
+FOIL & Dempster & -0.0015 & -0.0871 & -0.0076 & +0.0546 & +0.0292 \\
+FOIL & Yager & +0.0002 & -0.0843 & -0.0030 & +0.0450 & +0.0345 \\
+FOIL & Vote & +0.0082 & -0.0761 & -0.3681 & +0.0139 & -- \\
+RIPPER & Dempster & +0.0119 & -0.0396 & -0.0086 & +0.0530 & +0.0232 \\
+RIPPER & Yager & +0.0256 & -0.0396 & -0.0080 & +0.0516 & +0.0296 \\
+RIPPER & Vote & +0.0724 & +0.0069 & -0.2714 & +0.0396 & -- \\
+STATIC & Dempster & -0.0305 & -0.0725 & -0.6871 & +0.0272 & +0.0040 \\
+STATIC & Yager & +0.0220 & -0.0334 & -0.3019 & -0.0156 & +0.0009 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Expected pattern: higher ignorance on outliers.}
+For both FOIL and RIPPER, fused ignorance increases on outliers (positive $\Delta\mathbb{E}_x[m_\Theta(x)]$; Table~\ref{tab:outliers-inliers-deltas}), while ECE increases by about $+0.05$ on average, reflecting a harder regime for probability calibration.
+This supports using outlier/inlier splits as an uncertainty \emph{sanity check}: in a well-behaved system, outliers should generally carry higher $m_\Theta(x)$.
+
+\begin{figure}[t]
+\centering
+\safeincludegraphics[width=0.95\linewidth]{combined_rule_literals.png}
+\caption{Diagnostic: average number of literals in the inspection-only combined condition (outliers vs.\ inliers). Dense rule bases (STATIC) can produce very long combined conditions, especially on high-dimensional datasets (notably \texttt{gas\_drift}).}
+\label{fig:combined-rule-literals}
+\end{figure}
+
 \subsection{Key DS-specific observation: ignorance collapse is induced by density}
 STATIC often produces dense rule bases (Figure~\ref{fig:rule-density}, Table~\ref{tab:rule-density-snapshot}). Even if the learned masses of individual STATIC rules keep high ignorance on average, repeated fusion over large active sets can drive the \emph{fused} ignorance $m_\Theta(x)$ close to zero. This failure mode is visible in the per-dataset snapshots (e.g., German and Wine) as an extreme gap between $\E_j[m_\Theta]$ and $\E_x[m_\Theta(x)]$.
 
