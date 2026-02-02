@@ -129,7 +129,8 @@ Alongside standard calibration metrics (ECE/NLL), we therefore report DS-specifi
 \draw[darr] (rules) |- (learn.north);
 
 % ---------------- Inference (online) ----------------
-\node[online, below=18mm of prep] (xin) {Input instance\\$x$};
+\coordinate (infer_start) at ($(data.west |- learn.south) + (0,-16mm)$);
+\node[online, anchor=west] (xin) at (infer_start) {Input instance\\$x$};
 \node[online, right=of xin] (act) {Activate rules\\$A(x)=\{j:r_j(x)=1\}$};
 \node[online, right=of act] (masses) {Per-rule masses\\$\mb{m}_j$ (learned)};
 \node[fuse, right=of masses] (fuse) {Fuse evidence\\$\mb{m}(x)=\bigoplus_{j\in A(x)}\mb{m}_j$\\\scriptsize Dempster (train), Yager (diag)};
@@ -153,10 +154,6 @@ Alongside standard calibration metrics (ECE/NLL), we therefore report DS-specifi
 \node[phase, fit=(data)(rules)(learn)] (offline) {};
 \node[phase, fit=(xin)(out)(expl)] (online_phase) {};
 \end{pgfonlayer}
-\node[anchor=south west, font=\footnotesize\bfseries, text=black!70]
-  at ([yshift=1.5mm]offline.north west) {OFFLINE: rule induction + mass learning};
-\node[anchor=south west, font=\footnotesize\bfseries, text=black!70]
-  at ([yshift=1.5mm]online_phase.north west) {ONLINE: inference + explanations};
 
 \end{tikzpicture}
 \end{adjustbox}
