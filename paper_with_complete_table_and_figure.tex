@@ -704,6 +704,11 @@ STATIC & 0.7892 & 0.7190 & 0.1498 & 0.1681 & 0.1992 \\
 Dempster fusion is typically justified under an independence assumption.
 Automatically induced rules are correlated and often overlap, so treating them as distinct sources can double-count the same evidence and push the fused mass toward overconfidence; this is a standard ``non-distinct evidence'' issue in belief function combination \cite{Denoeux2008}.
 
+\paragraph{Why many ``wrong'' rules may not overturn a correct decision.}
+In the singleton+$\Theta$ setting, a rule with large ignorance mass $m_{j,\Theta}\approx 1$ contributes only a very small committed mass to any singleton.
+As a result, even if many fired rules nominally support competing classes, their influence can be negligible when they are weak (high $\Omega$), while a smaller number of more determinate rules (lower $\Omega$ and/or higher label mass) can dominate the fused belief.
+This behavior is desirable in borderline regions: the model may still predict correctly while keeping a high fused ignorance $m_\Theta(x)$, indicating low confidence rather than a forced sharp decision.
+
 \paragraph{Ignorance collapse and a ``critical mass'' effect.}
 Even without strong pairwise conflict, repeated fusion can shrink ignorance quickly.
 If active rules have similar ignorance $m_{j,\Theta}\approx \mu$, then the fused ignorance behaves approximately like $m_\Theta(x)\approx \mu^{|A(x)|}$ (up to normalization), so once the typical number of fired rules is large, the model can lose its ``I don't know'' capacity.

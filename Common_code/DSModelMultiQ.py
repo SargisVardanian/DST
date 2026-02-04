@@ -1239,6 +1239,11 @@ class DSModelMultiQ(nn.Module):
              "combination_rule": self.combination_rule,
              "combination_weight_key": getattr(self, "combination_weight_key", "precision"),
              }
+        if getattr(self, "class_prior", None) is not None:
+            try:
+                d["class_prior"] = self.class_prior.detach().cpu().numpy().tolist()
+            except Exception:
+                d["class_prior"] = None
         if self.rule_mass_params is not None: d["rule_mass_params"] = self.get_rule_masses().detach().cpu().numpy().tolist()
         if self.initial_rule_masses is not None: d["initial_rule_masses"] = self.initial_rule_masses.detach().cpu().numpy().tolist()
         with Path(path).open("wb") as f: _lazy_pickle().dump(d, f)
@@ -1252,6 +1257,16 @@ class DSModelMultiQ(nn.Module):
         self.value_names = d.get("value_decoders", self.value_names)
         self.combination_rule = str(d.get("combination_rule", self.combination_rule or "dempster")).lower()
         self.combination_weight_key = str(d.get("combination_weight_key", getattr(self, "combination_weight_key", "precision")))
+        if d.get("class_prior") is not None:
+            try:
+                self.class_prior = torch.tensor(d["class_prior"], device=self.device, dtype=torch.float32)
+                if self.class_prior.numel() == self.num_classes:
+                    s = self.class_prior.sum().clamp_min(1e-12)
+                    self.class_prior = (self.class_prior / s).to(device=self.device)
+                else:
+                    self.class_prior = None
+            except Exception:
+                self.class_prior = None
         self._feature_to_idx = {n: i for i, n in enumerate(self.feature_names or [])}
         self.rules = d.get("rules", [])
 

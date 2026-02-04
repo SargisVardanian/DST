@@ -59,19 +59,26 @@ def default_model_path(algo: str, dataset: Path, *, run_tag: str = "") -> Path:
     direct = base / stem
     if direct.exists():
         return direct
-    # Check .dsb file as well since load_model expects binary/pkl
-    stem_dsb = f"{algo.lower()}_{dataset.stem}{tag}_dst.dsb"
-    direct_dsb = COMMON / "dsb_rules" / stem_dsb
-    if direct_dsb.exists():
-        return direct_dsb
     # Fallback to the untagged default names (legacy).
     legacy = base / f"{algo.lower()}_{dataset.stem}_dst.pkl"
     if legacy.exists():
         return legacy
-    legacy_dsb = COMMON / "dsb_rules" / f"{algo.lower()}_{dataset.stem}_dst.dsb"
-    if legacy_dsb.exists():
-        return legacy_dsb
     return direct
+
+
+def resolve_model_path(path: Path) -> Path:
+    """Resolve a usable model path for this inspector.
+
+    The inspector requires the binary `.pkl` produced by `save_model()` (rules + masses + metadata).
+    The `.dsb` files in `Common_code/dsb_rules/` are text exports for reading and do not contain
+    enough information to reload a model.
+    """
+    if path.suffix.lower() == ".pkl":
+        return path
+    if path.suffix.lower() == ".dsb":
+        # Map dsb_rules/<name>.dsb -> pkl_rules/<name>.pkl
+        return (COMMON / "pkl_rules") / f"{path.stem}.pkl"
+    return path
 
 def main() -> None:
     parser = argparse.ArgumentParser("Inspect a single sample using a saved rule model")
@@ -79,7 +86,7 @@ def main() -> None:
     parser.add_argument("--algo", default="RIPPER", choices=["STATIC", "RIPPER", "FOIL"], help="Algorithm used")
     parser.add_argument("--idx", type=int, default=0, help="Sample index within chosen split")
     parser.add_argument("--row-index", type=int, default=None, help="Select by original dataset row index (after --split)")
-    parser.add_argument("--model", default="", help="Path to the saved model (.pkl or .dsb)")
+    parser.add_argument("--model", default="", help="Path to the saved model (.pkl)")
     parser.add_argument("--run-tag", default="", help="Optional run tag suffix used in saved model filenames")
     parser.add_argument("--split", choices=["full", "train", "test"], default="test", help="Subset to inspect (matches benchmark split)")
     parser.add_argument("--test-size", type=float, default=0.16, help="Test split fraction for train/test subset")
@@ -169,6 +176,7 @@ def main() -> None:
 
     # 3. Load Model
     model_path = Path(args.model) if args.model else default_model_path(args.algo, csv_path, run_tag=args.run_tag)
+    model_path = resolve_model_path(model_path)
     if not model_path.exists():
         print(f"Error: Model not found at {model_path}")
         return
@@ -183,25 +191,12 @@ def main() -> None:
         device="cpu"
     )
 
-    # Load the trained rules and masses
-    # Note: load_model expects the path to the .dsb file usually, or .pkl
-    # DSClassifierMultiQ.load_model calls self.model.load_rules_bin(path)
-    # If we passed a .pkl, we might need to adjust if load_rules_bin expects .dsb
-    # But typically the save logic saves both. Let's try loading.
+    # Load the trained rules and masses (binary `.pkl` created by save_model()).
     try:
         clf.load_model(str(model_path))
     except Exception as e:
         print(f"Error loading model: {e}")
-        # Try changing extension to .dsb if .pkl was passed
-        if model_path.suffix == '.pkl':
-            dsb_path = model_path.with_suffix('.dsb')
-            if dsb_path.exists():
-                print(f"Retrying with {dsb_path.name}...")
-                clf.load_model(str(dsb_path))
-            else:
-                return
-        else:
-            return
+        return
 
     # 4. Predict
     batch = sample.reshape(1, -1)
@@ -222,10 +217,12 @@ def main() -> None:
     if "error" not in combined_d:
         unc_stats = clf.model.uncertainty_stats(batch, combination_rule=combine_rule)
         unc_rule = float(unc_stats["unc_rule"][0]) if len(unc_stats["unc_rule"]) else float("nan")
+        unc_comb = float(unc_stats["unc_comb"][0]) if len(unc_stats["unc_comb"]) else float("nan")
         # We can also get masses from predict_masses for probability display
         betp = clf.model.forward(batch, combination_rule=combine_rule)[0].detach().cpu().numpy()
     else:
         unc_rule = float("nan")
+        unc_comb = float("nan")
 
     # 5. Show Activated Rules
     print("\nActivated Rules")
@@ -352,7 +349,9 @@ def main() -> None:
         print(f"DST Probs           : {np.round(betp, 4)}")
         unc_stats = clf.model.uncertainty_stats(batch, combination_rule=combine_rule)
         unc_rule = float(np.nanmean(unc_stats["unc_rule"]))
+        unc_comb = float(np.nanmean(unc_stats["unc_comb"]))
         print(f"Omega (rules avg)   : {unc_rule:.4f}" if np.isfinite(unc_rule) else "Omega (rules avg)   : N/A")
+        print(f"Omega (fused)       : {unc_comb:.4f}" if np.isfinite(unc_comb) else "Omega (fused)       : N/A")
     print("-" * 40)
 
     # 7. Show Combined Rules (if --show-combined flag)

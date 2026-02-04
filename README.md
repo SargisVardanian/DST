@@ -363,11 +363,17 @@ cd DST
 
 ```bash
 # Inspect sample #5 on gas_drift with RIPPER rules
-python sample_rule_inspector.py --algo RIPPER --dataset gas_drift --idx 5
+.venv/bin/python Common_code/sample_rule_inspector.py --algo RIPPER --dataset gas_drift --idx 5
 
 # Same with FOIL
-python sample_rule_inspector.py --algo FOIL --dataset gas_drift --idx 5
+.venv/bin/python Common_code/sample_rule_inspector.py --algo FOIL --dataset gas_drift --idx 5
 ```
+
+Notes:
+- The inspector loads saved binary models from `Common_code/pkl_rules/*_dst.pkl`. The `Common_code/dsb_rules/*.dsb` files are human-readable exports and are not sufficient to reload a model.
+- The output prints two uncertainty views:
+  - `Omega (rules avg)`: average Ω across fired rules (how cautious individual rules are)
+  - `Omega (fused)`: final Ω after DST fusion (how much uncertainty remains after combination)
 
 ### 6.5 Programmatic API
 
