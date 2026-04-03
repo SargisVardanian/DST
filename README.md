@@ -2,6 +2,8 @@
 
 This repository contains the implementation of a frozen-rule evidential classifier for tabular data. The pipeline induces rules with FOIL or RIPPER, freezes the resulting rule base, and then learns Dempster-Shafer masses on top of the same fixed rules.
 
+All maintained runtime code lives in `Common_code/`. Treat `Common_code/` as the actual product code when downloading or reusing the repository.
+
 ## What is here
 - `Common_code/test_Ripper_DST.py`: main training and evaluation entry point
 - `Common_code/rule_generator.py`: FOIL/RIPPER rule induction and pool shaping
@@ -9,13 +11,20 @@ This repository contains the implementation of a frozen-rule evidential classifi
 - `Common_code/DSClassifierMultiQ.py`: training loop for learned rule masses
 - `Common_code/report_builder.py`: benchmark aggregation
 - `Common_code/analyze_hard_cases.py`: hard-case evaluation
-- `Common_code/sample_rule_inspector.py`: sample-level rule export
+- `Common_code/sample_rule_inspector.py`: web-first sample inspection helpers, combined-rule payloads, and validation checks
+- `Common_code/app.py`: local Streamlit app for training, generation summaries, manual inspection, and bundle export
 
 ## Install
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install numpy pandas scikit-learn torch matplotlib wittgenstein
+```
+
+For the local app:
+
+```bash
+pip install streamlit
 ```
 
 ## Data
@@ -78,6 +87,27 @@ python Common_code/sample_rule_inspector.py \
   --out-root artifacts
 ```
 
+Run the local app:
+
+```bash
+streamlit run Common_code/app.py
+```
+
+The app lets a user:
+- upload a CSV
+- choose output location and training parameters
+- train FOIL/RIPPER models
+- download the saved `rules/`, `models/`, and `benchmarks/` artifacts as a ZIP
+- inspect how rules were generated, how many rules fired, and how the final combined rule was formed
+- enter feature values manually with categorical drop-downs and numeric inputs
+- load a sample that already activates rules so the combined explanation is visible immediately
+- keep trained artifacts across refreshes because runs are stored under `artifacts/app_sessions/`
+
+The `Inspect` workflow is intentionally web-first:
+- `How Rules Were Generated` explains the rule source, stage mix, pool shaping, depth mix, and top rules by support/precision
+- `Activation And Combination` shows fired rules, the final combined condition, fused mass, and validation checks
+- the old row-index workflow exists only as a hidden debug fallback
+
 ## Current benchmark snapshot
 Metrics below come from `Common_code/results/ALL_DATASETS_metrics.csv`.
 
@@ -106,3 +136,5 @@ For custom runs with `--save-root`, the main outputs are:
 ## Notes
 - Yager fusion is kept as a diagnostic branch, not as the main training path.
 - The strongest gains appear when the rule pool is diverse enough to provide competing evidence but not so noisy that fusion becomes unstable.
+- Older experimental code is not part of the maintained repository anymore; use `Common_code/` as the only supported code path.
+- Rule generation is intentionally not random: RIPPER/FOIL proposals are scored, then pool shaping can re-balance novelty, depth, class coverage, and overlap so the final rule base stays diverse without becoming unstable.
