@@ -18,10 +18,22 @@ All maintained runtime code lives in `Common_code/`. Treat `Common_code/` as the
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install numpy pandas scikit-learn torch matplotlib wittgenstein
+pip install numpy pandas scikit-learn scipy torch matplotlib wittgenstein
 ```
 
-For the local app:
+Required runtime packages:
+- `numpy`
+- `pandas`
+- `scikit-learn`
+- `scipy`
+- `torch`
+- `matplotlib`
+- `wittgenstein`
+
+Optional packages:
+- `streamlit` for the local app
+- `plotly` only if you extend optional plotting paths in `Common_code/utils.py`
+- `dill` only if you want it as a pickle backend fallback
 
 ```bash
 pip install streamlit
