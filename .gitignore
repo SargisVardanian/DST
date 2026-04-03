@@ -68,3 +68,9 @@ request_templates.md
 workspace_map.md
 paper_v2_rewrite.tex
 paper_with_complete_table_and_figure.tex
+
+# Keep repository text surface minimal
+*.md
+!README.md
+*.tex
+*.txt
