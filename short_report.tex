@@ -1,0 +1,93 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=0.72in]{geometry}
+\usepackage{booktabs,amsmath,amssymb,hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.25em}
+
+\title{\vspace{-1.2em}DSGD on RIPPER/FOIL-Induced Rules}
+\author{Sargis Vardanyan \and Hayk Tarkhanyan \and Ashot Harutyunyan}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+\small
+
+\begin{abstract}
+This report summarizes the current DSGD pipeline built on top of rules induced by FOIL and RIPPER. The goal was to replace a brute-force rule source with more meaningful induced rules, freeze the resulting rule base, and then learn evidential masses over the same fixed rules. This makes it possible to evaluate when DSGD really adds value: not by changing the rule logic, but by weighting and combining conflicting rules more effectively. The current benchmark shows that learned evidential fusion is the strongest rule-based aggregation family on average, but its gains depend strongly on rule diversity, rule overlap, and the number of fired rules per sample.
+\end{abstract}
+
+\section{Pipeline Motivation}
+The practical motivation was straightforward: DSGD becomes much easier to interpret when it is trained on induced rules rather than on a brute-force pool of short combinations. FOIL and RIPPER were used as rule sources because they provide readable conditions and a more structured starting point for evidential aggregation. In the final pipeline, the inducer first generates a candidate rule pool, then a post-growth shaping stage filters it for quality, novelty, overlap control, and class balance. Only after that is the ruleset frozen and passed to the evidential learner.
+
+This separation is important because it tells us what each layer is responsible for. RIPPER and FOIL determine which rules exist and how diverse they are. Raw baselines such as first-hit Laplace and weighted vote use those same frozen rules directly. DSGD then adds one more layer: it learns how much trust to assign to each active rule and combines the evidence with Dempster fusion. In other words, the method is not trying to invent new rules at training time; it is trying to use a fixed induced rule base more intelligently.
+
+\section{Results}
+Across the current 9-dataset benchmark, the average results are:
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Method & Acc. & Macro-F1 & NLL & ECE \\
+\midrule
+RF & 0.9034 & 0.8679 & 0.2406 & 0.0244 \\
+FOIL:\texttt{dsgd\_dempster} & 0.8848 & 0.8468 & 0.4535 & 0.0377 \\
+RIPPER:\texttt{dsgd\_dempster} & 0.8625 & 0.8219 & 0.3927 & 0.0752 \\
+FOIL:\texttt{weighted\_vote} & 0.8579 & 0.7927 & 1.0100 & 0.0740 \\
+FOIL:\texttt{first\_hit\_laplace} & 0.8231 & 0.7502 & 0.5179 & 0.1018 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The main result is that \texttt{FOIL:dsgd\_dempster} is the strongest rule-based configuration on average, and both FOIL- and RIPPER-based DSGD improve over the raw rule aggregators on the same frozen rule base. At the same time, the gain is not dramatic enough to claim that evidential learning alone solves the benchmark: Random Forest still remains the strongest overall reference, which means the correct interpretation is ``better structured interpretable aggregation'' rather than ``best overall classifier''.
+
+\section{Interpretation}
+The reason the gains are moderate rather than huge is that DSGD depends heavily on the geometry of the rule pool. It works best when the model fires many useful but not fully redundant rules. In that regime, evidential learning can redistribute trust between partially agreeing and conflicting rules, so the combination step adds information beyond raw voting. This is why larger and more diverse pools often help: the learner has more evidence sources to reweight. However, diversity only helps when the rules remain reliable. If the pool becomes too noisy or too overlapping, the fusion step becomes unstable and uncertainty rises instead of helping.
+
+This explains why FOIL is currently stronger on average than RIPPER. In the present benchmark, FOIL tends to produce rule bases with lower average uncertainty (\texttt{unc\_mean}: 0.3317 vs.\ 0.4600 for RIPPER, \texttt{unc\_comb}: 0.0901 vs.\ 0.1799), which suggests that its rules are easier to combine evidentially. RIPPER still benefits from DSGD, but it is more sensitive to cases where the rule base is either too small and sharp or too sparse and brittle.
+
+\textbf{Example.} On the \texttt{magic-gamma / FOIL} test sample with row index 18137, the model fires 38 rules and predicts \texttt{hadron} with probability 0.8376. Three strong positive rules are \texttt{V2 > 27.8187 \& V4 > 0.36235} with mass $[0.006, 0.742, 0.252]$, \texttt{V10 < 242.232 \& V2 > 20.2819 \& V4 > 0.33355} with $[0.000, 0.556, 0.443]$, and \texttt{V1 < 50.2024 \& V2 > 25.3734 \& V3 < 2.90405} with $[0.000, 0.548, 0.452]$. At the same time, several class-0 rules also fire, for example \texttt{V1 < 37.5138 \& V10 < 181.097 \& V2 > 10.5808 \& V4 < 0.53265 \& V9 < 21.455} with $[0.439, 0.173, 0.388]$. DSGD does not discard these conflicts; it reweights and fuses them. The combined explanation contracts to a more stable region, roughly \texttt{28.0117 < V1 < 37.5138}, \texttt{27.8187 < V2 < 31.2866}, and \texttt{6.70285 < V9 < 18.54}, and the final fused ignorance falls to almost zero (\texttt{unc\_comb} $\approx 2.2 \times 10^{-7}$). This is the regime where DSGD is most useful: many partially conflicting rules fire, but their interaction still contains enough structure to produce a confident final decision.
+
+\section{Hard Cases and Failure Modes}
+To understand where DSGD helps, we explicitly defined hard cases inside the normal test split. A sample was marked difficult if at least one of the following was true: several rules fired with different labels, the number of fired rules was unusually high, the weighted-vote margin was low, the true class had weak support compared with a competing class, or exactly one true-class rule was opposed by many wrong-class rules. These cases are important because they create the exact setting where evidential reweighting can outperform raw counting.
+
+The hard-case results confirm this behavior. On \texttt{adult/RIPPER}, hard-case accuracy rises from 0.7833 with weighted vote to 0.8343 with DSGD; on \texttt{gas\_drift/RIPPER}, it rises from 0.7123 to 0.9349; on \texttt{magic-gamma/FOIL}, from 0.7737 to 0.8589. This shows that DSGD is especially useful when many rules fire and their evidence must be balanced rather than merely counted.
+
+The same analysis also shows where the method suffers. Large categorical binary datasets such as \texttt{adult} and \texttt{bank-full} are difficult when the pool becomes long, overlapping, and class-imbalanced. High-dimensional multiclass numeric data such as \texttt{gas\_drift} can also become problematic if the rule pool grows too aggressively and creates excessive fusion depth. In contrast, very small and already sharp rule bases, such as some breast-cancer RIPPER runs, leave little room for DSGD to improve because the raw rules are already near-deterministic.
+
+\section{Conclusion}
+The main conclusion is that DSGD on RIPPER/FOIL-induced rules is most useful when the induced pool is rich enough to provide competing evidence, but still controlled enough to avoid redundancy collapse. That is why pool shaping matters so much: the model needs diversity, but it also needs that diversity to remain meaningful. In practice, this makes the approach relevant when interpretability is required, uncertainty needs to be explicit, and the raw rule list alone is too brittle on conflict-heavy samples.
+
+\section*{References}
+\begin{thebibliography}{9}
+\bibitem{dempster1968}
+A. P. Dempster.
+\newblock A generalization of Bayesian inference.
+\newblock \emph{Journal of the Royal Statistical Society: Series B}, 30(2):205--232, 1968.
+
+\bibitem{shafer1976}
+G. Shafer.
+\newblock \emph{A Mathematical Theory of Evidence}.
+\newblock Princeton University Press, 1976.
+
+\bibitem{quinlan1990}
+J. R. Quinlan.
+\newblock Learning logical definitions from relations.
+\newblock \emph{Machine Learning}, 5:239--266, 1990.
+
+\bibitem{cohen1995}
+W. W. Cohen.
+\newblock Fast effective rule induction.
+\newblock In \emph{Machine Learning Proceedings 1995}, pages 115--123. Morgan Kaufmann, 1995.
+
+\bibitem{yager1987}
+R. R. Yager.
+\newblock On the Dempster--Shafer framework and new combination rules.
+\newblock \emph{Information Sciences}, 41(2):93--137, 1987.
+\end{thebibliography}
+
+\end{document}

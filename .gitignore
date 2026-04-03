@@ -2,6 +2,7 @@
 # Data (generated / local)
 *.csv
 !Common_code/results/ALL_DATASETS_*.csv
+requirements.txt
 
 # Rule/model artefacts
 *.dsb
@@ -19,11 +20,28 @@
 Common_code/.cache/
 Common_code/.home/
 Common_code/.mpl_cache/
+artifacts/
+.agent/
+.agents/
 
 # -----------------------------------
 # Python byte-code
 __pycache__/
 *.py[cod]
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.pdf
 
 # -----------------------------------
 # macOS system files
@@ -37,6 +55,16 @@ __pycache__/
 My_code/results/
 
 # -----------------------------------
-# Local notes (not for GitHub)
-REPORT.md
+# Notes / reports (tracked)
 Literature/
+
+# Local project notes / manuscript drafts
+AGENTS.md
+ARTICLE_*.md
+SUPERVISOR_UPDATE_*.md
+gates.md
+multi_agent_orchestration.md
+request_templates.md
+workspace_map.md
+paper_v2_rewrite.tex
+paper_with_complete_table_and_figure.tex
