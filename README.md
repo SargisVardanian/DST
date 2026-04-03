@@ -1,37 +1,86 @@
-# DSGD on RIPPER/FOIL-Induced Rules
+# DSGD on RIPPER/FOIL Rules
 
-This repository keeps the runtime code and the paper-facing benchmark outputs for the current frozen-rule DSGD pipeline. The core idea is simple: induce readable rules with FOIL or RIPPER, freeze the resulting rule base, and compare raw rule aggregation against learned evidential aggregation on exactly the same rules.
+This repository contains the implementation of a frozen-rule evidential classifier for tabular data. The pipeline induces rules with FOIL or RIPPER, freezes the resulting rule base, and then learns Dempster-Shafer masses on top of the same fixed rules.
 
-## Runtime core
-- `Common_code/test_Ripper_DST.py`
-- `Common_code/report_builder.py`
-- `Common_code/analyze_hard_cases.py`
-- `Common_code/sample_rule_inspector.py`
+## What is here
+- `Common_code/test_Ripper_DST.py`: main training and evaluation entry point
+- `Common_code/rule_generator.py`: FOIL/RIPPER rule induction and pool shaping
+- `Common_code/DSModelMultiQ.py`: rule activation, evidential fusion, probability output
+- `Common_code/DSClassifierMultiQ.py`: training loop for learned rule masses
+- `Common_code/report_builder.py`: benchmark aggregation
+- `Common_code/analyze_hard_cases.py`: hard-case evaluation
+- `Common_code/sample_rule_inspector.py`: sample-level rule export
 
-## Standard flow
-1. Run `test_Ripper_DST.py` to generate benchmark artifacts under `artifacts/`.
-2. Run `analyze_hard_cases.py` to build the hard-case subset and summary.
-3. Run `report_builder.py` to produce final paper-facing tables, CSV files, and plots in `Common_code/results/`.
-4. Use `sample_rule_inspector.py` when a sample-level combined-rule export is needed.
-
-## Key outputs
-- `Common_code/results/ALL_DATASETS_metrics.csv`
-- `Common_code/results/method_suite/REPORT.md`
-- `Common_code/results/hard_cases/HARD_CASE_ANALYSIS.md`
-- `short_report.tex`
-
-## Quick commands
+## Install
 ```bash
-python Common_code/test_Ripper_DST.py --dataset adult --inducers RIPPER,FOIL --out-root artifacts
-python Common_code/report_builder.py --out-root artifacts --include-hard-cases
-python Common_code/analyze_hard_cases.py --out-root artifacts
-python Common_code/sample_rule_inspector.py --dataset adult --algo RIPPER --row-index 123 --split test --combine-rule dempster --mode export-combined --out-root artifacts
+python3 -m venv .venv
+source .venv/bin/activate
+pip install numpy pandas scikit-learn torch matplotlib wittgenstein
 ```
 
-## Repository policy
-Local datasets, manuscript drafts, LaTeX build artifacts, and private project notes are intentionally ignored in Git. The repository is meant to track the runnable pipeline and its benchmark-facing outputs, not every local working file in the project directory.
+## Data
+To reproduce the benchmark, place the dataset CSV files in the project root. The current benchmark code expects files such as:
+
+`adult.csv`, `bank-full.csv`, `BrainTumor.csv`, `breast-cancer-wisconsin.csv`, `df_wine.csv`, `dry-bean.csv`, `gas_drift.csv`, `german.csv`, `magic-gamma.csv`.
+
+You can also adapt the loader in `Common_code/Datasets_loader.py` for your own tabular datasets.
+
+## Run
+Train and evaluate on one dataset:
+
+```bash
+python Common_code/test_Ripper_DST.py --dataset adult --inducers RIPPER,FOIL --out-root artifacts
+```
+
+Run the current benchmark set:
+
+```bash
+python Common_code/test_Ripper_DST.py \
+  --datasets adult,bank-full,BrainTumor,breast-cancer-wisconsin,df_wine,dry-bean,gas_drift,german,magic-gamma \
+  --inducers RIPPER,FOIL \
+  --out-root artifacts
+```
+
+Build aggregated reports:
+
+```bash
+python Common_code/report_builder.py --out-root artifacts --include-hard-cases
+python Common_code/analyze_hard_cases.py --out-root artifacts
+```
+
+Inspect one sample:
+
+```bash
+python Common_code/sample_rule_inspector.py \
+  --dataset adult \
+  --algo RIPPER \
+  --row-index 123 \
+  --split test \
+  --combine-rule dempster \
+  --mode export-combined \
+  --out-root artifacts
+```
+
+## Current benchmark snapshot
+Metrics below come from `Common_code/results/ALL_DATASETS_metrics.csv`.
+
+| Method | Acc | Macro-F1 | NLL | ECE |
+|---|---:|---:|---:|---:|
+| RF | 0.9034 | 0.8679 | 0.2406 | 0.0244 |
+| FOIL:dsgd_dempster | 0.8848 | 0.8468 | 0.4535 | 0.0377 |
+| RIPPER:dsgd_dempster | 0.8625 | 0.8219 | 0.3927 | 0.0752 |
+| FOIL:weighted_vote | 0.8579 | 0.7927 | 1.0100 | 0.0740 |
+| FOIL:first_hit_laplace | 0.8231 | 0.7502 | 0.5179 | 0.1018 |
+| RIPPER:weighted_vote | 0.7699 | 0.6959 | 2.7821 | 0.1559 |
+| RIPPER:first_hit_laplace | 0.7389 | 0.6292 | 0.6964 | 0.1696 |
+
+In the current snapshot, `FOIL:dsgd_dempster` is the strongest rule-based configuration on average. `RF` remains the strongest overall external reference.
+
+## Outputs
+- training artifacts: `artifacts/`
+- final benchmark tables and plots: `Common_code/results/`
+- sample-level combined-rule exports: `artifacts/inspection/`
 
 ## Notes
-- Yager is a diagnostic ablation, not the main training path.
-- `STATIC` remains an internal historical baseline.
-- The current short report is in `short_report.tex`.
+- Yager fusion is kept as a diagnostic branch, not as the main training path.
+- The strongest gains appear when the rule pool is diverse enough to provide competing evidence but not so noisy that fusion becomes unstable.
