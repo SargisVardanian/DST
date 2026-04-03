@@ -26,11 +26,28 @@ To reproduce the benchmark, place the dataset CSV files in the project root. The
 You can also adapt the loader in `Common_code/Datasets_loader.py` for your own tabular datasets.
 
 ## Run
-Train and evaluate on one dataset:
+Train and evaluate on one dataset by direct path:
 
 ```bash
-python Common_code/test_Ripper_DST.py --dataset adult --inducers RIPPER,FOIL --out-root artifacts
+python Common_code/test_Ripper_DST.py \
+  --dataset-path ./adult.csv \
+  --inducers RIPPER,FOIL \
+  --save-root ./artifacts/adult_run
 ```
+
+You can also use an absolute path:
+
+```bash
+python Common_code/test_Ripper_DST.py \
+  --dataset-path /full/path/to/your/data.csv \
+  --inducers RIPPER,FOIL \
+  --save-root /full/path/to/output_dir
+```
+
+This saves everything under the chosen output directory:
+- `benchmarks/`: metrics CSV files
+- `rules/`: readable `.dsb` rule files with masses
+- `models/`: `.pkl` payloads with learned weights, rule stats, and metrics
 
 Run the current benchmark set:
 
@@ -38,7 +55,7 @@ Run the current benchmark set:
 python Common_code/test_Ripper_DST.py \
   --datasets adult,bank-full,BrainTumor,breast-cancer-wisconsin,df_wine,dry-bean,gas_drift,german,magic-gamma \
   --inducers RIPPER,FOIL \
-  --out-root artifacts
+  --save-root artifacts/full_benchmark
 ```
 
 Build aggregated reports:
@@ -80,6 +97,11 @@ In the current snapshot, `FOIL:dsgd_dempster` is the strongest rule-based config
 - training artifacts: `artifacts/`
 - final benchmark tables and plots: `Common_code/results/`
 - sample-level combined-rule exports: `artifacts/inspection/`
+
+For custom runs with `--save-root`, the main outputs are:
+- `<save-root>/benchmarks/*.csv`
+- `<save-root>/rules/*.dsb`
+- `<save-root>/models/*.pkl`
 
 ## Notes
 - Yager fusion is kept as a diagnostic branch, not as the main training path.
