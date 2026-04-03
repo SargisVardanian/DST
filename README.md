@@ -1,25 +1,30 @@
 # DSGD on RIPPER/FOIL Rules
 
-This repository contains the implementation of a frozen-rule evidential classifier for tabular data. The pipeline induces rules with FOIL or RIPPER, freezes the resulting rule base, and then learns Dempster-Shafer masses on top of the same fixed rules.
+This repository contains a frozen-rule evidential classifier for tabular data. The pipeline induces rules with FOIL or RIPPER, freezes the rule base, and learns Dempster-Shafer masses on top of the same fixed rules.
 
-All maintained runtime code lives in `Common_code/`. Treat `Common_code/` as the actual product code when downloading or reusing the repository.
+All maintained runtime code lives in `Common_code/`. Treat `Common_code/` as the supported code path when downloading or reusing the repository.
 
-## What is here
-- `Common_code/test_Ripper_DST.py`: main training and evaluation entry point
+## What Is Here
+- `Common_code/test_Ripper_DST.py`: training and evaluation entry point
 - `Common_code/rule_generator.py`: FOIL/RIPPER rule induction and pool shaping
 - `Common_code/DSModelMultiQ.py`: rule activation, evidential fusion, probability output
 - `Common_code/DSClassifierMultiQ.py`: training loop for learned rule masses
 - `Common_code/report_builder.py`: benchmark aggregation
 - `Common_code/analyze_hard_cases.py`: hard-case evaluation
 - `Common_code/sample_rule_inspector.py`: web-first sample inspection helpers, combined-rule payloads, and validation checks
-- `Common_code/app.py`: local Streamlit app for training, generation summaries, manual inspection, and bundle export
+- `Common_code/app.py`: Streamlit app for training, generation summaries, manual inspection, and bundle export
 
 ## Install
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install numpy pandas scikit-learn torch matplotlib wittgenstein
+pip install numpy pandas scikit-learn scipy torch matplotlib wittgenstein
 ```
+
+Optional packages:
+- `streamlit` for the local app
+- `plotly` only if you extend optional plotting paths in `Common_code/utils.py`
+- `dill` only if you want it as a pickle backend fallback
 
 For the local app:
 
@@ -108,7 +113,7 @@ The `Inspect` workflow is intentionally web-first:
 - `Activation And Combination` shows fired rules, the final combined condition, fused mass, and validation checks
 - the old row-index workflow exists only as a hidden debug fallback
 
-## Current benchmark snapshot
+## Current Benchmark Snapshot
 Metrics below come from `Common_code/results/ALL_DATASETS_metrics.csv`.
 
 | Method | Acc | Macro-F1 | NLL | ECE |
@@ -136,5 +141,5 @@ For custom runs with `--save-root`, the main outputs are:
 ## Notes
 - Yager fusion is kept as a diagnostic branch, not as the main training path.
 - The strongest gains appear when the rule pool is diverse enough to provide competing evidence but not so noisy that fusion becomes unstable.
-- Older experimental code is not part of the maintained repository anymore; use `Common_code/` as the only supported code path.
 - Rule generation is intentionally not random: RIPPER/FOIL proposals are scored, then pool shaping can re-balance novelty, depth, class coverage, and overlap so the final rule base stays diverse without becoming unstable.
+- Older experimental code is not part of the maintained repository anymore; use `Common_code/` as the only supported code path.
