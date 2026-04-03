@@ -1,423 +1,649 @@
 """
-Sklearn-style wrapper around DSModelMultiQ with PGD training loop.
+DSClassifierMultiQ
 
-This module provides a scikit-learn compatible classifier interface for the DST model,
-including training via Projected Gradient Descent (PGD), early stopping, and class balancing.
+Lean DST classifier wrapper:
+- frozen rule generation/loading (RIPPER / FOIL / STATIC)
+- DSGD mass training with a class-balanced objective and objective-based checkpointing
+- raw baselines remain unchanged (fair comparison protocol)
 """
+
 from __future__ import annotations
 
-import copy
-import random
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional
+
 import numpy as np
 import torch
+import torch.nn.functional as F
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.base import ClassifierMixin
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-)
 
 from DSModelMultiQ import DSModelMultiQ
+from device_utils import resolve_torch_device
 
 
-def _as_numpy(x):
-    """Convert input to numpy array if needed."""
-    if isinstance(x, np.ndarray):
-        return x
-    return np.asarray(x)
+@dataclass
+class TrainConfig:
+    max_epochs: int = 100
+    batch_size: int = 512
+    lr: float = 1e-3
+    weight_decay: float = 2e-4
+    val_split: float = 0.2
+    seed: int = 42
+    early_stop_patience: int = 20
+    min_train_epochs: int = 15
+    min_train_obj_delta: float = 1e-4
+    verbose: bool = True
+    class_weight_power: float = 0.35
+    class_weight_beta: float = 0.999
+    optimizer_name: str = "adamw"
+    record_history: bool = True
+    # Legacy compatibility field.
+    nll_weight: float = 1.0
+    enable_binary_threshold_tuning: bool = False
 
 
-def _metrics(y_true: np.ndarray, y_pred: np.ndarray, k: int = None, **kwargs) -> dict[str, float]:
-    """Compute basic classification metrics."""
-    if k is None:
-        unique = np.unique(y_true)
-        k = len(unique)
-    
-    avg = 'binary' if k == 2 else 'weighted'
-    return {
-        "Accuracy": float(accuracy_score(y_true, y_pred)),
-        "F1": float(f1_score(y_true, y_pred, average=avg, zero_division=0)),
-        "F1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
-        "Precision": float(precision_score(y_true, y_pred, average=avg, zero_division=0)),
-        "Recall": float(recall_score(y_true, y_pred, average=avg, zero_division=0)),
-    }
-
-
-class DSClassifierMultiQ(ClassifierMixin):
-    """
-    Scikit-learn compatible DST classifier with uncertainty quantification.
-
-    This classifier combines rule-based learning with Dempster-Shafer Theory
-    to provide predictions with quantified uncertainty. It supports multiple
-    rule generation algorithms (STATIC, RIPPER, FOIL) and trains mass functions
-    using Projected Gradient Descent.
-    """
-
+class DSClassifierMultiQ:
     def __init__(
         self,
-        k,
-        device="auto",
-        rule_algo="STATIC",
-        max_iter=50,
-        batch_size=512,
-        lr=2e-3,
-        val_split=0.2,
-        seed=42,
-        print_every=5,
-        weight_decay=2e-4,
-        class_weight_power=0.5,
-        grad_clip=1.0,
-        early_stop_patience=10,
-        combination_rule="dempster",
-        debug=False,
-        rule_uncertainty=0.8,
-        lossfn: str = "MSE",
-        uncertainty_rule_weight: float = 0.1,
-        rule_gen_params: dict | None = None,
-        init_mode: str = "dsgdpp",
-        sort_rules_by_certainty: bool = False,
-        certainty_score_mode: str = "certainty_label_mass",
-    ) -> None:
-        """Initialize the DST classifier."""
+        k: int,
+        *,
+        rule_algo: Optional[str] = None,
+        device: str = "auto",
+        rule_uncertainty: float = 0.65,
+        combination_rule: str = "dempster",
+        train_cfg: Optional[TrainConfig] = None,
+        **_ignored_kwargs,
+    ):
         self.k = int(k)
-        self.device = str(device)
-        self.rule_algo = str(rule_algo or "STATIC").upper()
-        self.max_iter = int(max_iter)
-        self.batch_size = int(batch_size)
-        self.lr = float(lr)
-        self.val_split = float(val_split)
-        self.seed = int(seed)
-        self.print_every = int(print_every)
-        self.weight_decay = float(weight_decay)
-        self.class_weight_power = float(max(0.0, class_weight_power))
-        self.grad_clip = float(max(0.0, grad_clip))
-        self.early_stop_patience = max(1, int(early_stop_patience))
-        self.debug = bool(debug)
-        self.lossfn = str(lossfn or "MSE").upper()
-        self.uncertainty_rule_weight = float(max(0.0, uncertainty_rule_weight))
-        self.rule_gen_params = rule_gen_params or {
-            "enable_diversity_filter": True,
-            "diversity_threshold": 0.82,
-            "pair_top": 12,
-            "triple_top": 32,
+        self.device = resolve_torch_device(device)
+        self.rule_uncertainty = float(rule_uncertainty)
+        self.combination_rule = str(combination_rule)
+        self.train_cfg = train_cfg or TrainConfig()
+        self.default_rule_algo = str(rule_algo).upper() if rule_algo is not None else None
+
+        self.model: Optional[DSModelMultiQ] = None
+        self.rules_ready: bool = False
+        self.trained: bool = False
+        self._last_fit_meta: Dict[str, Any] = {}
+        self._decision_threshold: Optional[float] = None
+
+    def _ensure_model(self, *, feature_names=None, value_decoders=None, algo: str = "STATIC"):
+        if self.model is None:
+            self.model = DSModelMultiQ(
+                self.k,
+                algo=algo,
+                device=self.device,
+                feature_names=feature_names,
+                value_decoders=value_decoders,
+                rule_uncertainty=self.rule_uncertainty,
+                combination_rule=self.combination_rule,
+            )
+        else:
+            self.model.algo = str(algo or self.model.algo).upper()
+            if feature_names is not None:
+                self.model.feature_names = list(feature_names)
+                self.model._feature_to_idx = {name: idx for idx, name in enumerate(self.model.feature_names)}
+            if value_decoders is not None:
+                self.model.value_names = value_decoders
+            self.model.device = resolve_torch_device(self.device)
+            self.model.to(self.model.device)
+
+    def _require_ready_model(self) -> DSModelMultiQ:
+        if self.model is None or not self.rules_ready:
+            raise RuntimeError("Rules are not ready. Call build_rule_base()/generate_rules() or load_rules() first.")
+        return self.model
+
+    @staticmethod
+    def _make_optimizer(model: DSModelMultiQ, cfg: TrainConfig) -> torch.optim.Optimizer:
+        name = str(getattr(cfg, "optimizer_name", "adamw") or "adamw").strip().lower()
+        if name == "adam":
+            return torch.optim.Adam(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+        return torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+
+    def _snapshot_raw_baselines(
+        self,
+        X: np.ndarray,
+        *,
+        methods: tuple[str, ...],
+    ) -> Dict[str, np.ndarray]:
+        model = self._require_ready_model()
+        return {
+            method: np.asarray(model.predict_rule_baseline_proba(X, method=method), dtype=float)
+            for method in methods
         }
-        self.sort_rules_by_certainty = bool(sort_rules_by_certainty)
-        self.certainty_score_mode = str(certainty_score_mode or "certainty_label_mass")
-        self._trained = False
-        self.init_mode = str(init_mode or "dsgdpp").lower()
-        
-        self.combination_rule = str(combination_rule or "dempster").lower()
-        if self.combination_rule not in {"dempster", "yager", "vote"}:
-            raise ValueError("combination_rule must be 'dempster', 'yager', or 'vote'")
 
-        self.model = DSModelMultiQ(
-            k=self.k,
-            algo=self.rule_algo,
-            device=self.device,
-            rule_uncertainty=rule_uncertainty,
-            combination_rule=self.combination_rule,
-        )
+    def build_rule_base(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        *,
+        algo: str = "RIPPER",
+        feature_names=None,
+        value_decoders=None,
+        rule_gen_params: Optional[Dict[str, Any]] = None,
+        on_rule: Optional[Callable[[int], None]] = None,
+    ) -> None:
+        self._ensure_model(feature_names=feature_names, value_decoders=value_decoders, algo=algo)
+        assert self.model is not None
 
-        self.default_class_ = 0
-        self.history_ = []
-        self.best_epoch_ = None
-        self.best_val_metrics_ = None
+        params = dict(rule_gen_params or {})
+        if on_rule is not None:
+            params["on_emit_rule"] = on_rule
 
-    # --------------------------- Rule generation ---------------------------
-    def generate_rules(self, X, y=None, feature_names=None, rule_algo: str | None = None, **kwargs) -> None:
-        """Explicitly generate classification rules."""
-        algo = rule_algo or self.rule_algo
-        self.model.algo = str(algo).upper()
-        verbose_flag = bool(kwargs.pop("verbose", kwargs.pop("verbose_rules", False)))
-        kwargs.pop("algo", None)
-
-        self.model.generate_rules(
+        self.model.build_rule_base(
             X,
             y,
             feature_names=feature_names,
-            algo=self.model.algo,
-            verbose=verbose_flag,
-            **kwargs,
+            algo=algo,
+            **params,
         )
-        self._trained = False
+        self.rules_ready = True
+        self.trained = False
 
-    # --------------------------- Training ---------------------------
-    def fit(self, X, y, feature_names=None, value_decoders=None, rule_params: dict | None = None):
-        """Fit the DST model: generate rules (if needed) and train weights."""
-        X = _as_numpy(X)
-        y = _as_numpy(y).astype(int)
+    def generate_rules(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        *,
+        algo: str = "RIPPER",
+        feature_names=None,
+        value_decoders=None,
+        rule_gen_params: Optional[Dict[str, Any]] = None,
+        on_rule: Optional[Callable[[int], None]] = None,
+    ) -> None:
+        """Backward-compatible wrapper around build_rule_base()."""
+        self.build_rule_base(
+            X,
+            y,
+            algo=algo,
+            feature_names=feature_names,
+            value_decoders=value_decoders,
+            rule_gen_params=rule_gen_params,
+            on_rule=on_rule,
+        )
 
-        # Best-effort reproducibility when this class is used standalone (outside benchmark scripts).
+    def load_rules(self, rules_path: str, *, device: Optional[str] = None) -> None:
+        if device is not None:
+            self.device = resolve_torch_device(device)
+        self._ensure_model()
+        assert self.model is not None
+        self.model.load_rules_bin(rules_path)
+        self.model.combination_rule = self.model._normalize_combination_rule(self.combination_rule)
+        self.model.device = resolve_torch_device(self.device)
+        self.model.to(self.model.device)
+        self.rules_ready = True
+        self.trained = False
+
+    def save_rules(self, rules_path: str) -> None:
+        assert self.model is not None and self.rules_ready
+        self.model.save_rules_bin(rules_path)
+
+    def load_model(self, model_path: str, *, device: Optional[str] = None) -> None:
+        if device is not None:
+            self.device = resolve_torch_device(device)
+        self._ensure_model()
+        assert self.model is not None
+        self.model.load_rules_bin(model_path)
+        self.model.combination_rule = self.model._normalize_combination_rule(self.combination_rule)
+        self.model.device = resolve_torch_device(self.device)
+        self.model.to(self.model.device)
+        self.model.eval()
+        self.rules_ready = True
+        self.trained = True
+
+    def save_model(self, model_path: str) -> None:
+        assert self.model is not None and self.rules_ready
+        self.model.save_rules_bin(model_path)
+
+    @staticmethod
+    def _nll_from_probs(
+        probs: torch.Tensor,
+        target: torch.Tensor,
+        *,
+        class_weights: Optional[torch.Tensor] = None,
+        eps: float = 1e-9,
+    ) -> torch.Tensor:
+        """Stable NLL from probability outputs."""
+        probs = torch.clamp(probs, eps, 1.0)
+        return F.nll_loss(torch.log(probs), target, weight=class_weights, reduction="mean")
+
+    @staticmethod
+    def _objective_from_probs(
+        probs: torch.Tensor,
+        target: torch.Tensor,
+        *,
+        class_weights: Optional[torch.Tensor],
+        eps: float = 1e-9,
+    ) -> torch.Tensor:
+        return DSClassifierMultiQ._nll_from_probs(probs, target, class_weights=class_weights, eps=eps)
+
+    @staticmethod
+    def _to_numpy(tensor: torch.Tensor) -> np.ndarray:
+        return tensor.detach().cpu().numpy()
+
+    @staticmethod
+    def _is_better_checkpoint(val_obj: float, val_nll: float, best_obj: float, best_nll: float) -> bool:
+        obj_eps = 1e-6
+        nll_eps = 1e-6
+        return (val_obj + obj_eps < best_obj) or (
+            abs(val_obj - best_obj) <= obj_eps and val_nll + nll_eps < best_nll
+        )
+
+    @staticmethod
+    def _binary_threshold_candidates(pos_proba: np.ndarray) -> np.ndarray:
+        grid = np.linspace(0.05, 0.95, 181, dtype=float)
+        quant = np.quantile(pos_proba, np.linspace(0.05, 0.95, 19, dtype=float))
+        cand = np.unique(np.clip(np.concatenate([grid, quant, np.array([0.5])]), 1e-6, 1.0 - 1e-6))
+        return cand
+
+    @staticmethod
+    def _regularize_binary_threshold(threshold: float, *, n_val: int, tau: float = 16.0) -> float:
+        if n_val <= 0:
+            return float(threshold)
+        alpha = float(n_val) / float(n_val + max(1.0, tau))
+        return float(np.clip(0.5 + alpha * (float(threshold) - 0.5), 1e-6, 1.0 - 1e-6))
+
+    def _tune_binary_threshold(self, y_true: np.ndarray, proba: np.ndarray) -> float:
+        pos_proba = np.asarray(proba[:, 1], dtype=float)
+        thresholds = self._binary_threshold_candidates(pos_proba)
+        best_thr = 0.5
+        best_f1 = -1.0
+        for thr in thresholds:
+            y_pred = (pos_proba >= thr).astype(int)
+            f1 = float(f1_score(y_true, y_pred, average="macro", zero_division=0))
+            if f1 > best_f1 + 1e-9 or (abs(f1 - best_f1) <= 1e-9 and abs(thr - 0.5) < abs(best_thr - 0.5)):
+                best_f1 = f1
+                best_thr = float(thr)
+        return best_thr
+
+    @staticmethod
+    def _should_use_tuned_threshold(
+        threshold: float,
+        *,
+        tuned_f1: float,
+        argmax_f1: float,
+        n_val: int,
+        max_shift: float = 0.08,
+    ) -> bool:
+        # Small validation wins from aggressively shifted thresholds were unstable on
+        # low-dimensional binary tasks. Keep threshold tuning only when the gain is
+        # material and the selected threshold stays close to the natural 0.5 split.
+        gain_margin = max(0.01, 3.0 / max(50.0, float(n_val)))
+        if tuned_f1 <= argmax_f1 + gain_margin:
+            return False
+        return abs(float(threshold) - 0.5) <= float(max_shift)
+
+    def _predict_labels_from_proba(self, proba: np.ndarray, *, use_tuned_threshold: bool = True) -> np.ndarray:
+        p = np.asarray(proba, dtype=float)
+        if (
+            use_tuned_threshold
+            and self.k == 2
+            and self._decision_threshold is not None
+            and p.ndim == 2
+            and p.shape[1] == 2
+        ):
+            return (p[:, 1] >= float(self._decision_threshold)).astype(int)
+        return p.argmax(axis=1)
+
+    def _split_train_val(self, X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        cfg = self.train_cfg
+        idx = np.arange(len(y), dtype=int)
+        if cfg.val_split <= 0.0 or len(y) <= 2:
+            return idx, idx
+        test_size = float(np.clip(cfg.val_split, 0.0, 0.5))
         try:
-            random.seed(int(self.seed))
+            return train_test_split(idx, test_size=test_size, random_state=int(cfg.seed), stratify=y)
         except Exception:
-            pass
-        try:
-            np.random.seed(int(self.seed))
-        except Exception:
-            pass
-        try:
-            torch.manual_seed(int(self.seed))
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed_all(int(self.seed))
-        except Exception:
-            pass
+            return train_test_split(idx, test_size=test_size, random_state=int(cfg.seed), stratify=None)
 
-        if feature_names is not None:
-            self.model.feature_names = list(feature_names)
-            self.model._feature_to_idx = {name: idx for idx, name in enumerate(feature_names)}
-        if value_decoders is not None:
-            self.model.value_names = value_decoders
+    def _build_class_weights(self, y_train: np.ndarray) -> Optional[torch.Tensor]:
+        pwr = float(max(0.0, self.train_cfg.class_weight_power))
+        if pwr <= 0.0:
+            return None
+        counts = np.bincount(np.asarray(y_train, dtype=int), minlength=self.k).astype(np.float64)
+        counts = np.clip(counts, 1.0, None)
+        beta = float(np.clip(self.train_cfg.class_weight_beta, 0.9, 0.99999))
+        eff_num = 1.0 - np.power(beta, counts)
+        weights = ((1.0 - beta) / np.clip(eff_num, 1e-12, None)) ** pwr
+        weights = weights / max(float(np.mean(weights)), 1e-12)
+        assert self.model is not None
+        return torch.tensor(weights, dtype=torch.float32, device=self.model.device)
 
-        # 1. Automatic Rule Generation
-        if not self.model.rules:
-            if self.debug:
-                print(f"[DSClassifier] Generating rules using {self.rule_algo}...")
-            
-            gen_params = self.rule_gen_params.copy()
-            if rule_params:
-                gen_params.update(rule_params)
-            
-            if self.rule_algo == "STATIC":
-                gen_params.setdefault("enable_diversity_filter", True)
-                gen_params.setdefault("diversity_threshold", 0.82)
-                gen_params.setdefault("pair_top", 12)
-                gen_params.setdefault("triple_top", 32)
-                
-            fnames = feature_names if feature_names is not None else self.model.feature_names
-            self.generate_rules(
-                X,
-                y,
-                feature_names=fnames,
-                rule_algo=self.rule_algo,
-                **gen_params
+    def _evaluate_validation(
+        self,
+        X_val_t: torch.Tensor,
+        y_val: np.ndarray,
+        y_val_t: torch.Tensor,
+        *,
+        class_weights: Optional[torch.Tensor],
+        eps: float,
+    ) -> Dict[str, float]:
+        assert self.model is not None
+        pv = self.model(X_val_t, combination_rule=self.model.combination_rule)
+        val_obj = float(
+            self._objective_from_probs(
+                pv,
+                y_val_t,
+                class_weights=class_weights,
+                eps=eps,
+            ).item()
+        )
+        val_bal_nll = float(self._nll_from_probs(pv, y_val_t, class_weights=class_weights, eps=eps).item())
+        val_nll = float(self._nll_from_probs(pv, y_val_t, class_weights=None, eps=eps).item())
+        y_val_pred = self._to_numpy(pv.argmax(dim=1))
+        val_f1 = float(f1_score(y_val, y_val_pred, average="macro", zero_division=0))
+        act_v = self.model._activation_matrix(X_val_t).to(dtype=pv.dtype)
+        masses_v = self.model.get_rule_masses()
+        omega_v = masses_v[:, -1].view(1, -1)
+        fired_v = act_v.sum(dim=1).clamp(min=1.0)
+        active_omega_mean = float(((act_v * omega_v).sum(dim=1) / fired_v).mean().item())
+        return {
+            "val_obj": val_obj,
+            "val_f1": val_f1,
+            "val_nll": val_nll,
+            "val_bal_nll": val_bal_nll,
+            "active_omega_mean": active_omega_mean,
+        }
+
+    def train_rule_masses(self, X: np.ndarray, y: np.ndarray) -> None:
+        model = self._require_ready_model()
+        cfg = self.train_cfg
+        train_rule = str(model.combination_rule)
+        torch.manual_seed(cfg.seed)
+        self._decision_threshold = None
+
+        X = np.asarray(X)
+        y = np.asarray(y).astype(int)
+        tr_idx, val_idx = self._split_train_val(X, y)
+
+        X_tr, y_tr = X[tr_idx], y[tr_idx]
+        X_val, y_val = X[val_idx], y[val_idx]
+
+        X_tr_t = model._prepare_numeric_tensor(X_tr)
+        y_tr_t = torch.tensor(y_tr, dtype=torch.long, device=model.device)
+        X_val_t = model._prepare_numeric_tensor(X_val)
+        y_val_t = torch.tensor(y_val, dtype=torch.long, device=model.device)
+
+        bs = max(1, min(int(cfg.batch_size), int(len(y_tr_t))))
+        dl = DataLoader(TensorDataset(X_tr_t, y_tr_t), batch_size=bs, shuffle=False)
+
+        class_weights = self._build_class_weights(y_tr)
+
+        opt = self._make_optimizer(model, cfg)
+        if cfg.verbose:
+            print(
+                "[DSGD] train_cfg: "
+                f"optimizer={getattr(cfg, 'optimizer_name', 'adamw')} "
+                f"lr={cfg.lr:.6f} weight_decay={cfg.weight_decay:.6f} "
+                f"objective=balanced_nll stop=train_delta({cfg.min_train_obj_delta:.2e})"
             )
 
-        # 2. Training Loop preparation
-        if X.shape[0] < 2:
-            print("[warn] need at least two samples to fit")
-            return self
+        eps = 1e-9
+        model.prepare_for_mass_training(init_seed=cfg.seed, rule_uncertainty=self.rule_uncertainty)
+        model.eval()
+        with torch.no_grad():
+            base_eval = self._evaluate_validation(
+                X_val_t,
+                y_val,
+                y_val_t,
+                class_weights=class_weights,
+                eps=eps,
+            )
+        base_obj = float(base_eval["val_obj"])
+        base_f1 = float(base_eval["val_f1"])
+        base_nll = float(base_eval["val_nll"])
+        base_bal_nll = float(base_eval["val_bal_nll"])
+        base_active_omega = float(base_eval["active_omega_mean"])
+        baseline_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
 
-        rng = np.random.default_rng(self.seed)
-        indices = np.arange(len(X))
-        rng.shuffle(indices)
+        best_obj = base_obj
+        best_f1 = base_f1
+        best_nll = base_nll
+        best_state = baseline_state
+        best_omega = base_active_omega
+        bad_epochs = 0
+        best_epoch = 0
+        prev_train_obj: Optional[float] = None
+        history: list[Dict[str, float | int]] = []
 
-        val_count = max(1, int(round(self.val_split * len(X)))) if self.val_split > 0 else 0
-        if val_count >= len(X):
-            val_count = len(X) - 1
-            
-        train_idx = indices[val_count:]
-        val_idx = indices[:val_count]
-        
-        if train_idx.size == 0:
-            print("[warn] empty train split")
-            return self
-
-        X_train, y_train = X[train_idx], y[train_idx]
-        X_val, y_val = (X[train_idx], y[train_idx]) if val_count == 0 else (X[val_idx], y[val_idx])
-
-        params = [p for p in [self.model.rule_mass_params] if p is not None and p.requires_grad]
-        if not params:
-            self._trained = True
-            return self
-
-        device = torch.device(getattr(self.model, "device", self.device))
-        X_train_t = torch.from_numpy(X_train)
-        y_train_t = torch.from_numpy(y_train.astype(np.int64, copy=False))
-
-        # Init masses (DSGD++ if requested).
-        try:
-            # DSGD++ init does not require rule labels; it uses (rule coverage × class purity)
-            # estimated from (X_train, y_train), so it is valid for STATIC as well.
-            use_dsgdpp = (self.init_mode == "dsgdpp")
-            if use_dsgdpp:
-                self.model.init_masses_dsgdpp(
-                    X_train_t.to(device=device, dtype=torch.float32),
-                    y_train_t.to(device=device),
+        for epoch in range(1, cfg.max_epochs + 1):
+            model.train()
+            total = 0.0
+            count = 0
+            for xb, yb in dl:
+                opt.zero_grad(set_to_none=True)
+                p = model(xb, combination_rule=train_rule)
+                loss = self._objective_from_probs(
+                    p,
+                    yb,
+                    class_weights=class_weights,
+                    eps=eps,
                 )
-            else:
-                self.model.reset_masses()
-        except Exception as e:
-            if self.debug:
-                print(f"[warn] {self.init_mode} init failed ({e}), falling back to reset_masses()")
-            self.model.reset_masses()
-
-        dataset = TensorDataset(X_train_t, y_train_t)
-        loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=False)
-
-        # Class weights
-        class_counts = np.bincount(y_train, minlength=self.k).astype(np.float32)
-        class_counts[class_counts == 0.0] = 1.0
-        inv_freq = class_counts.sum() / class_counts
-        class_weights = inv_freq ** self.class_weight_power
-        class_weights_t = torch.from_numpy(class_weights).to(device=device, dtype=torch.float32)
-        
-        # Class prior
-        exp = 0.5 + max(self.class_weight_power, 0.0)
-        prior_raw = inv_freq ** exp
-        prior = prior_raw / (prior_raw.sum() + 1e-12)
-        try:
-            self.model.class_prior = torch.from_numpy(prior).to(device=device, dtype=torch.float32)
-        except Exception:
-            self.model.class_prior = None
-
-        optimizer = torch.optim.AdamW(params, lr=self.lr, weight_decay=self.weight_decay)
-        
-        X_val_t = torch.from_numpy(X_val).to(device=device, dtype=torch.float32)
-        y_val_t = torch.from_numpy(y_val.astype(np.int64, copy=False)).to(device=device)
-
-        best_state, best_val = None, float("inf")
-        stale_epochs = 0
-        
-        for epoch in range(1, self.max_iter + 1):
-            self.model.train()
-            total_loss, batches = 0.0, 0
-
-            for xb, yb in loader:
-                xb = xb.to(device=device, dtype=torch.float32)
-                yb = yb.to(device=device, dtype=torch.int64)
-
-                optimizer.zero_grad(set_to_none=True)
-                
-                # Training usually uses the initialized combination rule (mostly Dempster)
-                probs = torch.clamp(
-                    self.model.forward(xb, combination_rule="dempster"),
-                    min=1e-9,
-                )
-
-                if self.lossfn == "CE":
-                    nll = torch.nn.functional.nll_loss(torch.log(probs), yb, reduction="none")
-                    if self.class_weight_power > 0.0:
-                        nll = nll * class_weights_t[yb]
-                    loss = nll.mean()
-                else: # MSE
-                    y_onehot = torch.nn.functional.one_hot(yb, num_classes=self.k).to(device=device, dtype=torch.float32)
-                    if self.class_weight_power > 0.0:
-                        w = class_weights_t[yb].unsqueeze(1)
-                        loss = (w * (probs - y_onehot).pow(2)).mean()
-                    else:
-                        loss = torch.nn.functional.mse_loss(probs, y_onehot)
-
+                if not loss.requires_grad:
+                    continue
                 loss.backward()
-                if self.grad_clip > 0.0:
-                    torch.nn.utils.clip_grad_norm_(params, self.grad_clip)
-                optimizer.step()
-                self.model.project_rules_to_simplex()
+                opt.step()
+                model.project_rules_to_simplex()
+                total += float(loss.detach().cpu())
+                count += 1
 
-                total_loss += float(loss.detach())
-                batches += 1
-
-            train_loss = total_loss / max(1, batches)
-
-            # Validation
-            self.model.eval()
-            with torch.inference_mode():
-                probs_val = torch.clamp(self.model.forward(X_val_t, combination_rule="dempster"), min=1e-9)
-                
-                if self.lossfn == "CE":
-                    nll_val = torch.nn.functional.nll_loss(torch.log(probs_val), y_val_t, reduction="none")
-                    if self.class_weight_power > 0.0:
-                        nll_val = nll_val * class_weights_t[y_val_t]
-                    val_loss = nll_val.mean()
-                else:
-                    y_val_onehot = torch.nn.functional.one_hot(y_val_t, num_classes=self.k).to(device=device, dtype=torch.float32)
-                    if self.class_weight_power > 0.0:
-                        w_val = class_weights_t[y_val_t].unsqueeze(1)
-                        val_loss = (w_val * (probs_val - y_val_onehot).pow(2)).mean()
-                    else:
-                        val_loss = torch.nn.functional.mse_loss(probs_val, y_val_onehot)
-
-                val_loss_float = float(val_loss.detach().cpu())
-                preds_val = probs_val.argmax(dim=1)
-                
-                # Uncertainty metrics for logging
-                unc_stats = self.model.uncertainty_stats(X_val_t, combination_rule="dempster")
-                unc_rule_avg = float(np.nanmean(unc_stats["unc_rule"]))
-
-            metrics_val = _metrics(y_val, preds_val.detach().cpu().numpy(), k=self.k)
-            record = {
-                "epoch": epoch,
-                "train_loss": train_loss,
-                "val_loss": val_loss_float,
-                "val_unc_rule": unc_rule_avg,
-                **metrics_val,
-            }
-            self.history_.append(record)
-
-            improved = val_loss_float < best_val - 1e-6
-            if improved:
-                best_val = val_loss_float
-                best_state = copy.deepcopy(self.model.state_dict())
-                self.best_epoch_ = epoch
-                self.best_val_metrics_ = record
-                stale_epochs = 0
-            else:
-                stale_epochs += 1
-
-            if epoch == 1 or epoch % max(1, self.print_every) == 0 or improved:
-                print(
-                    f"[epoch {epoch:03d}] train_loss={train_loss:.5f} val_loss={val_loss_float:.5f} "
-                    f"Acc={metrics_val['Accuracy']:.4f} F1={metrics_val['F1']:.4f} "
-                    f"P={metrics_val['Precision']:.4f} R={metrics_val['Recall']:.4f} "
-                    f"unc_rule={unc_rule_avg:.4f}"
+            model.eval()
+            with torch.no_grad():
+                val_eval = self._evaluate_validation(X_val_t, y_val, y_val_t, class_weights=class_weights, eps=eps)
+                val_obj = val_eval["val_obj"]
+                val_f1 = val_eval["val_f1"]
+                val_nll = val_eval["val_nll"]
+                val_bal_nll = val_eval["val_bal_nll"]
+                active_omega_mean = val_eval["active_omega_mean"]
+            train_obj = float(total / max(count, 1))
+            lr_now = float(opt.param_groups[0]["lr"])
+            if cfg.record_history:
+                history.append(
+                    {
+                        "epoch": int(epoch),
+                        "train_obj": train_obj,
+                        "val_obj": float(val_obj),
+                        "val_nll": float(val_nll),
+                        "val_bal_nll": float(val_bal_nll),
+                        "val_macro_f1": float(val_f1),
+                        "lr": lr_now,
+                    }
                 )
 
-            if stale_epochs >= self.early_stop_patience:
-                if self.print_every:
-                    print(f"[early-stop] patience {self.early_stop_patience} reached at epoch {epoch:03d}")
-                break
+            if cfg.verbose and (epoch == 1 or epoch % 5 == 0 or epoch == cfg.max_epochs):
+                print(
+                    f"[DSGD] epoch {epoch:03d}/{cfg.max_epochs}  "
+                    f"train_obj={train_obj:.4f}  "
+                    f"val_obj={val_obj:.4f}  "
+                    f"val_nll={val_nll:.4f}  val_bal_nll={val_bal_nll:.4f}  "
+                    f"val_macro_f1={val_f1:.4f}  lr={lr_now:.6f}"
+                )
+
+            improved = self._is_better_checkpoint(val_obj, val_nll, best_obj, best_nll)
+            if improved:
+                best_obj = val_obj
+                best_f1 = val_f1
+                best_nll = val_nll
+                best_state = {k: v.detach().clone() for k, v in self.model.state_dict().items()}
+                best_omega = active_omega_mean
+                best_epoch = int(epoch)
+                bad_epochs = 0
+            else:
+                bad_epochs += 1
+
+            if prev_train_obj is not None and epoch > int(cfg.min_train_epochs):
+                delta = float(prev_train_obj - train_obj)
+                if delta < float(cfg.min_train_obj_delta):
+                    if cfg.verbose:
+                        print(
+                            f"[DSGD] stop at epoch {epoch} "
+                            f"(train_obj delta={delta:.6f} < {float(cfg.min_train_obj_delta):.6f}; "
+                            f"best val_obj={best_obj:.4f}, best val_macro_f1={best_f1:.4f}, best val_nll={best_nll:.4f})"
+                        )
+                    break
+            prev_train_obj = train_obj
 
         if best_state is not None:
-            self.model.load_state_dict(best_state)
-            self.model.eval()
+            model.load_state_dict(best_state)
+        model.eval()
+        with torch.no_grad():
+            pv_best = self._to_numpy(model(X_val_t, combination_rule=train_rule))
+        if cfg.enable_binary_threshold_tuning and self.k == 2 and len(np.unique(y_val)) == 2:
+            tuned_thr = self._tune_binary_threshold(y_val, pv_best)
+            tuned_thr = self._regularize_binary_threshold(tuned_thr, n_val=int(len(y_val)))
+            tuned_pred = (pv_best[:, 1] >= tuned_thr).astype(int)
+            tuned_f1 = float(f1_score(y_val, tuned_pred, average="macro", zero_division=0))
+            argmax_pred = pv_best.argmax(axis=1)
+            argmax_f1 = float(f1_score(y_val, argmax_pred, average="macro", zero_division=0))
+            if self._should_use_tuned_threshold(
+                tuned_thr,
+                tuned_f1=tuned_f1,
+                argmax_f1=argmax_f1,
+                n_val=int(len(y_val)),
+            ):
+                self._decision_threshold = float(tuned_thr)
+        if cfg.verbose:
+            print(
+                f"[DSGD] val_f1 baseline_dempster={base_f1:.4f} "
+                f"best_dsgd={best_f1:.4f} best_val_nll={best_nll:.4f} "
+                f"best_epoch={best_epoch if best_epoch > 0 else len(history)}"
+            )
+            if self._decision_threshold is not None:
+                print(f"[DSGD] binary decision threshold={self._decision_threshold:.4f}")
+        self.trained = True
+        self._last_fit_meta = {
+            "n_train": int(len(tr_idx)),
+            "n_val": int(len(val_idx)),
+            "class_weight_power": float(cfg.class_weight_power),
+            "rule_uncertainty_init": float(self.rule_uncertainty),
+            "optimizer_name": str(getattr(cfg, "optimizer_name", "adamw")),
+            "epochs_ran": int(history[-1]["epoch"]) if history else 0,
+            "best_epoch": int(best_epoch),
+            "val_obj_best_dsgd": float(best_obj),
+            "val_f1_baseline_dempster": float(base_f1),
+            "val_f1_best_dsgd": float(best_f1),
+            "val_nll_best_dsgd": float(best_nll),
+            "decision_threshold": None if self._decision_threshold is None else float(self._decision_threshold),
+            "history": history,
+        }
+        self._print_mass_summary(best_active_omega=best_omega)
 
-        binc = np.bincount(y_train)
-        if binc.size:
-            self.default_class_ = int(binc.argmax())
+    def fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        *,
+        algo: Optional[str] = None,
+        feature_names=None,
+        value_decoders=None,
+        rule_gen_params: Optional[Dict[str, Any]] = None,
+        on_rule: Optional[Callable[[int], None]] = None,
+        rules_path: Optional[str] = None,
+        fallback_rules_paths: Optional[list[str]] = None,
+        use_cached_rules: bool = False,
+        save_rules_path: Optional[str] = None,
+        verify_raw_on: Optional[np.ndarray] = None,
+        verify_raw_methods: tuple[str, ...] = ("first_hit_laplace", "weighted_vote"),
+    ) -> Dict[str, Any]:
+        """Linear training pipeline: load/generate rules, then train masses."""
+        algo_name = str(algo or self.default_rule_algo or "RIPPER").upper()
+        save_target = str(save_rules_path or rules_path or "").strip() or None
+        resolved_rule_source = "existing"
+        loaded_from: Optional[str] = None
 
-        # Optional: reorder learned rules by certainty score (can affect FP results slightly).
-        if self.sort_rules_by_certainty:
-            try:
-                self.model.sort_rules_by_certainty(
-                    descending=True,
-                    score_mode=self.certainty_score_mode,
-                )
-            except Exception as e:
-                if self.debug:
-                    print(f"[warn] sort_rules_by_certainty failed: {e}")
+        candidates: list[Path] = []
+        if rules_path:
+            candidates.append(Path(rules_path))
+        for candidate in fallback_rules_paths or []:
+            if candidate:
+                candidates.append(Path(candidate))
 
-        self._trained = True
-        return self
+        loaded = False
+        if use_cached_rules:
+            for candidate in candidates:
+                if candidate.exists():
+                    self.load_rules(str(candidate))
+                    loaded = True
+                    loaded_from = str(candidate)
+                    resolved_rule_source = "cache"
+                    if save_target is not None and str(candidate) != str(save_target):
+                        self.save_rules(save_target)
+                    break
 
-    @torch.no_grad()
-    # --------------------------- Prediction ---------------------------
-    def predict(self, X, *, default_label=None, combination_rule: str | None = None, use_initial_masses=None):
-        """Predict class labels for input samples."""
-        X_np = _as_numpy(X)
-        if X_np.ndim == 1:
-            X_np = X_np.reshape(1, -1)
+        if not loaded and (not self.rules_ready or feature_names is not None or value_decoders is not None or algo is not None):
+            self.build_rule_base(
+                X,
+                y,
+                algo=algo_name,
+                feature_names=feature_names,
+                value_decoders=value_decoders,
+                rule_gen_params=rule_gen_params,
+                on_rule=on_rule,
+            )
+            resolved_rule_source = "generated"
+            if save_target is not None:
+                self.save_rules(save_target)
 
-        rule = combination_rule or self.combination_rule
-        return np.asarray(self.model.predict_dst_labels(
-            X_np,
-            use_initial_masses=bool(use_initial_masses),
-            combination_rule=rule,
-        ), dtype=int)
+        raw_before = None
+        if verify_raw_on is not None and verify_raw_methods:
+            raw_before = self._snapshot_raw_baselines(np.asarray(verify_raw_on), methods=tuple(verify_raw_methods))
 
-    # --------------------------- Persistence ---------------------------
-    def save_model(self, path: str) -> None:
-        """Save model rules and parameters to binary file."""
-        self.model.save_rules_bin(path)
+        self.train_rule_masses(X, y)
 
-    def load_model(self, path: str) -> None:
-        """Load model rules and parameters from binary file."""
-        self.model.load_rules_bin(path)
-        self.rule_algo = getattr(self.model, "algo", self.rule_algo)
-        self._trained = self.model.rule_mass_params is not None
-        self.model.eval()
+        if raw_before is not None:
+            raw_after = self._snapshot_raw_baselines(np.asarray(verify_raw_on), methods=tuple(verify_raw_methods))
+            for method, before in raw_before.items():
+                delta = float(np.max(np.abs(before - raw_after[method])))
+                if delta > 1e-10:
+                    raise RuntimeError(f"Raw baseline changed after DSGD training: method={method}, max_delta={delta:.3e}")
 
-    def prepare_rules_for_export(self, sample=None):
-        """Prepare rules and predictions for export."""
-        return self.model.prepare_rules_for_export(sample)
+        if save_target is not None:
+            self.save_rules(save_target)
+
+        return {
+            "rule_source": resolved_rule_source,
+            "loaded_from": loaded_from,
+            "saved_to": save_target,
+        }
+
+    def predict_proba(self, X: np.ndarray, *, combination_rule: str = "dempster") -> np.ndarray:
+        model = self._require_ready_model()
+        model.eval()
+        with torch.no_grad():
+            p = model(X, combination_rule=combination_rule)
+            return self._to_numpy(p)
+
+    def predict(self, X: np.ndarray, *, combination_rule: str = "dempster", use_tuned_threshold: bool = True) -> np.ndarray:
+        proba = self.predict_proba(X, combination_rule=combination_rule)
+        return self._predict_labels_from_proba(proba, use_tuned_threshold=use_tuned_threshold)
+
+    def raw_predict_proba(self, X: np.ndarray, *, method: str = "first_hit_laplace") -> np.ndarray:
+        model = self._require_ready_model()
+        return model.predict_rule_baseline_proba(X, method=method)
+
+    def raw_predict(self, X: np.ndarray, *, method: str = "first_hit_laplace") -> np.ndarray:
+        return self.raw_predict_proba(X, method=method).argmax(axis=1)
+
+    def _print_mass_summary(self, *, best_active_omega: float) -> None:
+        if self.model is None or self.model.rule_mass_params is None or not self.model.rules:
+            return
+
+        masses = self._to_numpy(self.model.get_rule_masses())
+        omega = np.asarray(masses[:, -1], dtype=float)
+        labels = np.array([
+            r.get("label", -1) if r.get("label", None) is not None else -1 for r in self.model.rules
+        ], dtype=int)
+        valid = (labels >= 0) & (labels < self.k)
+        target_mass_mean = float(np.mean(masses[np.where(valid)[0], labels[valid]])) if valid.any() else float("nan")
+
+        p10, p50, p90 = np.percentile(omega, [10, 50, 90]).tolist()
+        print(
+            "[DSGD] masses: "
+            f"omega_mean={float(np.mean(omega)):.4f} "
+            f"omega_p10={p10:.4f} omega_p50={p50:.4f} omega_p90={p90:.4f} "
+            f"target_mass_mean={target_mass_mean:.4f} "
+            f"best_active_omega_mean={best_active_omega:.4f}"
+        )

@@ -17,8 +17,11 @@ Notes
 """
 import logging
 from collections.abc import Callable, Iterable, Sequence
+from pathlib import Path
 
 import numpy as np
+import torch
+import torch.nn as nn
 from scipy.spatial import cKDTree
 from scipy.stats import norm
 from sklearn.cluster import KMeans, DBSCAN
@@ -33,8 +36,8 @@ from sklearn.metrics import (
     roc_auc_score,
     silhouette_score,
 )
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
+from core import split_train_test
 
 # Keep compatibility with configs that define defaults for this module.
 try:
@@ -48,67 +51,120 @@ try:
 except Exception:  # pragma: no cover
     px = None
 
+
+def lazy_pickle():
+    import pickle
+    try:
+        import dill
+        return dill
+    except ImportError:
+        return pickle
+
+
+def save_rules_dsb(model, path, *, decimals: int = 4, include_masses: bool = True):
+    decimals = int(max(0, min(8, decimals)))
+    fmt = lambda x: f"{float(x):.{decimals}f}"
+    masses = model._to_numpy(model.get_rule_masses()) if (include_masses and model.rule_mass_params is not None) else None
+    with Path(path).open("w", encoding="utf-8") as f:
+        order = list(range(len(model.rules)))
+        if masses is not None and len(masses) == len(model.rules):
+            omega = np.clip(masses[:, -1], 0.0, 1.0)
+            labels = np.array([r.get("label") if r.get("label") is not None else -1 for r in model.rules], dtype=int)
+            label_mass = np.zeros(len(model.rules), dtype=float)
+            ok = (labels >= 0) & (labels < (masses.shape[1] - 1))
+            label_mass[ok] = masses[np.where(ok)[0], labels[ok]]
+            order = np.argsort((1.0 - omega) * label_mass)[::-1].tolist()
+        for idx in order:
+            rule = model.rules[idx]
+            mass_text = "n/a"
+            if masses is not None:
+                mass_text = np.array2string(
+                    np.asarray(masses[idx], dtype=float),
+                    precision=decimals,
+                    separator=", ",
+                    suppress_small=False,
+                    formatter={"float_kind": fmt},
+                )
+            f.write(f"class {rule.get('label')} :: {rule.get('caption')} || masses: {mass_text}\n")
+
+
+def save_rules_bin(model, path, *, decimals: int = 4):
+    decimals = int(max(0, min(8, decimals)))
+    data = {
+        "k": model.num_classes,
+        "algo": model.algo,
+        "feature_names": model.feature_names,
+        "value_decoders": model.value_names,
+        "encoders": model._encoders,
+        "rules": model.rules,
+        "combination_rule": model.combination_rule,
+    }
+    if model.class_prior is not None:
+        try:
+            data["class_prior"] = np.round(np.asarray(model._to_numpy(model.class_prior), dtype=np.float64), decimals).tolist()
+        except Exception:
+            data["class_prior"] = None
+    if model.rule_mass_params is not None:
+        data["rule_mass_params"] = np.round(np.asarray(model._to_numpy(model.get_rule_masses()), dtype=np.float64), decimals).tolist()
+    if model.initial_rule_masses is not None:
+        data["initial_rule_masses"] = np.round(np.asarray(model._to_numpy(model.initial_rule_masses), dtype=np.float64), decimals).tolist()
+    with Path(path).open("wb") as f:
+        lazy_pickle().dump(data, f)
+
+
+def load_rules_bin(model, path):
+    with Path(path).open("rb") as f:
+        data = lazy_pickle().load(f)
+
+    model.num_classes = int(data.get("k", model.num_classes))
+    model.k = int(model.num_classes)
+    model.algo = str(data.get("algo", model.algo))
+    model.feature_names = data.get("feature_names", model.feature_names)
+    model.value_names = data.get("value_decoders", model.value_names)
+    model._encoders = data.get("encoders", model._encoders or {})
+    model.combination_rule = str(data.get("combination_rule", model.combination_rule or "dempster")).lower()
+
+    class_prior = data.get("class_prior")
+    if class_prior is None:
+        model.class_prior = None
+    else:
+        try:
+            model.class_prior = torch.tensor(class_prior, device=model.device, dtype=torch.float32)
+            if model.class_prior.numel() == model.num_classes:
+                model.class_prior = (model.class_prior / model.class_prior.sum().clamp_min(1e-12)).to(device=model.device)
+            else:
+                model.class_prior = None
+        except Exception:
+            model.class_prior = None
+
+    model._feature_to_idx = {name: idx for idx, name in enumerate(model.feature_names or [])}
+    model.rules = data.get("rules", [])
+    model._rule_signatures = set()
+    model._rebuild_literal_cache()
+    model.initial_rule_masses = None
+    model.rule_mass_params = (
+        nn.Parameter(
+            torch.zeros(len(model.rules), model.num_classes + 1, device=model.device, dtype=torch.float32),
+            requires_grad=True,
+        )
+        if model.rules else None
+    )
+    if model.rule_mass_params is None:
+        return
+
+    model.reset_masses()
+    saved_rule_masses = data.get("rule_mass_params")
+    if saved_rule_masses is not None:
+        loaded = torch.tensor(saved_rule_masses, device=model.device, dtype=model.rule_mass_params.dtype)
+        model.rule_mass_params.data.copy_(loaded)
+        model.project_rules_to_simplex()
+    saved_initial_masses = data.get("initial_rule_masses")
+    if saved_initial_masses is not None:
+        model.initial_rule_masses = torch.tensor(saved_initial_masses, device=model.device)
+
 # ---------------------------------------------------------------------------
 # Small numeric helpers
 # ---------------------------------------------------------------------------
-
-def split_train_test(
-    X: np.ndarray,
-    y: np.ndarray | None = None,
-    *,
-    test_size: float = 0.16,
-    random_state: int = 42,
-    stratify: bool = True,
-    return_indices: bool = False,
-):
-    """Train/test split with a safe stratification fallback.
-
-    This centralizes the split behavior used across scripts so experiments
-    (and outlier mining) can reuse the exact same split parameters.
-
-    If stratified split fails (e.g., a class has too few samples), falls back
-    to an unstratified split.
-    """
-    X = np.asarray(X)
-    if y is not None:
-        y = np.asarray(y, dtype=int)
-
-    idx_all = np.arange(X.shape[0])
-    strat = y if (stratify and y is not None) else None
-
-    try:
-        if return_indices:
-            return train_test_split(
-                X,
-                y,
-                idx_all,
-                test_size=float(test_size),
-                random_state=int(random_state),
-                stratify=strat,
-            )
-        return train_test_split(
-            X,
-            y,
-            test_size=float(test_size),
-            random_state=int(random_state),
-            stratify=strat,
-        )
-    except ValueError:
-        if return_indices:
-            return train_test_split(
-                X,
-                y,
-                idx_all,
-                test_size=float(test_size),
-                random_state=int(random_state),
-            )
-        return train_test_split(
-            X,
-            y,
-            test_size=float(test_size),
-            random_state=int(random_state),
-        )
-
 
 def is_categorical(arr: np.ndarray, max_cat: int = 20) -> bool:
     """Heuristic: a column is categorical if it has a small number of unique values.
