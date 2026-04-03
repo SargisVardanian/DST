@@ -1,0 +1,65 @@
+{
+  "dataset": "gas_drift",
+  "subset": "test_only",
+  "label_column": "Class",
+  "mode": "feature",
+  "n_samples_total": 13910,
+  "n_train": 11684,
+  "n_test": 2226,
+  "n_outliers": 223,
+  "n_inliers": 2003,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.10017969451931716,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.0015730337078651685,
+    "p25": 0.3550561797752809,
+    "median": 0.5043820224719101,
+    "p75": 0.642247191011236,
+    "max": 0.996179775280899
+  },
+  "label_distribution": {
+    "test": {
+      "0": 410,
+      "1": 468,
+      "2": 263,
+      "3": 310,
+      "4": 482,
+      "5": 293
+    },
+    "outliers": {
+      "0": 50,
+      "1": 21,
+      "2": 10,
+      "3": 91,
+      "4": 20,
+      "5": 31
+    },
+    "inliers": {
+      "0": 360,
+      "1": 447,
+      "2": 253,
+      "3": 219,
+      "4": 462,
+      "5": 262
+    }
+  }
+}

@@ -49,7 +49,6 @@ __pycache__/
 
 # IDE artefacts (PyCharm, IntelliJ, etc.)
 .idea/
-.vscode/
 *.iml
 
 # Notebook/script results

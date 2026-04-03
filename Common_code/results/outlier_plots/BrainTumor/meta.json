@@ -1,0 +1,53 @@
+{
+  "dataset": "BrainTumor",
+  "subset": "test_only",
+  "label_column": "labels",
+  "mode": "feature",
+  "n_samples_total": 3762,
+  "n_train": 3160,
+  "n_test": 602,
+  "n_outliers": 60,
+  "n_inliers": 542,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.09966777408637874,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.009151414309484192,
+    "p25": 0.3537853577371048,
+    "median": 0.519134775374376,
+    "p75": 0.6570299500831946,
+    "max": 0.9658901830282862
+  },
+  "label_distribution": {
+    "test": {
+      "0": 333,
+      "1": 269
+    },
+    "outliers": {
+      "0": 44,
+      "1": 16
+    },
+    "inliers": {
+      "0": 289,
+      "1": 253
+    }
+  }
+}

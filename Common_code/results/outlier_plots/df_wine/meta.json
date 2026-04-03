@@ -1,0 +1,53 @@
+{
+  "dataset": "df_wine",
+  "subset": "test_only",
+  "label_column": "labels",
+  "mode": "feature",
+  "n_samples_total": 6497,
+  "n_train": 5457,
+  "n_test": 1040,
+  "n_outliers": 104,
+  "n_inliers": 936,
+  "contamination_requested": 0.1,
+  "contamination_actual_test": 0.1,
+  "split": {
+    "test_size": 0.16,
+    "seed": 42,
+    "stratify_requested": true
+  },
+  "detectors": [
+    "kmeans_margin",
+    "gmm_entropy"
+  ],
+  "weights": null,
+  "uncertainty_selector": null,
+  "detector_params": {
+    "knn_k": null,
+    "lof_k": null,
+    "iforest_estimators": null,
+    "kmeans_k": 12,
+    "gmm_components": 6
+  },
+  "standardize_features": true,
+  "score_summary_on_test": {
+    "min": 0.007218479307025988,
+    "p25": 0.348893166506256,
+    "median": 0.5255052935514918,
+    "p75": 0.6702358036573628,
+    "max": 0.9812319538017324
+  },
+  "label_distribution": {
+    "test": {
+      "0": 453,
+      "1": 587
+    },
+    "outliers": {
+      "0": 56,
+      "1": 48
+    },
+    "inliers": {
+      "0": 397,
+      "1": 539
+    }
+  }
+}
