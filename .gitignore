@@ -1,12 +1,11 @@
 # -----------------------------------
 # Data (generated / local)
 *.csv
-!Common_code/results/ALL_DATASETS_*.csv
+!src/results/ALL_DATASETS_*.csv
 requirements.txt
 
 # Rule/model artefacts
 *.dsb
-!Common_code/dsb_rules/*_dst.dsb
 *.pkl
 *.pth
 
@@ -17,10 +16,17 @@ requirements.txt
 .mypy_cache/
 .cache/
 .mpl_cache/
-Common_code/.cache/
-Common_code/.home/
-Common_code/.mpl_cache/
+src/.cache/
+src/.home/
+src/.mpl_cache/
 artifacts/
+src/results/raw_runs/
+src/results/app_sessions/
+src/results/plots_by_metric/
+src/results/plots_by_dataset/
+src/results/hard_cases/test_bases/
+src/results/outlier_plots/
+src/dsb_rules/
 .agent/
 .agents/
 
@@ -42,6 +48,9 @@ __pycache__/
 *.synctex.gz
 *.toc
 *.pdf
+
+# Generated result surfaces
+src/results/*.png
 
 # -----------------------------------
 # macOS system files

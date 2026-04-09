@@ -1,0 +1,132 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=0.72in]{geometry}
+\usepackage{booktabs,amsmath,amssymb,hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.25em}
+
+\title{\vspace{-1.2em}DSGD on RIPPER/FOIL-Induced Rules}
+\author{Sargis Vardanyan \and Aik Tarkhanyan \and Ashot Harutyunyan}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+\small
+
+\begin{abstract}
+This report summarizes the current DSGD pipeline built on top of rules induced by FOIL and RIPPER. The earlier project baseline used an internal STATIC rule source built from automatically generated single literals and short conjunctions; the current pipeline instead induces readable rules first, freezes that ruleset, and only then learns evidential masses over the same fixed rules. Here, ``frozen ruleset'' means that rule induction is completed first and the later mass-learning stage does not change which rules exist. The present benchmark aggregates one fixed train/test split per dataset across five training seeds. That makes it stronger than a one-run snapshot, but it still should not be read as a split-robust generalization claim. Within that limited reading, learned evidential aggregation often improves over the raw rule aggregators built from the same frozen ruleset, while Random Forest remains the strongest overall external reference.
+\end{abstract}
+
+\section{Benchmark Setup}
+The maintained pipeline has two stages. First, FOIL or RIPPER induces a readable candidate rule pool, and post-growth shaping filters it for quality, redundancy control, and class balance. Second, the final ruleset is frozen and passed to the evidential learner, which only adjusts rule masses; it does not invent new rules during mass training.
+
+The runtime protocol is now explicit. Standard CLI runs use the user-provided seeds and test size, while the frozen paper protocol is an opt-in mode triggered by \texttt{--paper-mode}. That avoids silently overriding custom benchmark settings.
+
+The report should also be explicit that these are project-specific FOIL/RIPPER pipelines rather than untouched off-the-shelf baselines. The present benchmark therefore compares aggregation methods on top of the repository's induced-and-shaped rule pools, not native ordered-rule prediction from an external FOIL or RIPPER package.
+
+This separation matters for interpretation. FOIL and RIPPER determine which rules exist, while the DSGD layer determines how much evidential weight each fired rule receives when predictions are fused. The current raw baselines are defined on the same frozen ruleset: \texttt{first\_hit\_laplace} means ``use the first fired rule in the ordered list and read its Laplace-smoothed class estimate,'' while \texttt{weighted\_vote} aggregates all fired rules heuristically without learned evidential masses.
+
+\section{Dataset-Level Snapshot}
+The current snapshot covers 9 tabular datasets: \texttt{adult}, \texttt{bank-full}, \texttt{BrainTumor}, \texttt{breast-cancer-wisconsin}, \texttt{df\_wine}, \texttt{dry-bean}, \texttt{gas\_drift}, \texttt{german}, and \texttt{magic-gamma}. Because the dataset sizes and difficulty profiles differ substantially, the safest reading starts with dataset-level comparisons and only then moves to overall averages.
+
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{l l cc l cc}
+\toprule
+Dataset & Best rule-based (Macro-F1) & Rule Macro-F1 & RF Macro-F1 & Best rule-based (Acc.) & Rule Acc. & RF Acc. \\
+\midrule
+adult & RIPPER:\texttt{weighted\_vote} & 0.7857 & 0.8058 & RIPPER:\texttt{dsgd\_dempster} & 0.8556 & 0.8631 \\
+bank-full & RIPPER:\texttt{weighted\_vote} & 0.7324 & 0.7284 & RIPPER:\texttt{dsgd\_dempster} & 0.9005 & 0.9062 \\
+BrainTumor & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9879} & 0.9930 & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9880} & 0.9931 \\
+breast-cancer-wisconsin & FOIL:\texttt{native\_ordered\_rule} & 0.9593 & 0.9605 & FOIL:\texttt{native\_ordered\_rule} & 0.9635 & 0.9635 \\
+df\_wine & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9955} & \textbf{0.9984} & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9955} & \textbf{0.9985} \\
+dry-bean & RIPPER:\texttt{dsgd\_dempster} & 0.9296 & 0.9324 & RIPPER:\texttt{dsgd\_dempster} & 0.9174 & 0.9202 \\
+gas\_drift & RIPPER:\texttt{dsgd\_dempster} & 0.9621 & 0.9948 & RIPPER:\texttt{dsgd\_dempster} & 0.9630 & 0.9948 \\
+german & RIPPER:\texttt{dsgd\_dempster} & 0.7128 & 0.7197 & RIPPER:\texttt{weighted\_vote} & 0.7950 & 0.7970 \\
+magic-gamma & RIPPER:\texttt{dsgd\_dempster} & 0.8479 & 0.8733 & RIPPER:\texttt{dsgd\_dempster} & 0.8659 & 0.8878 \\
+\bottomrule
+\end{tabular}
+\caption{Best rule-based result versus RF on the current fixed-split five-seed benchmark snapshot. Bold values mark the largest value in each numeric column of this table.}
+\label{tab:dataset_snapshot}
+\end{table}
+
+Table~\ref{tab:dataset_snapshot} gives the most stable high-level picture for a short report. The rule-based pipeline is competitive on several datasets and exceeds RF on one small dataset in this snapshot, but the benchmark does not support a broad ``best overall'' conclusion.
+
+\section{Average Results}
+Once the dataset-level variation is visible, the overall averages become easier to interpret. Across the current 9-dataset benchmark snapshot, the average results are:
+
+\begin{center}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+Method & Acc. & Macro-F1 & NLL & ECE & unc\_mean & unc\_comb \\
+\midrule
+\textbf{RF} & \textbf{0.9249} & \textbf{0.8896} & \textbf{0.1985} & \textbf{0.0242} & --- & --- \\
+\texttt{RIPPER:dsgd\_dempster} & 0.9120 & 0.8721 & 0.2722 & 0.0733 & 0.6010 & \textbf{0.2413} \\
+\texttt{RIPPER:weighted\_vote} & 0.9080 & 0.8703 & 1.0994 & 0.0590 & --- & --- \\
+\texttt{FOIL:dsgd\_dempster} & 0.8956 & 0.8442 & 0.3012 & 0.0814 & \textbf{0.5640} & 0.3162 \\
+\texttt{FOIL:weighted\_vote} & 0.8935 & 0.8388 & 1.3962 & 0.0599 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In this fixed-split five-seed snapshot, the learned Dempster averages sit near the top of the rule-based methods shown here. The safe reading is still narrow: on the current frozen-rule benchmark, learned evidential aggregation often looks better than the raw baselines built from the same ruleset. It is not evidence that DSGD is the strongest classifier overall, and it is not a substitute for broader split-robust evaluation.
+
+\section{Hard Cases}
+To diagnose where learned aggregation may help, we defined a hard case as a held-out test sample that satisfies at least one conflict-oriented rule criterion inside the same benchmark split. All hard-case criteria are computed from fired rules of the frozen ruleset for the same dataset/inducer pair. A sample enters the hard-case subset if at least one of the following is true: multiple fired rules support different labels, the number of fired rules is unusually high, the weighted-vote margin is low, the true class has minority support against a competing class, or exactly one true-class rule is opposed by many wrong-class rules.
+
+The hard-case tables are diagnostic and descriptive, not a standalone causal argument. In the current snapshot, some dataset/inducer pairs show sizable improvements over weighted vote on that subset, for example \texttt{adult/RIPPER} (Accuracy 0.8354 vs.\ 0.7882), \texttt{gas\_drift/RIPPER} (0.8746 vs.\ 0.6311), and \texttt{magic-gamma/FOIL} (0.8598 vs.\ 0.7688). Those results support only the narrower statement that learned masses can help on some conflict-heavy samples built from the same frozen ruleset.
+
+The same analysis also shows limits. Some difficult pairs coincide with long or overlap-prone rule bases, and very small already-sharp rule bases leave little room for DSGD to help. This short report, however, does not isolate those factors well enough to make a stronger mechanistic claim about rule diversity or overlap.
+
+\section{Illustrative Inspection Example}
+The inspection view is best placed after the benchmark sections, because it is an explanatory aid rather than a separate source of evidence. In one income-style tabular sample, 11 rules fire at once and support conflicting labels. The inspection export shows the fired rules, their mass vectors, a merged condition summary, and the final fused mass vector.
+
+That output is easier to read than a long unordered list of fired literals from the earlier internal STATIC pool. The claim should stay narrow: induced FOIL/RIPPER rules give the inspection tooling a cleaner rule-level object to display. The example supports only that readability-of-display point; it does not establish a broader comparative interpretability result, it does not prove why one aggregation strategy wins on average, and the merged combined condition is still an inspection-oriented summary rather than a logically exact replacement for the full fired ruleset.
+
+\section{Conclusion}
+The current supervisor-safe conclusion is limited and concrete: on the present fixed-split five-seed frozen-rule benchmark, learned evidential aggregation on RIPPER/FOIL-induced rules is often competitive with or better than raw rule aggregation on the same ruleset. RF remains the strongest overall reference. The right framing is therefore ``measured benchmark of a frozen-rule evidential pipeline'' rather than ``best overall classifier,'' ``proof of a general rule-diversity mechanism,'' or ``evidence of a general interpretability advantage.''
+
+\section*{References}
+\begin{thebibliography}{9}
+\bibitem{dempster1968}
+A. P. Dempster.
+\newblock A generalization of Bayesian inference.
+\newblock \emph{Journal of the Royal Statistical Society: Series B}, 30(2):205--232, 1968.
+
+\bibitem{shafer1976}
+G. Shafer.
+\newblock \emph{A Mathematical Theory of Evidence}.
+\newblock Princeton University Press, 1976.
+
+\bibitem{quinlan1990}
+J. R. Quinlan.
+\newblock Learning logical definitions from relations.
+\newblock \emph{Machine Learning}, 5:239--266, 1990.
+
+\bibitem{cohen1995}
+W. W. Cohen.
+\newblock Fast effective rule induction.
+\newblock In \emph{Machine Learning Proceedings 1995}, pages 115--123. Morgan Kaufmann, 1995.
+
+\bibitem{yager1987}
+R. R. Yager.
+\newblock On the Dempster--Shafer framework and new combination rules.
+\newblock \emph{Information Sciences}, 41(2):93--137, 1987.
+
+\bibitem{penafiel2020}
+S. Pe\~nafiel, N. Baloian, H. Sanson, and J. A. Pino.
+\newblock Applying Dempster--Shafer theory for developing a flexible, accurate and interpretable classifier.
+\newblock \emph{Expert Systems with Applications}, 157:113262, 2020.
+
+\bibitem{tarkhanyan2025}
+A. Tarkhanyan and A. Harutyunyan.
+\newblock DSGD++: Performance and robustness improvements for the Dempster--Shafer Gradient Descent classifier.
+\newblock arXiv:2507.00453, 2025.
+\end{thebibliography}
+
+\end{document}
