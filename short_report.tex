@@ -8,11 +8,12 @@
 \setlength{\parskip}{0.25em}
 
 \title{\vspace{-1.2em}DSGD on RIPPER/FOIL-Induced Rules}
-\author{Sargis Vardanyan \and Aik Tarkhanyan \and Ashot Harutyunyan}
+\author{Sargis Vardanyan\\Institute of Informatics, LMU Munich \and Aik Tarkhanyan\\Institute of Informatics, LMU Munich \and Ashot Harutyunyan\\Institute of Informatics, LMU Munich}
 \date{}
 
 \begin{document}
 \maketitle
+\noindent\small Project repository: \url{https://github.com/SargisVardanian/DST}
 \vspace{-1.0em}
 \small
 
@@ -82,7 +83,7 @@ To examine where learned aggregation may help, we also study a hard-case subset 
 This analysis is diagnostic rather than causal. In the current benchmark snapshot, learned masses help on some hard-case subsets and do not help on others. The appropriate takeaway is therefore narrow: evidential aggregation can be useful on some conflict-heavy samples, but the effect is not uniform across all dataset/inducer pairs.
 
 \section{Illustrative Inspection Example}
-The inspection view is included only as an explanatory example. It shows how a single sample can activate multiple rules with conflicting label support, together with the final fused evidential output.
+The inspection view is included only as an explanatory example. One exported sample is available in the benchmark artifacts at \url{src/results/raw_runs/inspection/adult/FOIL/sample_30056_test_dempster.md}. It shows how a single sample can activate multiple rules with conflicting label support, together with the final fused evidential output.
 
 This example is not a separate source of evidence and does not establish a broader interpretability claim. Its purpose is only to illustrate what the rule-level inspection output looks like in the current pipeline.
 
