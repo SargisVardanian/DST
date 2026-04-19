@@ -153,6 +153,11 @@ Protocol note:
 - The fixed `seed=42`, `test_size=0.2` paper protocol is only activated when you pass `--paper-mode`.
 - Each benchmark run writes a manifest JSON recording the effective protocol and any overrides.
 
+Research-supporting artifacts:
+- computational cost summary: `src/results/COMPUTATIONAL_COST.md`
+- pool-shaping ablation status: `src/results/POOL_SHAPING_ABLATION.md`
+- the current pool-shaping report is still research debt unless matching on/off rows exist for the same dataset, seed, and split
+
 ## Outputs
 - benchmark artifacts from `train_test_runner.py`: `src/results/raw_runs/`
 - app-private session storage: `src/results/raw_runs/app_sessions/`

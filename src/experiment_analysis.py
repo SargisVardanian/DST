@@ -145,9 +145,68 @@ def write_pool_shaping_ablation(df: pd.DataFrame, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     cur = df[df["method"].isin(["FOIL:dsgd_dempster", "RIPPER:dsgd_dempster"])].copy()
     cur = cur[cur["pool_shaping"].isin([True, False])].copy()
+    coverage_rows: list[dict[str, object]] = []
+    coverage_lines = [
+        "## Coverage",
+        "",
+        "| Method | shaping=False rows | shaping=True rows | paired dataset/seed/split combos |",
+        "|---|---:|---:|---:|",
+    ]
+    for method in ["FOIL:dsgd_dempster", "RIPPER:dsgd_dempster"]:
+        sub = cur[cur["method"] == method].copy()
+        off = int((sub["pool_shaping"] == False).sum())
+        on = int((sub["pool_shaping"] == True).sum())
+        pairable = 0
+        missing_examples: list[str] = []
+        if not sub.empty:
+            combo = (
+                sub.groupby(["dataset", "seed", "split_seed", "pool_shaping"], observed=False)
+                .size()
+                .reset_index(name="n")
+            )
+            pvt = combo.pivot_table(
+                index=["dataset", "seed", "split_seed"],
+                columns="pool_shaping",
+                values="n",
+                aggfunc="sum",
+                fill_value=0,
+            )
+            if pvt.empty:
+                has_on = pd.Series(dtype=bool)
+                has_off = pd.Series(dtype=bool)
+                paired_mask = pd.Series(dtype=bool)
+            else:
+                has_on = (pvt[True] > 0) if True in pvt.columns else pd.Series(False, index=pvt.index)
+                has_off = (pvt[False] > 0) if False in pvt.columns else pd.Series(False, index=pvt.index)
+                paired_mask = has_on & has_off
+            pairable = int(paired_mask.sum()) if not pvt.empty else 0
+            missing_idx = pvt.index[~paired_mask] if not pvt.empty else []
+            for dataset, seed, split_seed in list(missing_idx[:3]):
+                flags = sub[
+                    (sub["dataset"] == dataset)
+                    & (sub["seed"] == seed)
+                    & (sub["split_seed"] == split_seed)
+                ]["pool_shaping"].dropna().astype(bool).unique().tolist()
+                missing_examples.append(f"{dataset}/seed{int(seed)}/split{int(split_seed)} only={sorted(flags)}")
+        coverage_rows.append(
+            {
+                "method": method,
+                "shaping_false_rows": off,
+                "shaping_true_rows": on,
+                "paired_combos": pairable,
+                "missing_examples": "; ".join(missing_examples),
+            }
+        )
+        coverage_lines.append(f"| {method} | {off} | {on} | {pairable} |")
+        if missing_examples:
+            coverage_lines.append(f"- {method} missing pair examples: " + "; ".join(missing_examples))
+    coverage_lines.append("")
+    pd.DataFrame(coverage_rows).to_csv(out_dir / "pool_shaping_coverage.csv", index=False)
     if cur.empty:
         (out_dir / "POOL_SHAPING_ABLATION.md").write_text(
-            "# Pool Shaping Ablation\n\nDeferred research debt: no paired runs with both `pool_shaping=True` and `pool_shaping=False` were found in the current benchmark exports, so this ablation is intentionally suppressed rather than shown as an empty table.\n",
+            "# Pool Shaping Ablation\n\nDeferred research debt: no paired runs with both `pool_shaping=True` and `pool_shaping=False` were found in the current benchmark exports, so this ablation is intentionally suppressed rather than shown as an empty table.\n\n"
+            + "\n".join(coverage_lines)
+            + "\n",
             encoding="utf-8",
         )
         return
@@ -180,10 +239,12 @@ def write_pool_shaping_ablation(df: pd.DataFrame, out_dir: Path) -> None:
         lines.append("")
     pd.DataFrame(rows).to_csv(out_dir / "pool_shaping_ablation.csv", index=False)
     if rows:
-        (out_dir / "POOL_SHAPING_ABLATION.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+        (out_dir / "POOL_SHAPING_ABLATION.md").write_text("\n".join(lines + coverage_lines) + "\n", encoding="utf-8")
     else:
         (out_dir / "POOL_SHAPING_ABLATION.md").write_text(
-            "# Pool Shaping Ablation\n\nDeferred research debt: benchmark rows mention pool-shaping metadata, but no method currently has paired on/off measurements on matching dataset/seed/split combinations.\n",
+            "# Pool Shaping Ablation\n\nDeferred research debt: benchmark rows mention pool-shaping metadata, but no method currently has paired on/off measurements on matching dataset/seed/split combinations.\n\n"
+            + "\n".join(coverage_lines)
+            + "\n",
             encoding="utf-8",
         )
 

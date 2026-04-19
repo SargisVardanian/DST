@@ -4,45 +4,56 @@
 \usepackage[english]{babel}
 \usepackage[margin=0.72in]{geometry}
 \usepackage{booktabs,amsmath,amssymb,hyperref}
+\usepackage{array}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.25em}
+\newcommand{\rulebox}[2]{%
+\begin{tabular}{@{}p{0.76\linewidth}p{0.18\linewidth}@{}}
+\raggedright\ttfamily\footnotesize #1 & \raggedright\ttfamily\footnotesize #2
+\end{tabular}%
+}
 
 \title{\vspace{-1.2em}DSGD on RIPPER/FOIL-Induced Rules}
-\author{Sargis Vardanyan\\Institute of Informatics, LMU Munich \and Aik Tarkhanyan\\Institute of Informatics, LMU Munich \and Ashot Harutyunyan\\Institute of Informatics, LMU Munich}
+\author{
+\begin{tabular}{ccc}
+Sargis Vardanyan & Aik Tarkhanyan & Ashot Harutyunyan \\
+\multicolumn{3}{c}{Institute of Informatics, LMU Munich}
+\end{tabular}
+}
 \date{}
 
 \begin{document}
 \maketitle
-\noindent\small Project repository: \url{https://github.com/SargisVardanian/DST}
 \vspace{-1.0em}
 \small
 
 \begin{abstract}
-This report evaluates a DST-based classification pipeline that learns evidential masses on top of rule sets induced by FOIL and RIPPER. The benchmark uses one fixed train/test split per dataset, five training seeds, and nine tabular datasets. In this setting, learned evidential aggregation is often competitive with simpler rule-based aggregation on the same induced rule sets. The result should be read as a benchmark summary for this evaluated setup, not as a broad generalization claim.
+This report evaluates a DST-based classification pipeline that learns evidential masses on top of rule sets induced by custom FOIL- and RIPPER-style rule generators. The benchmark uses one fixed train/test split per dataset, five DSGD training seeds, and nine tabular datasets; the non-DSGD rule baselines are deterministic on that split. In this setting, learned evidential aggregation is often competitive with simpler rule-based aggregation on the same induced rule sets. The result should be read as a benchmark summary for this evaluated setup, not as a broad generalization claim. Code and artifacts: \url{https://github.com/SargisVardanian/DST}
 \end{abstract}
 
 \section{Benchmark Setup}
-The current experimental setup has two stages. First, FOIL or RIPPER induces a candidate rule pool, and optional post-growth shaping filters it for quality, redundancy, and class balance. Second, DSGD learns evidential masses on top of the resulting induced rule set.
+The current experimental setup has two stages. First, custom FOIL- and RIPPER-style rule generators induce a candidate rule pool, and optional post-growth shaping filters it for quality, redundancy, and class balance. Second, DSGD learns evidential masses on top of the resulting induced rule set.
 
-Earlier project runs also explored a separate internal STATIC rule source, where rules were generated automatically from single literals and short conjunctions. The present report focuses on the induced-rule setting, where the rule sets come from FOIL or RIPPER rather than from that earlier automatic construction scheme.
+Earlier project runs also explored a simpler automatically constructed rule source in which a single feature was split into equal-width intervals and multi-feature rules were formed by AND-combining such single-feature conditions. The present report focuses on the induced-rule setting, where the rule sets come from FOIL- or RIPPER-style induction rather than from that earlier interval-and-conjunction construction scheme.
 
-The benchmark compares several prediction rules on the same induced rule sets. \texttt{native\_ordered\_rule} predicts from the first fired rule in the learned order. \texttt{first\_hit\_laplace} uses that first rule together with its Laplace-smoothed class estimate. \texttt{weighted\_vote} aggregates all fired rules heuristically. \texttt{dsgd\_dempster} learns evidential masses and combines the fired rules with Dempster's rule.
+The benchmark compares several prediction rules on the same induced rule sets. \texttt{native\_ordered\_rule} predicts from the first fired rule in the original emission order produced by the inducer. \texttt{first\_hit\_laplace} uses that first rule together with its Laplace-smoothed class estimate. \texttt{weighted\_vote} aggregates all fired rules heuristically. \texttt{dsgd\_dempster} learns evidential masses and combines the fired rules with Dempster's rule.
 
 The comparison therefore isolates different ways of aggregating predictions from the same induced rule sets.
 
 \section{Dataset-Level Snapshot}
-The current snapshot covers 9 tabular datasets: \texttt{adult}, \texttt{bank-full}, \texttt{BrainTumor}, \texttt{breast-cancer-wisconsin}, \texttt{df\_wine}, \texttt{dry-bean}, \texttt{gas\_drift}, \texttt{german}, and \texttt{magic-gamma}. Because these datasets differ substantially in size and difficulty, the dataset-level table is the safest place to start. The average table is useful only after that variation is visible.
+The current snapshot covers 9 tabular datasets: \texttt{adult}, \texttt{bank-full}, \texttt{BrainTumor}, \texttt{breast-cancer-wisconsin}, \texttt{df\_wine}, \texttt{dry-bean}, \texttt{gas\_drift}, \texttt{german}, and \texttt{magic-gamma}. These datasets differ substantially in size, class balance, and rule-pool difficulty, so the per-dataset comparison is more informative than any single global average.
 
 \begin{table}[h]
 \centering
-\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\tiny
 \begin{tabular}{l l cc l cc}
 \toprule
 Dataset & Best rule-based (Macro-F1) & Rule Macro-F1 & RF Macro-F1 & Best rule-based (Acc.) & Rule Acc. & RF Acc. \\
 \midrule
 adult & RIPPER:\texttt{weighted\_vote} & 0.7857 & 0.8058 & RIPPER:\texttt{dsgd\_dempster} & 0.8556 & 0.8631 \\
 bank-full & RIPPER:\texttt{weighted\_vote} & 0.7324 & 0.7284 & RIPPER:\texttt{dsgd\_dempster} & 0.9005 & 0.9062 \\
-BrainTumor & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9879} & 0.9930 & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9880} & 0.9931 \\
+BrainTumor & FOIL:\texttt{native\_ordered\_rule} & 0.9879 & 0.9930 & FOIL:\texttt{native\_ordered\_rule} & 0.9880 & 0.9931 \\
 breast-cancer-wisconsin & FOIL:\texttt{native\_ordered\_rule} & 0.9593 & 0.9605 & FOIL:\texttt{native\_ordered\_rule} & 0.9635 & 0.9635 \\
 df\_wine & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9955} & \textbf{0.9984} & FOIL:\texttt{native\_ordered\_rule} & \textbf{0.9955} & \textbf{0.9985} \\
 dry-bean & RIPPER:\texttt{dsgd\_dempster} & 0.9296 & 0.9324 & RIPPER:\texttt{dsgd\_dempster} & 0.9174 & 0.9202 \\
@@ -51,14 +62,17 @@ german & RIPPER:\texttt{dsgd\_dempster} & 0.7128 & 0.7197 & RIPPER:\texttt{weigh
 magic-gamma & RIPPER:\texttt{dsgd\_dempster} & 0.8479 & 0.8733 & RIPPER:\texttt{dsgd\_dempster} & 0.8659 & 0.8878 \\
 \bottomrule
 \end{tabular}
+\setlength{\tabcolsep}{6pt}
 \caption{Best rule-based result versus RF on the current fixed-split five-seed benchmark snapshot. Bold values mark the largest value in each numeric column of this table.}
 \label{tab:dataset_snapshot}
 \end{table}
 
-Table~\ref{tab:dataset_snapshot} gives the clearest high-level picture for a short report. Performance varies substantially by dataset, and different rule-based variants win on different datasets. RIPPER-based variants are especially strong on several larger benchmark tasks, while FOIL's native ordered prediction remains strong on some smaller, cleaner datasets. The benchmark still does not support a broad ``best overall'' conclusion.
+Performance varies substantially by dataset, and different rule-based variants win on different datasets. RIPPER-based variants are especially strong on several larger benchmark tasks, while FOIL's native ordered prediction remains strong on some smaller, cleaner datasets. The benchmark still does not support a broad ``best overall'' conclusion.
 
-\section{Average Results}
-Once the dataset-level variation is visible, the overall averages become easier to interpret. Across the current 9-dataset benchmark snapshot, the average results are:
+\section{Interpretation}
+The gains from learned evidential aggregation are moderate rather than dramatic because DSGD depends on the geometry of the induced rule pool. It helps most when a sample activates several useful but only partially redundant rules. In that regime, the learner can redistribute trust between agreeing and conflicting rules, so fusion adds information beyond raw voting. When the active rule set is too small, too noisy, or too overlapping, the benefit is naturally limited.
+
+Across the current 9-dataset benchmark snapshot, the average results are:
 
 \begin{center}
 \small
@@ -75,17 +89,47 @@ Method & Acc. & Macro-F1 & NLL & ECE & unc\_mean & unc\_comb \\
 \end{tabular}
 \end{center}
 
-In this fixed-split five-seed snapshot, the learned Dempster variant is one of the strongest rule-based methods in the average table, especially compared with the simpler rule aggregation baselines built from the same induced rule sets. This is still a narrow result on one fixed split per dataset, not a substitute for broader split-robust evaluation.
+The current averages do not support a single simple story such as ``more uncertainty is always worse'' or ``one inducer is always easier to fuse.'' RIPPER is stronger on the present benchmark in accuracy and Macro-F1 (0.9120 / 0.8721 versus 0.8956 / 0.8442 for FOIL), while FOIL has slightly lower mean rule-level uncertainty before fusion (unc\_mean 0.5640 versus 0.6010). After fusion, however, RIPPER has the lower combined uncertainty on average (unc\_comb 0.2413 versus 0.3162). The same table also shows an important limitation: \texttt{dsgd\_dempster} has worse ECE than \texttt{weighted\_vote} for both RIPPER and FOIL, so the learned evidential model is not uniformly better on calibration. Likewise, the NLL advantage over \texttt{weighted\_vote} should be read mainly as better-behaved probability estimates rather than as a four-fold gain in classification quality. The safe reading is therefore practical rather than mechanistic: DSGD can help, but the size and direction of that help depends on the rule pool that FOIL or RIPPER produces for a given dataset.
+
+\paragraph{Example.}
+A more intuitive way to read the mechanism is to look at a single test sample from the adult dataset with familiar features such as age, marital status, workclass, occupation, and hours per week. In this RIPPER-based example, five rules fire at once. The corresponding inspection export is included in the repository artifacts.\footnote{Benchmark inspection artifact for the adult/RIPPER sample used in this example.}
+
+The conflict is easy to read. Two fired rules support class 1:
+\begin{itemize}
+\item \rulebox{age > 30; fnlwgt > 1.304e+05; hours.per.week < 42; marital.status == Married-civ-spouse; occupation == Prof-specialty; relationship == Wife}{m=[0.0000, 0.4473, 0.5527]}
+\item \rulebox{age > 31; hours.per.week > 32; marital.status == Married-civ-spouse; occupation == Prof-specialty}{m=[0.0000, 0.3068, 0.6932]}
+\end{itemize}
+
+At the same time, three fired rules support class 0:
+\begin{itemize}
+\item \rulebox{age > 53; capital.gain < 5013; education == HS-grad; fnlwgt < 1.73e+05; hours.per.week < 40; marital.status == Married-civ-spouse; workclass == Private}{m=[0.7718, 0.0000, 0.2282]}
+\item \rulebox{age > 57; capital.gain < 5013; hours.per.week < 42; workclass == Private}{m=[0.2993, 0.0000, 0.7007]}
+\item \rulebox{marital.status == Married-civ-spouse}{m=[0.1974, 0.0000, 0.8026]}
+\end{itemize}
+
+This is more informative than a one-rule decision because the sample simultaneously matches partially conflicting low-income and higher-income stories. DSGD does not ignore that conflict and does not treat the active rules as equally trustworthy. After fusion, the inspection export summarizes the result by showing which literals dominate the merged description:
+
+\[
+\begin{aligned}
+\texttt{combined\_rule} \approx {} & 0.150 \cdot [\texttt{age > 57}] \\
+& + 0.150 \cdot [32 < \texttt{hours.per.week} < 40] \\
+& + 0.145 \cdot [\texttt{marital.status == Married-civ-spouse}] \\
+& + 0.130 \cdot [130420 < \texttt{fnlwgt} < 172960] \\
+& + 0.116 \cdot [\texttt{capital.gain < 5013}].
+\end{aligned}
+\]
+
+The final fused prediction is
+\[
+p = [0.7756, 0.2244], \qquad m = [0.7225, 0.1712, 0.1063].
+\]
+
+The uncertainty drops from \texttt{unc\_rule = 0.5954} before fusion to \texttt{unc\_comb = 0.1063} after fusion. This is still not a proof of a general mechanism, but it does show what the inspection output contributes: not just a final label, but a readable summary of which literals survive the fusion and how much uncertainty remains.
 
 \section{Hard Cases}
 To examine where learned aggregation may help, we also study a hard-case subset of the test split. This subset contains samples where the fired rules show conflict, weak support for the true class, or an unusually ambiguous voting pattern for the same dataset/inducer pair.
 
 This analysis is diagnostic rather than causal. In the current benchmark snapshot, learned masses help on some hard-case subsets and do not help on others. The appropriate takeaway is therefore narrow: evidential aggregation can be useful on some conflict-heavy samples, but the effect is not uniform across all dataset/inducer pairs.
-
-\section{Illustrative Inspection Example}
-The inspection view is included only as an explanatory example. One exported sample is available in the benchmark artifacts at \url{src/results/raw_runs/inspection/adult/FOIL/sample_30056_test_dempster.md}. It shows how a single sample can activate multiple rules with conflicting label support, together with the final fused evidential output.
-
-This example is not a separate source of evidence and does not establish a broader interpretability claim. Its purpose is only to illustrate what the rule-level inspection output looks like in the current pipeline.
 
 \section{Conclusion}
 On the present fixed-split five-seed benchmark, learned evidential aggregation on FOIL- and RIPPER-induced rules is often competitive with simpler rule aggregation on the same induced rule sets. The evidence supports a narrow benchmark conclusion for this evaluated setup, but it does not support a broader claim of general superiority or a mechanistic explanation of performance differences.

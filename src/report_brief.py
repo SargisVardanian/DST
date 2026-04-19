@@ -19,6 +19,17 @@ BRIEF_DISPLAY_ORDER = [
     "RIPPER:weighted_vote",
     "RIPPER:first_hit_laplace",
 ]
+BEST_METHOD_TIEBREAK_ORDER = [
+    "RF",
+    "RIPPER:native_ordered_rule",
+    "RIPPER:first_hit_laplace",
+    "RIPPER:weighted_vote",
+    "RIPPER:dsgd_dempster",
+    "FOIL:native_ordered_rule",
+    "FOIL:first_hit_laplace",
+    "FOIL:weighted_vote",
+    "FOIL:dsgd_dempster",
+]
 LOWER_IS_BETTER = {"nll", "ece", "unc_mean", "unc_comb"}
 
 
@@ -115,16 +126,26 @@ def _brief_method_sort_key(method: str) -> tuple[int, str]:
     return (len(BRIEF_DISPLAY_ORDER), method)
 
 
+def _best_method_sort_key(method: str) -> tuple[int, str]:
+    if method in BEST_METHOD_TIEBREAK_ORDER:
+        return (BEST_METHOD_TIEBREAK_ORDER.index(method), method)
+    return (len(BEST_METHOD_TIEBREAK_ORDER), method)
+
+
 def _pick_best(rows: list[dict[str, object]], metric: str) -> dict[str, object] | None:
     candidates = [row for row in rows if row.get(metric) is not None]
     if not candidates:
         return None
-    reverse = metric not in LOWER_IS_BETTER
-    ordered = sorted(
-        candidates,
-        key=lambda item: (float(item[metric]), -_brief_method_sort_key(str(item["method"]))[0], str(item["method"])),
-        reverse=reverse,
-    )
+    if metric in LOWER_IS_BETTER:
+        ordered = sorted(
+            candidates,
+            key=lambda item: (float(item[metric]),) + _best_method_sort_key(str(item["method"])),
+        )
+    else:
+        ordered = sorted(
+            candidates,
+            key=lambda item: (-float(item[metric]),) + _best_method_sort_key(str(item["method"])),
+        )
     return ordered[0]
 
 
@@ -266,17 +287,17 @@ def render_report(summary: dict[str, object], metrics_path: Path, hard_cases_pat
         "# DSGD-Auto Brief Project Report",
         "",
         "## Abstract",
-        "This report summarizes the current frozen-rule DSGD pipeline: induce readable rules with FOIL or RIPPER, freeze the resulting ruleset, and then learn evidential masses on those fixed rules. The present snapshot aggregates a fixed benchmark split across five training seeds, so it is more informative than a one-run anecdote but still not a split-robust generalization claim.",
+        "This report summarizes the current frozen-rule DSGD pipeline: induce readable rules with custom FOIL- and RIPPER-style rule generators, freeze the resulting ruleset, and then learn evidential masses on those fixed rules. The present snapshot aggregates one fixed benchmark split with five DSGD training seeds, so it is more informative than a one-run anecdote but still not a split-robust generalization claim.",
         "",
         "## What Was Built",
         "- `build_report.py` is the canonical public entry point for the full benchmark/report pipeline.",
         "- `train_test_runner.py` is the shared split/train/test engine.",
         "- `analyze_hard_cases.py` remains the hard-case analysis entry point.",
-        "- FOIL and RIPPER here are repository-specific induced-and-shaped rule pipelines, not untouched off-the-shelf native ordered-rule baselines.",
+        "- FOIL and RIPPER here are custom repository-specific induced-and-shaped rule pipelines.",
         f"- Current benchmark snapshot: `{metrics_path}`",
         "",
         "Baseline definitions used below:",
-        "- `native_ordered_rule`: use the first fired rule in the learned ordered ruleset and predict its class label directly.",
+        "- `native_ordered_rule`: use the first fired rule in the original emission order produced by the inducer and predict its class label directly.",
         "- `first_hit_laplace`: use the first fired rule in the ordered list and read its Laplace-smoothed class estimate.",
         "- `weighted_vote`: aggregate all fired rules with heuristic weights, without learned evidential masses.",
         "- `frozen ruleset`: rule induction is finished first, and the later mass-learning stage does not add, remove, or rewrite rules.",
@@ -310,6 +331,8 @@ def render_report(summary: dict[str, object], metrics_path: Path, hard_cases_pat
             "## Reproducibility",
             f"- Current benchmark snapshot: `{metrics_path}`",
             f"- Hard-case analysis: `{hard_cases_path}`",
+            "- Computational cost summary: `src/results/COMPUTATIONAL_COST.md`",
+            "- Pool-shaping ablation status: `src/results/POOL_SHAPING_ABLATION.md`",
             "- Standard custom run: `python3 train_test_runner.py --dataset-path ./adult.csv --inducers RIPPER,FOIL --save-root ./tmp_run --seeds 7,8 --test-size 0.25`",
             "- Frozen paper protocol: `python3 train_test_runner.py --dataset-path ./adult.csv --inducers RIPPER,FOIL --save-root ./tmp_run --paper-mode`",
             "- Regenerate the full pipeline: `python3 build_report.py --out-root src/results/raw_runs --results-dir src/results`",

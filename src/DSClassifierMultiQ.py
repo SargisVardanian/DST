@@ -164,6 +164,11 @@ class DSClassifierMultiQ(ClassifierMixin):
         self.best_val_metrics_ = None
         self._last_fit_meta = {}
 
+    def _finalize_fit_meta(self, fit_meta: dict) -> dict:
+        """Store and return fit metadata through one consistent exit path."""
+        self._last_fit_meta = dict(fit_meta)
+        return dict(fit_meta)
+
     # --------------------------- Rule generation ---------------------------
     def generate_rules(self, X, y=None, feature_names=None, rule_algo: str | None = None, **kwargs) -> None:
         """Explicitly generate classification rules."""
@@ -236,8 +241,7 @@ class DSClassifierMultiQ(ClassifierMixin):
                         print(
                             f"[info] cache miss on requested path(s); using fallback cached artifact {candidate}"
                         )
-                    self._last_fit_meta = dict(fit_meta)
-                    return dict(fit_meta)
+                    return self._finalize_fit_meta(fit_meta)
                 except FileNotFoundError as exc:
                     msg = f"{candidate}: {type(exc).__name__}: {exc}"
                     fit_meta["cache_misses"].append(msg)
@@ -311,7 +315,8 @@ class DSClassifierMultiQ(ClassifierMixin):
         # 2. Training Loop preparation
         if X.shape[0] < 2:
             print("[warn] need at least two samples to fit")
-            return self
+            fit_meta["status"] = "skipped_too_few_samples"
+            return self._finalize_fit_meta(fit_meta)
 
         rng = np.random.default_rng(self.seed)
         indices = np.arange(len(X))
@@ -326,7 +331,8 @@ class DSClassifierMultiQ(ClassifierMixin):
         
         if train_idx.size == 0:
             print("[warn] empty train split")
-            return self
+            fit_meta["status"] = "skipped_empty_train_split"
+            return self._finalize_fit_meta(fit_meta)
 
         X_train, y_train = X[train_idx], y[train_idx]
         X_val, y_val = (X[train_idx], y[train_idx]) if val_count == 0 else (X[val_idx], y[val_idx])
@@ -338,8 +344,7 @@ class DSClassifierMultiQ(ClassifierMixin):
             if str(save_rules_path).strip():
                 self.save_model(str(save_rules_path))
                 fit_meta["saved_to"] = str(save_rules_path)
-            self._last_fit_meta = dict(fit_meta)
-            return dict(fit_meta)
+            return self._finalize_fit_meta(fit_meta)
 
         device = torch.device(getattr(self.model, "device", self.device))
         X_train_t = torch.from_numpy(X_train)
@@ -512,8 +517,7 @@ class DSClassifierMultiQ(ClassifierMixin):
         if str(save_rules_path).strip():
             self.save_model(str(save_rules_path))
             fit_meta["saved_to"] = str(save_rules_path)
-        self._last_fit_meta = dict(fit_meta)
-        return dict(fit_meta)
+        return self._finalize_fit_meta(fit_meta)
 
     @torch.no_grad()
     # --------------------------- Prediction ---------------------------

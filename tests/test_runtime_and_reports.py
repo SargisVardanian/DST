@@ -167,6 +167,40 @@ class RuntimeAndReportTests(unittest.TestCase):
         self.assertEqual(len(meta["cache_misses"]), 1)
         self.assertFalse(meta["cache_failures"])
 
+    def test_fit_too_few_samples_returns_fit_meta_dict(self) -> None:
+        X = np.asarray([[0.0, 1.0]], dtype=float)
+        y = np.asarray([0], dtype=int)
+        clf = DSClassifierMultiQ(k=2, rule_algo="STATIC", max_iter=1, batch_size=2, early_stop_patience=1)
+        meta = clf.fit(X, y, feature_names=["x0", "x1"])
+        self.assertIsInstance(meta, dict)
+        self.assertEqual(meta["status"], "skipped_too_few_samples")
+        self.assertEqual(clf._last_fit_meta["status"], "skipped_too_few_samples")
+
+    def test_fit_edge_case_meta_supports_caller_get_semantics(self) -> None:
+        X = np.asarray([[0.0, 1.0]], dtype=float)
+        y = np.asarray([0], dtype=int)
+        clf = DSClassifierMultiQ(k=2, rule_algo="STATIC", max_iter=1, batch_size=2, early_stop_patience=1)
+        fit_meta = clf.fit(X, y, feature_names=["x0", "x1"])
+        self.assertIn(fit_meta.get("rule_source"), {"generated", "cache", None})
+        self.assertEqual(fit_meta.get("status"), "skipped_too_few_samples")
+
+    def test_fit_full_validation_split_is_clamped_and_returns_fit_meta(self) -> None:
+        X = np.asarray([[0.0, 0.0], [1.0, 1.0]], dtype=float)
+        y = np.asarray([0, 1], dtype=int)
+        clf = DSClassifierMultiQ(
+            k=2,
+            rule_algo="STATIC",
+            max_iter=1,
+            batch_size=2,
+            early_stop_patience=1,
+            val_split=1.0,
+        )
+        meta = clf.fit(X, y, feature_names=["x0", "x1"])
+        self.assertIsInstance(meta, dict)
+        self.assertNotEqual(meta.get("status"), "skipped_empty_train_split")
+        self.assertGreaterEqual(len(clf.history_), 1)
+        self.assertEqual(clf._last_fit_meta, meta)
+
     def test_brief_report_handles_uppercase_schema(self) -> None:
         rows = [
             {
@@ -703,8 +737,12 @@ class RuntimeAndReportTests(unittest.TestCase):
             out_dir = Path(tmpdir)
             write_pool_shaping_ablation(df, out_dir)
             text = (out_dir / "POOL_SHAPING_ABLATION.md").read_text(encoding="utf-8")
+            coverage = pd.read_csv(out_dir / "pool_shaping_coverage.csv")
         self.assertIn("Deferred research debt", text)
+        self.assertIn("## Coverage", text)
+        self.assertIn("FOIL:dsgd_dempster", text)
         self.assertNotIn("| Method | n | mean(on-off)", text)
+        self.assertEqual(list(coverage["method"]), ["FOIL:dsgd_dempster", "RIPPER:dsgd_dempster"])
 
     def test_cost_report_includes_scope_and_limitations(self) -> None:
         df = pd.DataFrame(
