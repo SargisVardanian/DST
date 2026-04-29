@@ -84,3 +84,7 @@ paper_with_complete_table_and_figure.tex
 !README.md
 *.tex
 *.txt
+
+# Local LaTeX / agent artifacts
+IEEEtran.cls
+skills/
