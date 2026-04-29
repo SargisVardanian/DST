@@ -2,7 +2,7 @@
 
 This repository contains a frozen-rule evidential classifier for tabular data. The pipeline induces rules with FOIL or RIPPER, freezes the rule base, and learns Dempster-Shafer masses on top of the same fixed rules.
 
-User-facing entry points now live at the repository root. The implementation lives under `src/`, which should be treated as the internal runtime package rather than the preferred manual entry path.
+User-facing entry points live at the repository root. The implementation lives under `src/`.
 
 Canonical workflow:
 - `train_test_runner.py` for benchmark/train-test runs
@@ -10,7 +10,7 @@ Canonical workflow:
 - `analyze_hard_cases.py` for hard-case diagnostics
 - `app.py` for the local Streamlit UI
 
-Everything else under `src/` should be treated as implementation detail, internal support code, or exploratory tooling unless explicitly called out below.
+Everything else under `src/` is supporting implementation or exploratory tooling unless explicitly called out below.
 
 ## What Is Here
 - `train_test_runner.py`: canonical training and evaluation entry point
@@ -90,10 +90,10 @@ python train_test_runner.py \
   --paper-mode
 ```
 
-Build aggregated reports:
+Build aggregated reports from existing benchmark CSV files:
 
 ```bash
-python build_report.py --out-root src/results/raw_runs --results-dir src/results --include-hard-cases
+python build_report.py report --out-root src/results/raw_runs --results-dir src/results --include-hard-cases
 python analyze_hard_cases.py --out-root src/results/raw_runs --out-dir src/results/hard_cases
 ```
 
@@ -136,17 +136,17 @@ Metrics below come from `src/results/ALL_DATASETS_metrics.csv`.
 
 | Method | Acc | Macro-F1 | NLL | ECE |
 |---|---:|---:|---:|---:|
-| RF | 0.9249 | 0.8896 | 0.1985 | 0.0242 |
-| RIPPER:dsgd_dempster | 0.9120 | 0.8721 | 0.2722 | 0.0733 |
-| RIPPER:weighted_vote | 0.9080 | 0.8703 | 1.0994 | 0.0590 |
-| FOIL:dsgd_dempster | 0.8956 | 0.8442 | 0.3012 | 0.0814 |
-| FOIL:weighted_vote | 0.8935 | 0.8388 | 1.3962 | 0.0599 |
-| FOIL:native_ordered_rule | 0.8886 | 0.8289 | 3.0789 | 0.1114 |
-| FOIL:first_hit_laplace | 0.8886 | 0.8289 | 0.4112 | 0.0757 |
-| RIPPER:native_ordered_rule | 0.8531 | 0.7755 | 4.0582 | 0.1469 |
-| RIPPER:first_hit_laplace | 0.8531 | 0.7755 | 0.5364 | 0.1091 |
+| RF | 0.9249 | 0.8896 | 0.1982 | 0.0240 |
+| RIPPER:dsgd_dempster | 0.9116 | 0.8719 | 0.2844 | 0.0837 |
+| RIPPER:weighted_vote | 0.9063 | 0.8598 | 1.0597 | 0.0540 |
+| FOIL:dsgd_dempster | 0.8954 | 0.8439 | 0.3009 | 0.0801 |
+| FOIL:weighted_vote | 0.8926 | 0.8373 | 1.4160 | 0.0619 |
+| FOIL:native_ordered_rule | 0.8876 | 0.8279 | 3.1054 | 0.1124 |
+| FOIL:first_hit_laplace | 0.8876 | 0.8279 | 0.4139 | 0.0747 |
+| RIPPER:native_ordered_rule | 0.8411 | 0.7646 | 4.3893 | 0.1589 |
+| RIPPER:first_hit_laplace | 0.8411 | 0.7646 | 0.5710 | 0.1219 |
 
-The current snapshot aggregates five training seeds on one fixed train/test split per dataset. In that fixed-split multi-seed view, the learned Dempster rows sit near the top of the rule-based averages shown here, while `RF` remains the strongest overall external reference. That should still be read as a descriptive benchmark result, not as evidence of split-robust dominance or of a broader mechanism.
+The current snapshot aggregates five training seeds on one fixed train/test split per dataset. `weighted_vote` is a support/confidence-weighted rule baseline: each fired rule votes for its consequent with weight `Laplace confidence * log1p(support)`, and the weighted class scores are normalized for probability metrics. In this view, the learned Dempster rows sit near the top of the rule-based averages shown here, while `RF` remains the strongest overall external reference. These numbers describe the current evaluated benchmark setup; they do not establish split-robust dominance or a broader performance mechanism.
 
 Protocol note:
 - Standard runs use the seeds and `--test-size` you provide.
@@ -170,7 +170,7 @@ For custom runs with `--save-root`, the main outputs are:
 - `<save-root>/models/*.pkl`
 
 ## Notes
-- In the current descriptive snapshot, learned evidential fusion often improves over the raw rule aggregators built from the same frozen ruleset, but that should not be read as proof of a broader mechanism or as a standalone interpretability result without separate evidence.
+- In the current benchmark snapshot, learned evidential fusion often improves over the raw rule aggregators built from the same frozen ruleset, but it does not by itself establish a broader mechanism or a standalone interpretability result.
 - Rule generation uses seeded randomness where the inducer path requires it, so runs are controlled and reproducible rather than ``not random'' in an absolute sense.
 - Exploratory scripts such as `src/evaluate_outliers.py` are kept only for legacy analysis and are not part of the canonical benchmark/report path.
 - Older experimental code is not part of the maintained repository anymore; use the repository-root entry points and treat `src/` as internal implementation.

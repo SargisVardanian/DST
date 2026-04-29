@@ -134,7 +134,7 @@ class DSModelMultiQ(nn.Module):
         self.combination_rule = self._normalize_combination_rule(combination_rule)
         if self.combination_rule not in {"dempster", "yager", "vote"}:
             raise ValueError("combination_rule must be 'dempster', 'yager', or 'vote'")
-        self.combination_weight_key = "precision"  # used only for explanation weighting
+        self.combination_weight_key = "precision"
 
         self.class_prior = None
         self._encoders = {}
@@ -484,7 +484,7 @@ class DSModelMultiQ(nn.Module):
         k_plus_one: int,
         dtype=None,
     ) -> torch.Tensor:
-        """Combine active rules via simple majority vote into mass assignments."""
+        """Combine active rules by support/confidence weighted rule voting."""
         device = act_flat.device
         dtype = dtype or torch.float32
         labels = torch.tensor(
@@ -492,9 +492,14 @@ class DSModelMultiQ(nn.Module):
             device=device,
             dtype=torch.long,
         )
+        weights = torch.tensor(
+            [self._rule_vote_weight(r, num_classes=k_plus_one - 1) for r in self.rules],
+            device=device,
+            dtype=dtype,
+        )
         
         scores = torch.zeros((act_flat.shape[0], k_plus_one - 1), device=device, dtype=dtype)
-        act_f = act_flat.float()
+        act_f = act_flat.to(dtype=dtype) * weights.view(1, -1)
         for cls in range(scores.shape[1]):
             mask = labels == cls
             if mask.any():
@@ -506,6 +511,36 @@ class DSModelMultiQ(nn.Module):
         combined[has_votes, : k_plus_one - 1] = scores[has_votes] / denom[has_votes]
         combined[~has_votes, -1] = 1.0
         return combined
+
+    @staticmethod
+    def _finite_nonnegative(value: Any, default: float = 0.0) -> float:
+        try:
+            out = float(value)
+        except (TypeError, ValueError):
+            return float(default)
+        if not np.isfinite(out):
+            return float(default)
+        return max(0.0, out)
+
+    @classmethod
+    def _rule_vote_weight(cls, rule: dict, *, num_classes: int) -> float:
+        """Rule-only vote strength from train-time support and confidence statistics."""
+        stats = rule.get("stats") or {}
+        k_eff = max(1, int(num_classes))
+        support = cls._finite_nonnegative(stats.get("support"), 0.0)
+        neg_covered = cls._finite_nonnegative(stats.get("neg_covered"), 0.0)
+
+        laplace_confidence = (support + 1.0) / max(support + neg_covered + k_eff, 1e-12)
+
+        explicit_confidence = stats.get("confidence", None)
+        if explicit_confidence is None:
+            confidence = laplace_confidence
+        else:
+            confidence = cls._finite_nonnegative(explicit_confidence, laplace_confidence)
+            confidence = min(1.0, confidence)
+
+        weight = confidence * np.log1p(support)
+        return float(max(weight, 1e-12))
 
     @staticmethod
     def _combine_yager_pair(mA: torch.Tensor, mB: torch.Tensor, *, eps: float = 1e-12) -> torch.Tensor:
@@ -930,7 +965,7 @@ class DSModelMultiQ(nn.Module):
         return self.uncertainty_stats(X, combination_rule="vote")["unc_rule"]
 
     def predict_by_rule_vote(self, X, default_label=0):
-        """Evaluate baseline: simple majority vote among activated rules."""
+        """Evaluate baseline: support/confidence weighted vote among activated rules."""
         X_raw = _as_numpy(X)
         if X_raw.ndim == 1:
             X_raw = X_raw.reshape(1, -1)
