@@ -136,17 +136,17 @@ Metrics below come from `src/results/ALL_DATASETS_metrics.csv`.
 
 | Method | Acc | Macro-F1 | NLL | ECE |
 |---|---:|---:|---:|---:|
-| RF | 0.9249 | 0.8896 | 0.1982 | 0.0240 |
-| RIPPER:dsgd_dempster | 0.9116 | 0.8719 | 0.2844 | 0.0837 |
+| RF | 0.9250 | 0.8896 | 0.1973 | 0.0241 |
+| RIPPER:dsgd_dempster | 0.9101 | 0.8737 | 0.2906 | 0.0905 |
 | RIPPER:weighted_vote | 0.9063 | 0.8598 | 1.0597 | 0.0540 |
-| FOIL:dsgd_dempster | 0.8954 | 0.8439 | 0.3009 | 0.0801 |
+| FOIL:dsgd_dempster | 0.8958 | 0.8467 | 0.3056 | 0.0867 |
 | FOIL:weighted_vote | 0.8926 | 0.8373 | 1.4160 | 0.0619 |
-| FOIL:native_ordered_rule | 0.8876 | 0.8279 | 3.1054 | 0.1124 |
-| FOIL:first_hit_laplace | 0.8876 | 0.8279 | 0.4139 | 0.0747 |
-| RIPPER:native_ordered_rule | 0.8411 | 0.7646 | 4.3893 | 0.1589 |
-| RIPPER:first_hit_laplace | 0.8411 | 0.7646 | 0.5710 | 0.1219 |
+| FOIL:native_ordered_rule | 0.8885 | 0.8292 | 3.0796 | 0.1115 |
+| FOIL:first_hit_laplace | 0.8885 | 0.8292 | 0.4102 | 0.0752 |
+| RIPPER:native_ordered_rule | 0.8409 | 0.7645 | 4.3972 | 0.1591 |
+| RIPPER:first_hit_laplace | 0.8409 | 0.7645 | 0.5722 | 0.1216 |
 
-The current snapshot aggregates five training seeds on one fixed train/test split per dataset. `weighted_vote` is a support/confidence-weighted rule baseline: each fired rule votes for its consequent with weight `Laplace confidence * log1p(support)`, and the weighted class scores are normalized for probability metrics. In this view, the learned Dempster rows sit near the top of the rule-based averages shown here, while `RF` remains the strongest overall external reference. These numbers describe the current evaluated benchmark setup; they do not establish split-robust dominance or a broader performance mechanism.
+The current snapshot aggregates five training seeds on one fixed train/test split per dataset. `weighted_vote` is a support/confidence-weighted rule baseline: each fired rule votes for its consequent with weight `Laplace confidence * log1p(support)`, and the weighted class scores are normalized for probability metrics. In this view, the learned Dempster rows sit near the top of the rule-based averages shown here, while `RF` remains the strongest overall external reference. The Dempster readout now uses the standard pignistic redistribution of fused uncertainty, `Omega / C`; this consistency change preserves the main Accuracy/Macro-F1 conclusion but does not remove the dataset-sensitive ECE gap. These numbers describe the current evaluated benchmark setup; they do not establish split-robust dominance or a broader performance mechanism.
 
 Protocol note:
 - Standard runs use the seeds and `--test-size` you provide.

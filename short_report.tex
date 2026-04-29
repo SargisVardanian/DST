@@ -201,15 +201,15 @@ Table~\ref{tab:avg_results} summarizes the cross-dataset averages for the curren
 \toprule
 Method & Acc. & Macro-F1 & NLL & ECE & unc\_mean & unc\_comb \\
 \midrule
-\textbf{Random Forest} & \textbf{0.9249$\pm$0.0011} & \textbf{0.8896$\pm$0.0018} & \textbf{0.1982$\pm$0.0033} & \textbf{0.0240$\pm$0.0023} & --- & --- \\
-\shortstack[l]{RIPPER + learned\\Dempster fusion} & 0.9116$\pm$0.0006 & 0.8719$\pm$0.0011 & 0.2844$\pm$0.0030 & 0.0837$\pm$0.0023 & 0.5932$\pm$0.0060 & \textbf{0.2612$\pm$0.0074} \\
+\textbf{Random Forest} & \textbf{0.9250$\pm$0.0011} & \textbf{0.8896$\pm$0.0018} & \textbf{0.1973$\pm$0.0036} & \textbf{0.0241$\pm$0.0024} & --- & --- \\
+\shortstack[l]{RIPPER + learned\\Dempster fusion} & 0.9101$\pm$0.0020 & 0.8737$\pm$0.0033 & 0.2906$\pm$0.0070 & 0.0905$\pm$0.0077 & 0.6200$\pm$0.0097 & \textbf{0.2900$\pm$0.0142} \\
 \shortstack[l]{RIPPER weighted\\rule-vote} & 0.9063$\pm$0.0010 & 0.8598$\pm$0.0012 & 1.0597$\pm$0.0880 & 0.0540$\pm$0.0010 & --- & --- \\
-\shortstack[l]{RIPPER ordered-rule} & 0.8411$\pm$0.0290 & 0.7646$\pm$0.0264 & 4.3893$\pm$0.8023 & 0.1589$\pm$0.0290 & --- & --- \\
-\shortstack[l]{RIPPER first-hit\\fixed-confidence} & 0.8411$\pm$0.0290 & 0.7646$\pm$0.0264 & 0.5710$\pm$0.0843 & 0.1219$\pm$0.0290 & --- & --- \\
-\shortstack[l]{FOIL + learned\\Dempster fusion} & 0.8954$\pm$0.0000 & 0.8439$\pm$0.0000 & 0.3009$\pm$0.0001 & 0.0801$\pm$0.0001 & \textbf{0.5652$\pm$0.0003} & 0.3142$\pm$0.0003 \\
+\shortstack[l]{RIPPER ordered-rule} & 0.8409$\pm$0.0289 & 0.7645$\pm$0.0264 & 4.3972$\pm$0.7978 & 0.1591$\pm$0.0289 & --- & --- \\
+\shortstack[l]{RIPPER first-hit\\fixed-confidence} & 0.8409$\pm$0.0289 & 0.7645$\pm$0.0264 & 0.5722$\pm$0.0837 & 0.1216$\pm$0.0289 & --- & --- \\
+\shortstack[l]{FOIL + learned\\Dempster fusion} & 0.8958$\pm$0.0008 & 0.8467$\pm$0.0016 & 0.3056$\pm$0.0039 & 0.0867$\pm$0.0041 & \textbf{0.5834$\pm$0.0052} & 0.3292$\pm$0.0068 \\
 \shortstack[l]{FOIL weighted\\rule-vote} & 0.8926$\pm$0.0000 & 0.8373$\pm$0.0000 & 1.4160$\pm$0.0000 & 0.0619$\pm$0.0000 & --- & --- \\
-\shortstack[l]{FOIL ordered-rule} & 0.8876$\pm$0.0005 & 0.8279$\pm$0.0007 & 3.1054$\pm$0.0149 & 0.1124$\pm$0.0005 & --- & --- \\
-\shortstack[l]{FOIL first-hit\\fixed-confidence} & 0.8876$\pm$0.0005 & 0.8279$\pm$0.0007 & 0.4139$\pm$0.0022 & 0.0747$\pm$0.0005 & --- & --- \\
+\shortstack[l]{FOIL ordered-rule} & 0.8885$\pm$0.0000 & 0.8292$\pm$0.0000 & 3.0796$\pm$0.0005 & 0.1115$\pm$0.0000 & --- & --- \\
+\shortstack[l]{FOIL first-hit\\fixed-confidence} & 0.8885$\pm$0.0000 & 0.8292$\pm$0.0000 & 0.4102$\pm$0.0001 & 0.0752$\pm$0.0000 & --- & --- \\
 \bottomrule
 \end{tabular}
 }
@@ -217,11 +217,11 @@ Method & Acc. & Macro-F1 & NLL & ECE & unc\_mean & unc\_comb \\
 
 We report both mean activated-rule ignorance and combined ignorance after fusion. Here \code{unc\_mean} is the per-sample average $\Omega$ mass over activated rules, with no-fire samples assigned full ignorance, and \code{unc\_comb} is the fused $\Omega$ mass after Dempster aggregation. Uncertainty metrics are reported only for methods that produce an evidential mass function with an explicit $\Omega$ component. Non-evidential hard-rule baselines and Random Forest do not produce a directly comparable $\Omega$ mass, so their uncertainty entries are marked as not applicable. Expected calibration error uses 15 equal-width confidence bins \cite{guo2017}.
 
-Across the nine datasets, learned Dempster fusion is the best rule-based Accuracy variant on 6/9 datasets and the best rule-based Macro-F1 variant on 6/9 datasets. Against the matching weighted rule-vote baseline, learned Dempster improves Accuracy on 7/9 RIPPER rows and 5/9 FOIL rows, and improves Macro-F1 on 7/9 RIPPER rows and 6/9 FOIL rows. These paired counts are descriptive; with only nine datasets they should not be read as conclusive significance evidence.
+Across the nine datasets, learned Dempster fusion is the best rule-based Accuracy variant on 6/9 datasets and the best rule-based Macro-F1 variant on 7/9 datasets. Against the matching weighted rule-vote baseline, learned Dempster improves Accuracy on 6/9 RIPPER rows and 5/9 FOIL rows, and improves Macro-F1 on 8/9 RIPPER rows and 5/9 FOIL rows. These paired counts are descriptive; with only nine datasets they should not be read as conclusive significance evidence.
 
 Random Forest remains the stronger pure predictive baseline on most datasets: it is stronger than or tied with the best rule-based row on 9/9 datasets for both Accuracy and Macro-F1. The motivation for DSGD-Auto is therefore not raw accuracy dominance over Random Forest, but the combination of competitive rule-based accuracy, explicit fired-rule structure, learned uncertainty mass, and inspectable sample-level explanations.
 
-Calibration remains a limitation. Lower NLL does not coincide with better calibration here: in this benchmark snapshot, learned Dempster fusion often improves NLL relative to the weighted rule-vote baseline, while ECE remains worse for both FOIL and RIPPER. The large NLL gap between weighted rule-vote and learned Dempster fusion should not be read as a proportional accuracy gain. The weighted-vote baseline produces rule-quality-weighted probability vectors from normalized class scores, so NLL is sensitive to score sharpness even when Accuracy/Macro-F1 changes are small.
+Calibration remains a limitation. Lower NLL does not coincide with better calibration here: in this benchmark snapshot, learned Dempster fusion often improves NLL relative to the weighted rule-vote baseline, while ECE remains worse for both FOIL and RIPPER. After aligning the learned model's training and reporting readout to the standard pignistic redistribution $m^\star(\Omega)/C$, the ECE gap remains dataset-sensitive rather than disappearing. The large NLL gap between weighted rule-vote and learned Dempster fusion should not be read as a proportional accuracy gain. The weighted-vote baseline produces rule-quality-weighted probability vectors from normalized class scores, so NLL is sensitive to score sharpness even when Accuracy/Macro-F1 changes are small.
 
 \subsubsection{Worked Example}
 One inspection export from the adult/RIPPER benchmark split shows how the model turns a set of active rules into one readable inspection summary.\footnote{Inspection artifact: \code{sample\_13131\_test\_dempster.md} under \code{src/results/raw\_runs/inspection/adult/RIPPER/}.} For this sample, five rules fire:

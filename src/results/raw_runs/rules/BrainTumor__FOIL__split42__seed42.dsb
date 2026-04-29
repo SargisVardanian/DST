@@ -28,7 +28,7 @@ class 0 :: ASM > 0.0279 & Contrast > 149.3 & Kurtosis < 4.951 || masses: [0.126,
 class 0 :: Dissimilarity > 4.466 & Kurtosis < 5.99 & Variance < 868.9 || masses: [0.1129, 0.0, 0.8871]
 class 1 :: Dissimilarity < 3.614 & Entropy < 0.0635 & Mean < 18.87 & Variance > 868.9 || masses: [0.0, 0.1122, 0.8878]
 class 1 :: Entropy < 0.1055 & Kurtosis > 19.45 & Skewness < 4.304 || masses: [0.0, 0.1086, 0.8914]
-class 1 :: Entropy > 0.06973 & Homogeneity < 0.5083 & Mean > 19.3 & Skewness > 2.157 || masses: [0.0, 0.1054, 0.8946]
+class 1 :: Entropy > 0.06973 & Homogeneity < 0.5083 & Mean > 19.3 & Skewness > 2.157 || masses: [0.0, 0.1055, 0.8945]
 class 1 :: Contrast > 194.2 & Dissimilarity < 4.797 & Homogeneity < 0.5316 || masses: [0.0, 0.1048, 0.8952]
 class 1 :: Contrast > 411 & Kurtosis > 19.45 & Mean < 4.455 & Variance > 434.6 || masses: [0.0, 0.0996, 0.9004]
 class 1 :: Contrast > 194.2 & Correlation > 0.95 & Entropy > 0.1397 & Variance < 624.8 || masses: [0.0, 0.0943, 0.9057]

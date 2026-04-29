@@ -440,6 +440,8 @@ def run_single_dataset_inducer(
         on_rule=cb,
         rules_path=deduped_cache_candidates,
         use_cached_rules=bool(args.use_cached_rules),
+        retrain_cached_rules=bool(args.retrain_cached_rules),
+        fail_on_cache_mismatch=bool(args.fail_on_cache_mismatch),
         save_rules_path=str(pkl_path),
         verify_raw_on=None if args.no_raw else X_te,
     )
@@ -592,6 +594,8 @@ def benchmark_main(argv: list[str] | None = None) -> int:
     ap.add_argument("--class-weight-power", type=float, default=0.35, help="Class-balance power for DSGD weighted NLL (0 disables balancing).")
 
     ap.add_argument("--use-cached-rules", action="store_true")
+    ap.add_argument("--retrain-cached-rules", action="store_true", help="Load cached rule sets, then retrain DSGD masses without regenerating rules.")
+    ap.add_argument("--fail-on-cache-mismatch", action="store_true", help="Fail instead of regenerating when requested cached rules cannot be loaded.")
     ap.add_argument("--allow-static-gas-drift", action="store_true", help="Force STATIC on gas_drift even though it is slow.")
 
     ap.add_argument("--no-raw", action="store_true", help="Skip raw rule baselines.")

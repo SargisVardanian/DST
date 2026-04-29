@@ -189,7 +189,7 @@ class DSModelMultiQ(nn.Module):
         return arr
 
     def _prior_tensor(self, k: int) -> torch.Tensor:
-        """Get the class prior tensor (1, K) for mass redistribution."""
+        """Get the optional class-prior tensor (1, K) used by legacy artifacts."""
         if self.class_prior is not None and self.class_prior.sum() > 0:
             p = self.class_prior.to(self.device)
             return (p / p.sum().clamp_min(1e-12)).reshape(1, -1)
@@ -213,11 +213,8 @@ class DSModelMultiQ(nn.Module):
         omega = float(np.clip(m[-1], 0.0, 1.0))
         certainty = 1.0 - omega
         
-        prior = (self.class_prior.cpu().numpy() if self.class_prior is not None else np.full(k, 1/k))
-        prior = prior / max(prior.sum(), 1e-12)
-        
-        # Pignistic transform: m(A) + m(Omega) * |A|/|Omega| -> here |A|=1
-        betp = m[:k] + omega * prior
+        # Standard singleton pignistic transform: distribute Omega uniformly.
+        betp = m[:k] + omega / max(1, k)
         betp /= max(betp.sum(), 1e-12)
         
         top1 = int(np.argmax(betp)) if betp.size else 0
@@ -734,11 +731,10 @@ class DSModelMultiQ(nn.Module):
         return self._mass_to_prob(combined)
 
     def _mass_to_prob(self, masses):
-        """Convert mass functions to pignistic probability distributions."""
+        """Convert mass functions to standard pignistic probability distributions."""
         k = masses.shape[1] - 1
         omega = masses[:, -1:].clamp(0, 1)
-        prior = self._prior_tensor(k)
-        p = masses[:, :k] + omega * prior
+        p = masses[:, :k] + omega / max(1, k)
         return p / p.sum(dim=1, keepdim=True).clamp_min(1e-12)
 
     def reset_masses(self, init_seed=None):

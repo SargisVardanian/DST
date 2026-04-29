@@ -203,6 +203,7 @@ class DSClassifierMultiQ(ClassifierMixin):
         on_rule = kwargs.pop("on_rule", None)
         rules_path = kwargs.pop("rules_path", "")
         use_cached_rules = bool(kwargs.pop("use_cached_rules", False))
+        retrain_cached_rules = bool(kwargs.pop("retrain_cached_rules", False))
         fail_on_cache_mismatch = bool(kwargs.pop("fail_on_cache_mismatch", False))
         save_rules_path = kwargs.pop("save_rules_path", "")
         kwargs.pop("verify_raw_on", None)
@@ -226,12 +227,14 @@ class DSClassifierMultiQ(ClassifierMixin):
             candidate_cache_paths.append(str(rules_path))
 
         if use_cached_rules:
+            loaded_cached_rules = False
             for candidate in candidate_cache_paths:
                 try:
                     self.load_model(str(candidate))
                     fit_meta["rule_source"] = "cache"
                     fit_meta["loaded_from"] = str(candidate)
                     fit_meta["n_rules"] = int(len(self.model.rules or []))
+                    loaded_cached_rules = True
                     if fit_meta["cache_failures"]:
                         print(
                             f"[warn] incompatible cached artifacts were rejected before using {candidate}: "
@@ -241,6 +244,9 @@ class DSClassifierMultiQ(ClassifierMixin):
                         print(
                             f"[info] cache miss on requested path(s); using fallback cached artifact {candidate}"
                         )
+                    if retrain_cached_rules:
+                        fit_meta["rule_source"] = "cache_retrained"
+                        break
                     return self._finalize_fit_meta(fit_meta)
                 except FileNotFoundError as exc:
                     msg = f"{candidate}: {type(exc).__name__}: {exc}"
@@ -248,7 +254,9 @@ class DSClassifierMultiQ(ClassifierMixin):
                 except Exception as exc:
                     msg = f"{candidate}: {type(exc).__name__}: {exc}"
                     fit_meta["cache_failures"].append(msg)
-            if fit_meta["cache_failures"]:
+            if loaded_cached_rules and retrain_cached_rules:
+                pass
+            elif fit_meta["cache_failures"]:
                 if fail_on_cache_mismatch:
                     raise RuntimeError(
                         "incompatible cached artifacts were rejected and fail_on_cache_mismatch=True: "
@@ -259,6 +267,11 @@ class DSClassifierMultiQ(ClassifierMixin):
                     + "; ".join(str(msg) for msg in fit_meta["cache_failures"])
                 )
             elif fit_meta["cache_misses"]:
+                if retrain_cached_rules or fail_on_cache_mismatch:
+                    raise FileNotFoundError(
+                        "cached rules were requested but no compatible artifact was found: "
+                        + "; ".join(str(msg) for msg in fit_meta["cache_misses"])
+                    )
                 print("[info] no matching cached artifact found; generating rules for this seed.")
 
         # Best-effort reproducibility when this class is used standalone (outside benchmark scripts).
