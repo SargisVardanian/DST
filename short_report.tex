@@ -1,5 +1,6 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
@@ -12,267 +13,358 @@
 \usepackage[hidelinks]{hyperref}
 \newcommand{\code}[1]{\textnormal{#1}}
 
+\setlength{\textfloatsep}{7pt plus 1pt minus 2pt}
+\setlength{\floatsep}{5pt plus 1pt minus 2pt}
+\setlength{\intextsep}{5pt plus 1pt minus 2pt}
+\setlength{\abovedisplayskip}{4pt}
+\setlength{\belowdisplayskip}{4pt}
+\setlength{\abovedisplayshortskip}{3pt}
+\setlength{\belowdisplayshortskip}{3pt}
+\renewcommand{\arraystretch}{0.95}
+
+\newcommand{\pmv}[2]{#1{\scriptsize$\pm$#2}}
+
 \begin{document}
 
 \title{DSGD on RIPPER/FOIL-Induced Rules}
 
 \author{
 \IEEEauthorblockN{Sargis Vardanyan}
-\IEEEauthorblockA{American University of Armenia\\Yerevan, Armenia\\sargis\_vardanyan@edu.aua.am}
+\IEEEauthorblockA{Institute for Informatics and\\
+Automation Problems\\
+American University of Armenia\\
+Yerevan, Armenia\\
+sargis\_vardanyan@edu.aua.am}
 \and
 \IEEEauthorblockN{Aik Tarkhanyan}
-\IEEEauthorblockA{Institute of Informatics\\LMU Munich\\tarkhanyan02@gmail.com}
+\IEEEauthorblockA{Department of Statistics\\
+LMU Munich\\
+Munich, Germany\\
+aik.tarkhanyan@campus.lmu.de}
 \and
 \IEEEauthorblockN{Ashot Harutyunyan}
-\IEEEauthorblockA{ML Lab, Yerevan State University\\Yerevan, Armenia\\harutyunyan.ashot@ysu.am}
+\IEEEauthorblockA{Yerevan State University\\
+Institute for Informatics and\\
+Automation Problems\\
+Yerevan, Armenia\\
+harutyunyan.ashot@ysu.am}
 }
 
 \maketitle
 
 \begin{abstract}
-Prior Dempster-Shafer gradient-descent classifiers primarily study evidential mass learning and prediction from a supplied rule representation \cite{penafiel2020,tarkhanyan2025}. This paper evaluates DSGD-Auto under a frozen induced-ruleset protocol: repository-specific FOIL-style and RIPPER-style inducers first emit the rule set, and DSGD then learns evidential masses without adding, removing, or rewriting rules. Experiments use one fixed 80/20 train/test split per dataset, five training seeds per induced ruleset, and deterministic non-DSGD rule baselines on the same split. Among rule-based variants, learned Dempster fusion is the best Accuracy variant on 6/9 datasets and the best Macro-F1 variant on 6/9 datasets, while Random Forest remains stronger or tied against the best rule model on most datasets. Code and artifacts: \url{https://github.com/SargisVardanian/DST}.
+Prior Dempster-Shafer gradient-descent classifiers primarily study evidential mass learning and prediction from a supplied rule representation. This paper evaluates DSGD-Auto under a cached induced-rule-pool protocol: FOIL-style and RIPPER-style inducers first generate rule-pool exports, and DSGD then learns evidential masses without adding, removing, or rewriting rules inside each export. We compare learned evidential aggregation against deterministic rule-only baselines and a Random Forest baseline on nine tabular datasets. Across this benchmark, DSGD-Auto improves several rule-based aggregates while preserving fired-rule inspection and exposing residual evidential uncertainty, although the gains vary across datasets and metrics.
 \end{abstract}
 
 \begin{IEEEkeywords}
 evidential classification, Dempster-Shafer theory, rule induction, FOIL, RIPPER, tabular classification
 \end{IEEEkeywords}
 
+\noindent\textbf{Code:} \url{https://github.com/SargisVardanian/DST}
+
 \section{Introduction}
+
 Rule-based classification represents prediction with explicit if-then conditions rather than opaque scores. FOIL and RIPPER are supervised rule-induction methods that learn such rules from labeled data \cite{quinlan1990,cohen1995}. FOIL grows class-directed rules by adding informative literals, while RIPPER learns ordered rules and prunes them to improve generalization.
 
-On top of such rules, Dempster-Shafer theory provides a way to represent both class support and residual uncertainty \cite{dempster1968,shafer1976}. In the present implementation, each rule is parameterized by a mass vector over the selected focal elements: the $C$ class singletons and the explicit ignorance state $\Omega$. Following DSGD/DSGD++ \cite{penafiel2020,tarkhanyan2025}, the model learns per-rule mass logits under this experimental parameterization, fuses the masses of the fired rules, and converts the fused mass into class probabilities through the pignistic transform \cite{smets1994}.
+Dempster-Shafer theory provides a way to attach not only class support, but also residual uncertainty to rule-based evidence \cite{dempster1968,shafer1976}. In the setting used here, each rule receives a mass vector over the $C$ class singletons and the full frame $\Omega$. Following DSGD/DSGD++ \cite{penafiel2020,tarkhanyan2025}, the model learns per-rule mass parameters, combines the masses of fired rules, and converts the fused mass into class probabilities through the pignistic transform \cite{smets1994}. In the reported learned-Dempster rows, the residual mass assigned to $\Omega$ is redistributed uniformly over classes, i.e., $m^\star(\Omega)/C$.
 
-The protocol studied here is deliberately narrow. We use a frozen induced ruleset: rule induction is completed before mass learning, and the subsequent DSGD stage does not add, remove, or rewrite rules. The FOIL-style and RIPPER-style inducers used here are repository-specific implementations inspired by the classical algorithms, with project-specific preprocessing, covering, pruning, and rule-pool shaping choices. They should therefore be read as induced-rule pipelines around FOIL/RIPPER ideas, not as unmodified textbook baselines.
-
-The empirical question is controlled and specific. We compare several aggregation rules on the same induced rulesets and include Random Forest as an external non-rule reference \cite{breiman2001}. The goal is to ask how much the final prediction changes when the rule pool is fixed and only the aggregation mechanism changes.
+The evaluation uses cached rule-pool exports. Rule induction is performed before mass learning, and each downstream aggregation method is evaluated on the rules available in a given export. Thus, the DSGD stage updates only evidential masses within that export. The FOIL-style and RIPPER-style inducers serve as study-specific fixed rule generators for the aggregation study, rather than as the main objects of comparison. Because some baseline conventions differ on no-fire samples, the study should be read as a practical benchmark of rule-use strategies rather than as a perfectly isolated aggregation-only ablation.
 
 \section{Experimental Setup}
-An earlier static variant assembled short conjunctions from feature-level literals; the present report focuses on supervised FOIL-style and RIPPER-style induced rulesets. For each dataset, the current benchmark uses one stratified 80/20 train/test split with split seed 42. Rule induction is run on the training split, producing a frozen ruleset. DSGD mass learning is then repeated over seeds 42--46, while the ordered-rule, first-hit fixed-confidence, and weighted rule-vote baselines are deterministic once the induced ruleset is fixed. Random Forest is trained under the same split protocol with 400 trees and the matching run seed. No cross-validation or repeated train/test resampling is claimed in this snapshot.
 
-Dataset loading drops rows with missing values, removes ID-like columns, factorizes labels in sorted class order, and integer-encodes categorical features while retaining decoders for rule captions. These preprocessing steps are applied by the repository loader before the fixed split. The tabular datasets are drawn from standard public benchmark sources, primarily UCI/OpenML where applicable \cite{uci2017,openml2013}; Dry Bean and Gas Sensor Drift use their UCI dataset entries \cite{drybean2020,gasdrift2012}. The exact CSVs used by this run are the local artifacts named in Table~\ref{tab:dataset_snapshot}.
+This evaluation focuses on supervised FOIL-style and RIPPER-style induced rule sets. For each dataset, the data are partitioned into train and test subsets according to the benchmark pipeline. Rule induction is performed only on the training subset, and the resulting rule set is cached before downstream aggregation is evaluated. DSGD trains only evidential mass parameters on top of the cached rules; it does not add, remove, or rewrite rule antecedents. Random Forest is evaluated under the same train/test partitioning protocol as an external non-rule baseline \cite{breiman2001}.
 
-The benchmark compares several aggregation schemes on the same frozen induced ruleset. Hard-rule baselines are deterministic rule-only predictors that use the induced rules directly, without learned evidential mass parameters. Let $\mathcal{A}(x)=\{r_1,\dots,r_m\}$ denote the fired rules for sample $x$ in the order emitted by the inducer after its internal covering, pruning, and pool-shaping procedure, and let $\hat{y}(r)$ be the label attached to rule $r$.
+The present snapshot does not perform cross-validation or repeated train/test resampling. Consequently, the results should be interpreted as a benchmark comparison under the current partitioning protocol, not as split-robust evidence of superiority.
 
-A rule fires for sample $x$ when $x$ satisfies every literal in the rule antecedent. Ties in argmax-based predictors follow the deterministic array order used by NumPy/PyTorch, i.e., the lowest encoded class index among tied maxima.
+Reported values use the form mean $\pm$ standard deviation over the exported benchmark repetitions.
 
-The ordered-rule baseline predicts from the first activated rule in this emitted order,
+The tabular benchmark contains nine public classification datasets: adult, bank-full, BrainTumor, breast-cancer-wisconsin, df\_wine, dry-bean, gas\_drift, german, and magic-gamma. Standard preprocessing is applied before rule induction, including missing-value filtering and categorical encoding required by the rule inducers. The exact implementation details, rule-generator settings, and cached export generation logic are part of the released benchmark code. Since the present paper does not fully enumerate all inducer hyperparameters, conclusions about FOIL-versus-RIPPER induction quality should be treated cautiously.
+
+The benchmark compares four ways of using the cached induced rules. First, an ordered-rule baseline uses only the first activated rule. Second, a first-hit probability wrapper converts that ordered prediction into a fixed artificial probability vector. Third, weighted vote combines all activated rules using support- and confidence-based rule weights. Fourth, learned Dempster fusion combines learned evidential mass vectors attached to the activated rules. These definitions are given explicitly below because the methods differ not only in aggregation, but also in their behavior when no rule is active.
+
+Let $C$ be the number of classes. For a test sample $x$, let
 \[
-\hat{y}_{\mathrm{native}}(x)=\hat{y}(r_1).
+  \mathcal{A}(x)=(r_1,\ldots,r_m)
 \]
-If no rule fires, the implementation applies its default-class fallback.
+be the ordered list of rules whose antecedents are satisfied by $x$. A rule is active if all literals in its antecedent are true for the sample. Each rule $r$ has an attached consequent class $\hat{y}(r)$. The order of $\mathcal{A}(x)$ is inherited from the emitted rule-pool export. Let $n_k$ be the number of training samples from class $k$, and define the normalized inverse-frequency class-balance vector
+\[
+  \pi_k=\frac{1/n_k}{\sum_{j=1}^{C}1/n_j}.
+\]
+This vector is used only as the no-fire probability fallback for weighted vote.
 
-The first-hit fixed-confidence baseline uses the same first activated rule but assigns a fixed high probability to that predicted class for probability-based metrics. In the current code path this is not a true Laplace estimate from rule support counts, so we do not use the Laplace name for the reported results:
+The ordered-rule baseline predicts from the first activated rule:
 \[
-\begin{aligned}
-\tilde{p}_k(x)&=
-\begin{cases}
-0.9/Z, & k=\hat{y}_{\mathrm{native}}(x),\\
-(0.1/C)/Z, & \text{otherwise},
-\end{cases}
-\\
-Z&=0.9+0.1(C-1)/C.
-\end{aligned}
+  \hat{y}_{\mathrm{native}}(x)=
+  \begin{cases}
+    \hat{y}(r_1), & m>0,\\
+    y_{\mathrm{default}}, & m=0.
+  \end{cases}
 \]
-If no rule fires, the first-hit predictor uses the training-split majority class as its default class.
+Here $y_{\mathrm{default}}$ is the majority class in the training subset. This baseline is mainly a label-producing rule system. Therefore, its exported NLL and ECE values should be interpreted as diagnostic wrapper values rather than as calibrated probabilities produced by the rule system itself.
 
-The weighted rule-vote baseline aggregates all fired rules without learned evidential mass parameters, but each rule's vote is weighted by its training-set support and confidence. Its artifact identifier in the code and CSV files is \code{weighted\_vote}. For each rule $r$, let $s_r$ be its positive training support and let $n_r$ be the number of covered training samples outside the rule's consequent class. We define a Laplace-smoothed rule confidence
+The first-hit fixed-confidence baseline keeps the same hard prediction as the ordered-rule baseline, but assigns a fixed probability vector around it:
 \[
-q_r=\frac{s_r+1}{s_r+n_r+C},
+  p^{\mathrm{fh}}_k(x)=
+  \begin{cases}
+    0.9, & k=\hat{y}_{\mathrm{native}}(x),\\
+    \frac{0.1}{C-1}, & k\neq\hat{y}_{\mathrm{native}}(x).
+  \end{cases}
 \]
-and a support-scaled vote weight
-\[
-w_r=q_r\log(1+s_r).
-\]
-The class scores are then
-\[
-\begin{aligned}
-s_k(x)&=\sum_{r\in\mathcal{A}(x)} w_r\mathbf{1}\{\hat{y}(r)=k\},\\
-\hat{y}_{\mathrm{wv}}(x)&=\arg\max_k s_k(x),
-\end{aligned}
-\]
-and for probability metrics the normalized weighted scores are used, $p_k(x)=s_k(x)/\sum_j s_j(x)$, when at least one rule fires. Thus a high-support, high-confidence rule contributes more than a low-support or low-confidence rule, while no learned masses are introduced in this baseline. If no rule fires, the vote path returns a vacuous evidence state for probability metrics and the label wrapper uses the training-split majority-class fallback.
+This wrapper is not learned and is not estimated from rule support counts. It is included only so that label-only ordered predictions can be evaluated with probability-based diagnostics.
 
-For learned Dempster fusion, each fired rule carries a learned mass vector
+The weighted-vote baseline uses all active rules. For a rule $r$, let $s_r$ be the number of training samples satisfying the antecedent of $r$ and belonging to $\hat{y}(r)$. Let $n_r$ be the number of training samples satisfying the same antecedent but belonging to a different class. The rule confidence proxy and vote weight are
 \[
-m_r=[m_r(\{1\}),\dots,m_r(\{C\}),m_r(\Omega)].
+  q_r=\frac{s_r+1}{s_r+n_r+C},
+  \qquad
+  w_r=q_r\log(1+s_r).
 \]
-For two mass functions $m_1,m_2$, Dempster's normalized combination is
+For a sample $x$, the class vote score is
 \[
-(m_1\oplus m_2)(A)=
-\frac{\sum_{B\cap D=A}m_1(B)m_2(D)}{1-\kappa},\quad A\neq\emptyset,
+  v_k(x)=\sum_{r\in\mathcal{A}(x)}
+  w_r\mathbf{1}\{\hat{y}(r)=k\}.
 \]
-where $\kappa=\sum_{B\cap D=\emptyset}m_1(B)m_2(D)$ is the conflict mass. Repeated fusion over fired rules gives
+If at least one rule is active, weighted vote normalizes these scores:
 \[
-m^\star(x)=\bigoplus_{r\in\mathcal{A}(x)} m_r,
+  p^{\mathrm{wv}}_k(x)=\frac{v_k(x)}{\sum_{j=1}^{C}v_j(x)}.
 \]
-and the final class probabilities are obtained by the pignistic transform
+If no rule is active, it uses the class-balance fallback:
 \[
-\begin{aligned}
-\mathrm{BetP}_k(x) &= m^\star(\{k\})+\frac{m^\star(\Omega)}{C},\\
-\hat{y}_{\mathrm{dsgd}}(x) &= \arg\max_k \mathrm{BetP}_k(x).
-\end{aligned}
+  p^{\mathrm{wv}}_k(x)=\pi_k.
 \]
+The hard prediction is always obtained from the same probability vector:
+\[
+  \hat{y}_{\mathrm{wvote}}(x)=\arg\max_k p^{\mathrm{wv}}_k(x).
+\]
+Ties are broken by the fixed encoded class order. This fallback is a benchmark convention; it is not a Dempster-Shafer vacuous-mass state.
 
-In the tables, ``FOIL + learned Dempster fusion'' and ``RIPPER + learned Dempster fusion'' are the DSGD-Auto variants; ordered-rule, first-hit fixed-confidence, and weighted rule-vote are non-learned aggregation baselines over the same induced rulesets.
+For learned Dempster fusion, each active rule carries a learned sparse mass vector. In the implementation used here, rule $r$ can assign positive singleton mass only to its attached consequent class $\hat{y}(r)$ and positive residual mass to $\Omega$; all other singleton masses are fixed to zero. We still write the vector in $C{+}1$ form,
+\[
+  m_r=[m_r(\{1\}),\dots,m_r(\{C\}),m_r(\Omega)].
+\]
+Its nonzero entries are restricted to $m_r(\{\hat{y}(r)\})$ and $m_r(\Omega)$. For two mass functions $m_1,m_2$, Dempster's normalized combination is
+\[
+  (m_1\oplus m_2)(A)=
+  \frac{\sum_{B\cap D=A}m_1(B)m_2(D)}{1-\kappa},
+  \quad A\neq\emptyset,
+\]
+where
+\[
+  \kappa=\sum_{B\cap D=\emptyset}m_1(B)m_2(D)
+\]
+is the conflict mass. Repeated fusion over the active rules gives
+\[
+  m^\star(x)=\bigoplus_{r\in\mathcal{A}(x)}m_r.
+\]
+The reported class probabilities are obtained by the pignistic readout:
+\[
+  p^{\mathrm{ds}}_k(x)=m^\star(\{k\})+\frac{m^\star(\Omega)}{C},
+  \qquad
+  \hat{y}_{\mathrm{dsgd}}(x)=\arg\max_k p^{\mathrm{ds}}_k(x).
+\]
+If no rule is active, learned Dempster fusion uses the vacuous mass vector $[0,\dots,0,1]$, which gives $p^{\mathrm{ds}}_k(x)=1/C$ and fused uncertainty $1$. Therefore, weighted vote and learned Dempster use different no-fire probability fallbacks. If no-fire samples are frequent, this difference can affect Accuracy, Macro-F1, NLL, and ECE.
 
-\begin{table*}[!t]
-\caption{Main implementation settings for the current benchmark snapshot.}
-\label{tab:hyperparams}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{p{0.20\textwidth}p{0.74\textwidth}}
-\toprule
-Component & Key settings \\
-\midrule
-FOIL-style inducer & Repository-specific sequential covering using FOIL-gain literal growth; candidate thresholds from quantiles/midpoints/stumps; max 400 rules per class and 1600 total; precision tiers $(0.80,8)$, $(0.60,6)$, $(0.40,5)$, $(0.20,4)$ as (min precision, max literals); min positive support 1; optional pool shaping enabled in the current artifacts. \\
-RIPPER-style inducer & Same repository rule-pipeline backbone with a 0.67 grow split and 0.50 negative split, reduced-error pruning, emitted-rule ordering after covering/pruning/pool shaping, and the same rule-count and precision-tier caps. No full canonical RIPPER optimization pass is claimed. \\
-DSGD mass learning & Focal elements are class singletons plus $\Omega$; logits are mapped to masses by softmax; Dempster fusion and pignistic readout; AdamW, learning rate $10^{-3}$, weight decay $2\cdot10^{-4}$, max 100 epochs, batch size 512 (256 on small datasets), validation split 0.2 or 0.25 by profile, early-stop patience 20 or higher by profile, class-balanced NLL with profile-adjusted class-weight power. \\
-Rule baselines & Ordered-rule uses the first fired rule in emitted order; first-hit fixed-confidence assigns 0.9 to the first-hit class before normalization; weighted rule-vote sums activated-rule consequents with support/confidence weights $w_r=q_r\log(1+s_r)$ and normalizes the weighted class scores. \\
-Random Forest & scikit-learn RandomForestClassifier with 400 trees, package-default depth and class weighting, run seed as random state, and the same fixed train/test split. \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-The comparison therefore isolates the effect of aggregation while keeping the underlying induced rules fixed. The FOIL-style and RIPPER-style components are not claimed as unmodified reference implementations of Quinlan's FOIL or Cohen's RIPPER. They reuse the classical grow/cover/prune intuition but include repository-level preprocessing, candidate literal generation, duplicate filtering, emitted ordering, and rule-pool shaping. Therefore the empirical comparison is between aggregation mechanisms over the induced rulesets produced by this repository, not a benchmark of canonical FOIL versus canonical RIPPER.
+To keep near-total-conflict fusion numerically well-defined, the implementation clips $\kappa$ to at most $1-10^{-9}$, lower-bounds $1-\kappa$ by $10^{-9}$, and renormalizes the resulting mass vector. The activation frequency of these safeguards is not separately analyzed in this snapshot.
 
 \section{Validation and Discussion}
-\subsection{Dataset-Level Snapshot}
-The current snapshot covers 9 tabular datasets: \code{adult}, \code{bank-full}, \code{BrainTumor}, \code{breast-cancer-wisconsin}, \code{df\_wine}, \code{dry-bean}, \code{gas\_drift}, \code{german}, and \code{magic-gamma}.
 
-\begin{table}[!t]
-\caption{Best rule-based result versus Random Forest on the current benchmark snapshot. Bold rule values mark the best rule-based value within that dataset row, not a global cross-dataset maximum.}
-\label{tab:dataset_snapshot}
-\centering
-\small
-\setlength{\tabcolsep}{3.5pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{l l c c}
-\toprule
-Dataset & \shortstack[l]{Best rule-based\\(Macro-F1)} & \shortstack[c]{Rule\\Macro-F1} & \shortstack[c]{RF\\Macro-F1} \\
-\midrule
-adult & RIPPER learned Dempster & \textbf{0.7837} & 0.8058 \\
-bank-full & RIPPER learned Dempster & \textbf{0.7133} & 0.7284 \\
-BrainTumor & FOIL weighted rule-vote & \textbf{0.9906} & 0.9930 \\
-breast-cancer-wisconsin & FOIL ordered-rule & \textbf{0.9593} & 0.9605 \\
-df\_wine & FOIL weighted rule-vote & \textbf{0.9930} & 0.9984 \\
-dry-bean & RIPPER learned Dempster & \textbf{0.9296} & 0.9324 \\
-gas\_drift & RIPPER learned Dempster & \textbf{0.9621} & 0.9948 \\
-german & RIPPER learned Dempster & \textbf{0.7128} & 0.7197 \\
-magic-gamma & RIPPER learned Dempster & \textbf{0.8479} & 0.8733 \\
-\bottomrule
-\end{tabular}
-}
+\subsection{Predictive Results}
 
-\vspace{0.5em}
+The central question is whether learning evidential masses over an induced rule pool improves prediction relative to simpler ways of using the same cached rules. The comparison is not intended to show that FOIL or RIPPER induction is universally superior to other tabular learners. Because the methods use different no-fire conventions, part of the measured difference may also reflect fallback behavior on samples for which no rule fires.
 
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{l l c c}
-\toprule
-Dataset & \shortstack[l]{Best rule-based\\(Acc.)} & \shortstack[c]{Rule\\Acc.} & \shortstack[c]{RF\\Acc.} \\
-\midrule
-adult & RIPPER learned Dempster & \textbf{0.8560} & 0.8631 \\
-bank-full & RIPPER learned Dempster & \textbf{0.9005} & 0.9062 \\
-BrainTumor & FOIL weighted rule-vote & \textbf{0.9907} & 0.9931 \\
-breast-cancer-wisconsin & FOIL ordered-rule & \textbf{0.9635} & 0.9635 \\
-df\_wine & FOIL weighted rule-vote & \textbf{0.9931} & 0.9985 \\
-dry-bean & RIPPER learned Dempster & \textbf{0.9174} & 0.9202 \\
-gas\_drift & RIPPER learned Dempster & \textbf{0.9630} & 0.9948 \\
-german & RIPPER learned Dempster & \textbf{0.7950} & 0.7970 \\
-magic-gamma & RIPPER learned Dempster & \textbf{0.8659} & 0.8878 \\
-\bottomrule
-\end{tabular}
-}
+Table~\ref{tab:dataset_snapshot} reports the best rule-based row on each dataset across the evaluated FOIL-style and RIPPER-style pipelines. This is a mixed-pipeline snapshot: it identifies which full rule-generation-plus-aggregation row performed best, but it should not by itself be read as an isolated aggregation-only comparison. Table~\ref{tab:avg_results} reports cross-dataset averages for each method family. For each dataset and method, metrics are first averaged over available exported repetitions; Table~\ref{tab:avg_results} then reports the unweighted mean of those dataset-level means across the nine datasets, with the displayed standard deviation computed over the corresponding repetition-level summaries exported by the benchmark pipeline. The uncertainty columns use the same averaging order. Mean uncertainty denotes average rule-level residual mass assigned to $\Omega$ over active-rule evaluations, and fused uncertainty denotes average residual mass $m^\star(\Omega)$ after rule fusion.
+
+\begin{table}[!b]
+  \caption{Best mixed-pipeline rule-based rows by dataset.}
+  \label{tab:dataset_snapshot}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3.3pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabular}{lcc}
+    \toprule
+    Dataset & Best Acc. & Best Macro-F1 \\
+    \midrule
+    adult & RIPPER + DSGD & RIPPER + DSGD \\
+    bank-full & RIPPER + DSGD & RIPPER + DSGD \\
+    BrainTumor & FOIL + wvote & FOIL + wvote \\
+    breast-cancer-wisconsin & FOIL ordered & FOIL ordered \\
+    df\_wine & FOIL + wvote & FOIL + wvote \\
+    dry-bean & RIPPER + DSGD & RIPPER + DSGD \\
+    gas\_drift & RIPPER + DSGD & RIPPER + DSGD \\
+    german & RIPPER + DSGD & RIPPER + DSGD \\
+    magic-gamma & RIPPER + DSGD & RIPPER + DSGD \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
-DSGD-Auto is often competitive on the same induced rulesets, but its gains are not uniform across datasets or metrics.
-
-\subsection{Interpretation}
-Table~\ref{tab:avg_results} summarizes the cross-dataset averages for the current benchmark snapshot and complements the per-dataset view in Table~\ref{tab:dataset_snapshot}.
-
-\begin{table}[!t]
-\caption{Average benchmark results on the current 9-dataset snapshot. Values are mean $\pm$ mean within-dataset seed standard deviation where multiple seeds vary. Bold marks the best aggregate mean within a metric column. Dashes indicate metrics that are not directly applicable.}
-\label{tab:avg_results}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccccc}
-\toprule
-Method & Acc. & Macro-F1 & NLL & ECE & unc\_mean & unc\_comb \\
-\midrule
-\textbf{Random Forest} & \textbf{0.9250$\pm$0.0011} & \textbf{0.8896$\pm$0.0018} & \textbf{0.1973$\pm$0.0036} & \textbf{0.0241$\pm$0.0024} & --- & --- \\
-\shortstack[l]{RIPPER + learned\\Dempster fusion} & 0.9101$\pm$0.0020 & 0.8737$\pm$0.0033 & 0.2906$\pm$0.0070 & 0.0905$\pm$0.0077 & 0.6200$\pm$0.0097 & \textbf{0.2900$\pm$0.0142} \\
-\shortstack[l]{RIPPER weighted\\rule-vote} & 0.9063$\pm$0.0010 & 0.8598$\pm$0.0012 & 1.0597$\pm$0.0880 & 0.0540$\pm$0.0010 & --- & --- \\
-\shortstack[l]{RIPPER ordered-rule} & 0.8409$\pm$0.0289 & 0.7645$\pm$0.0264 & 4.3972$\pm$0.7978 & 0.1591$\pm$0.0289 & --- & --- \\
-\shortstack[l]{RIPPER first-hit\\fixed-confidence} & 0.8409$\pm$0.0289 & 0.7645$\pm$0.0264 & 0.5722$\pm$0.0837 & 0.1216$\pm$0.0289 & --- & --- \\
-\shortstack[l]{FOIL + learned\\Dempster fusion} & 0.8958$\pm$0.0008 & 0.8467$\pm$0.0016 & 0.3056$\pm$0.0039 & 0.0867$\pm$0.0041 & \textbf{0.5834$\pm$0.0052} & 0.3292$\pm$0.0068 \\
-\shortstack[l]{FOIL weighted\\rule-vote} & 0.8926$\pm$0.0000 & 0.8373$\pm$0.0000 & 1.4160$\pm$0.0000 & 0.0619$\pm$0.0000 & --- & --- \\
-\shortstack[l]{FOIL ordered-rule} & 0.8885$\pm$0.0000 & 0.8292$\pm$0.0000 & 3.0796$\pm$0.0005 & 0.1115$\pm$0.0000 & --- & --- \\
-\shortstack[l]{FOIL first-hit\\fixed-confidence} & 0.8885$\pm$0.0000 & 0.8292$\pm$0.0000 & 0.4102$\pm$0.0001 & 0.0752$\pm$0.0000 & --- & --- \\
-\bottomrule
-\end{tabular}
-}
+\begin{table}[!b]
+  \caption{Average benchmark results. Values are reported as mean $\pm$ standard deviation and rounded to three decimals.}
+  \label{tab:avg_results}
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{1.8pt}
+  \renewcommand{\arraystretch}{1.05}
+  \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lcccccc}
+      \toprule
+      Method & Acc. & Macro-F1 & NLL & ECE & Mean unc. & Fused unc. \\
+      \midrule
+      \textbf{Random Forest}
+        & \textbf{\pmv{.925}{.001}} & \textbf{\pmv{.890}{.002}}
+        & \textbf{\pmv{.197}{.004}} & \textbf{\pmv{.024}{.002}}
+        & --- & --- \\
+      RIPPER + DSGD
+        & \pmv{.910}{.002} & \pmv{.874}{.003}
+        & \pmv{.291}{.007} & \pmv{.091}{.008}
+        & \pmv{.620}{.010} & \pmv{.290}{.014} \\
+      RIPPER + wvote
+        & \pmv{.906}{.001} & \pmv{.860}{.001}
+        & \pmv{1.060}{.088} & \pmv{.054}{.001}
+        & --- & --- \\
+      RIPPER ordered
+        & \pmv{.841}{.029} & \pmv{.765}{.026}
+        & \pmv{4.397}{.798} & \pmv{.159}{.029}
+        & --- & --- \\
+      RIPPER first-hit
+        & \pmv{.841}{.029} & \pmv{.765}{.026}
+        & \pmv{.572}{.084} & \pmv{.122}{.029}
+        & --- & --- \\
+      FOIL + DSGD
+        & \pmv{.896}{.001} & \pmv{.847}{.002}
+        & \pmv{.306}{.004} & \pmv{.087}{.004}
+        & \pmv{.583}{.005} & \pmv{.329}{.007} \\
+      FOIL + wvote
+        & \pmv{.893}{.000} & \pmv{.837}{.000}
+        & \pmv{1.416}{.000} & \pmv{.062}{.000}
+        & --- & --- \\
+      FOIL ordered
+        & \pmv{.889}{.000} & \pmv{.829}{.000}
+        & \pmv{3.080}{.001} & \pmv{.112}{.000}
+        & --- & --- \\
+      FOIL first-hit
+        & \pmv{.889}{.000} & \pmv{.829}{.000}
+        & \pmv{.410}{.000} & \pmv{.075}{.000}
+        & --- & --- \\
+      \bottomrule
+    \end{tabular}%
+  }
 \end{table}
 
-We report both mean activated-rule ignorance and combined ignorance after fusion. Here \code{unc\_mean} is the per-sample average $\Omega$ mass over activated rules, with no-fire samples assigned full ignorance, and \code{unc\_comb} is the fused $\Omega$ mass after Dempster aggregation. Uncertainty metrics are reported only for methods that produce an evidential mass function with an explicit $\Omega$ component. Non-evidential hard-rule baselines and Random Forest do not produce a directly comparable $\Omega$ mass, so their uncertainty entries are marked as not applicable. Expected calibration error uses 15 equal-width confidence bins \cite{guo2017}.
+The per-dataset mixed-pipeline snapshot shows a non-uniform pattern. RIPPER + learned Dempster is the strongest rule-based row on six of the nine datasets for both Accuracy and Macro-F1. Weighted vote remains strongest on BrainTumor and df\_wine, while ordered FOIL rules remain strongest on breast-cancer-wisconsin. Because Table~\ref{tab:dataset_snapshot} compares complete FOIL-style and RIPPER-style pipelines, these wins combine rule-pool effects and aggregation effects.
 
-Across the nine datasets, learned Dempster fusion is the best rule-based Accuracy variant on 6/9 datasets and the best rule-based Macro-F1 variant on 7/9 datasets. Against the matching weighted rule-vote baseline, learned Dempster improves Accuracy on 6/9 RIPPER rows and 5/9 FOIL rows, and improves Macro-F1 on 8/9 RIPPER rows and 5/9 FOIL rows. These paired counts are descriptive; with only nine datasets they should not be read as conclusive significance evidence.
+Within each inducer family in Table~\ref{tab:avg_results}, RIPPER + learned Dempster improves over RIPPER weighted vote in mean Accuracy and Macro-F1, and FOIL + learned Dempster improves over FOIL weighted vote on both metrics. Random Forest gives the best overall predictive scores. DSGD-Auto is therefore best viewed as an interpretable evidential aggregation method rather than a replacement for Random Forest when only predictive performance matters.
 
-Random Forest remains the stronger pure predictive baseline on most datasets: it is stronger than or tied with the best rule-based row on 9/9 datasets for both Accuracy and Macro-F1. The motivation for DSGD-Auto is therefore not raw accuracy dominance over Random Forest, but the combination of competitive rule-based accuracy, explicit fired-rule structure, learned uncertainty mass, and inspectable sample-level explanations.
+Calibration is mixed. Learned Dempster fusion obtains substantially lower NLL than weighted vote for both FOIL and RIPPER, but weighted vote obtains lower aggregate ECE in this snapshot. Thus, learned Dempster fusion improves likelihood fit relative to weighted vote in these averages, but it does not improve calibration uniformly. A more precise analysis would require stratification by no-fire cases, active-rule counts, and high-conflict cases.
 
-Calibration remains a limitation. Lower NLL does not coincide with better calibration here: in this benchmark snapshot, learned Dempster fusion often improves NLL relative to the weighted rule-vote baseline, while ECE remains worse for both FOIL and RIPPER. After aligning the learned model's training and reporting readout to the standard pignistic redistribution $m^\star(\Omega)/C$, the ECE gap remains dataset-sensitive rather than disappearing. The large NLL gap between weighted rule-vote and learned Dempster fusion should not be read as a proportional accuracy gain. The weighted-vote baseline produces rule-quality-weighted probability vectors from normalized class scores, so NLL is sensitive to score sharpness even when Accuracy/Macro-F1 changes are small.
+\begin{table}[!b]
+  \caption{Average rule and aggregated-explanation lengths.}
+  \label{tab:rule_lengths}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2.6pt}
+  \renewcommand{\arraystretch}{1.00}
+  \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lcccc}
+      \toprule
+      Dataset & RIPPER & FOIL & RIPPER DS agg. & FOIL DS agg. \\
+      \midrule
+      adult & 5.01$\pm$0.18 & 5.73$\pm$0.00 & 5.97$\pm$0.43 & 6.15$\pm$0.00 \\
+      bank-full & 4.81$\pm$0.00 & 5.43$\pm$0.00 & 8.50$\pm$0.00 & 9.83$\pm$0.00 \\
+      BrainTumor & 2.53$\pm$0.00 & 3.80$\pm$0.00 & 5.28$\pm$0.00 & 6.27$\pm$0.00 \\
+      breast-cancer-wisconsin & 1.31$\pm$0.00 & 1.96$\pm$0.00 & 3.69$\pm$0.00 & 4.19$\pm$0.01 \\
+      df\_wine & 1.58$\pm$0.20 & 3.88$\pm$0.00 & 1.69$\pm$0.15 & 6.92$\pm$0.00 \\
+      dry-bean & 5.29$\pm$0.00 & 6.22$\pm$0.00 & 10.84$\pm$0.00 & 11.96$\pm$0.00 \\
+      gas\_drift & 3.98$\pm$0.00 & 4.14$\pm$0.00 & 8.44$\pm$0.00 & 8.55$\pm$0.00 \\
+      german & 3.00$\pm$0.00 & 4.04$\pm$0.00 & 4.74$\pm$0.02 & 4.16$\pm$0.03 \\
+      magic-gamma & 5.48$\pm$0.00 & 6.54$\pm$0.00 & 7.99$\pm$0.00 & 8.09$\pm$0.00 \\
+      \bottomrule
+    \end{tabular}%
+  }
+\end{table}
 
-\subsubsection{Worked Example}
-One inspection export from the adult/RIPPER benchmark split shows how the model turns a set of active rules into one readable inspection summary.\footnote{Inspection artifact: \code{sample\_13131\_test\_dempster.md} under \code{src/results/raw\_runs/inspection/adult/RIPPER/}.} For this sample, five rules fire:
-\begin{itemize}
-\item \code{R84: age > 53 \& capital.gain < 5013 \& education == HS-grad \& ...}, $m=[0.7718, 0.0000, 0.2282]$
-\item \code{R199: age > 30 \& fnlwgt > 1.304e+05 \& occupation == Prof-specialty \& ...}, $m=[0.0000, 0.4473, 0.5527]$
-\item \code{R164: age > 31 \& hours.per.week > 32 \& occupation == Prof-specialty \& ...}, $m=[0.0000, 0.3068, 0.6932]$
-\item \code{R119: age > 57 \& capital.gain < 5013 \& hours.per.week < 42 \& ...}, $m=[0.2993, 0.0000, 0.7007]$
-\item \code{R169: marital.status == Married-civ-spouse}, $m=[0.1974, 0.0000, 0.8026]$
-\end{itemize}
+Table~\ref{tab:rule_lengths} reports the average length of the induced rules and the average length of the Dempster-Shafer aggregated explanations on the test subset. The RIPPER and FOIL columns measure the average number of antecedent literals in the original induced rules. The DS aggregated columns measure the average number of literals retained in the post-hoc explanation produced after the active rules are fused and their positive evidence is summarized.
 
-These five rule masses are fused for prediction. The combined explanation shown below is not a sixth learned rule; it is a post-hoc readability summary that merges repeated or compatible literals from positively contributing activated rules and assigns display weights to the resulting literals. For a fired rule $r$, the mass-mode display contribution is positive when the rule supports the predicted class and negative when the largest opposing singleton dominates; the positive contribution is divided by the number of literals in $r$. Compatible literal contributions are merged, and each merged literal receives normalized display weight proportional to $1-\prod_r(1-s_r)$, where $s_r$ is the contributing rule score multiplied by $(1-m_r(\Omega))$. These explanation weights are separate from the weighted rule-vote baseline, whose prediction weights are computed from support and confidence statistics. The summary is not guaranteed to be logically equivalent to the full fired-rule set. The inspection view therefore presents one weighted explanation summary:
-{\scriptsize
+The aggregated explanations are generally longer than individual induced rules because a Dempster-Shafer prediction may depend on several active rules rather than on a single first-hit rule. The aggregated explanation should therefore be interpreted as a compact post-hoc summary, not as a faithful algebraic decomposition of Dempster's rule.
+
+\subsection{Worked Example}
+
+The following example illustrates an aggregated explanation for one inspected sample from the Adult dataset. In this binary example, coordinate~1 corresponds to \code{<=50K}, and coordinate~2 corresponds to \code{>50K}. Five rules are active:
+
+\begin{center}
+  \scriptsize
+  \setlength{\tabcolsep}{2.2pt}
+  \begin{tabular}{@{}l p{0.52\columnwidth} l@{}}
+    \toprule
+    Rule & Antecedent excerpt & $m_r$ \\
+    \midrule
+    $R_{84}$ & age $>53$, capital gain $<5013$, education $=$ HS-grad, $\ldots$ & $[.772,.000,.228]$ \\
+    $R_{199}$ & age $>30$, fnlwgt $>1.304{\times}10^{5}$, occupation $=$ Prof-specialty, $\ldots$ & $[.000,.447,.553]$ \\
+    $R_{164}$ & age $>31$, hours per week $>32$, occupation $=$ Prof-specialty, $\ldots$ & $[.000,.307,.693]$ \\
+    $R_{119}$ & age $>57$, capital gain $<5013$, hours per week $<42$, $\ldots$ & $[.299,.000,.701]$ \\
+    $R_{169}$ & marital status $=$ Married-civ-spouse & $[.197,.000,.803]$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+Each row shows a rule antecedent and the learned mass vector assigned to that rule. For a binary task, the first two coordinates represent support for the two class singletons, and the last coordinate represents residual uncertainty $m_r(\Omega)$. Under the sparse parameterization used here, a rule assigns singleton mass only to its attached consequent class.
+
+The rule masses are fused for prediction by Dempster's rule. The aggregated explanation below is post-hoc: it summarizes which input conditions are most associated with the final prediction under the chosen explanation heuristic, but it does not change the prediction itself. Let $\hat{y}\equiv\hat{y}_{\mathrm{dsgd}}(x)$ be the final predicted class, and let $y_r\equiv\hat{y}(r)$ be the class label attached to active rule $r$. The explanation uses the normalized active-rule weight
 \[
-\begin{aligned}
-\code{combined\_explanation} &\approx
-0.150[\code{age > 57}] \\
-&+0.150[32 < \code{hours.per.week} < 40] \\
-&+0.145[\code{marital.status == Married-civ-spouse}] \\
-&+0.130[130420 < \code{fnlwgt} < 172960] \\
-&+0.116[\code{capital.gain < 5013}] + \cdots
-\end{aligned}
+  \rho_r=\frac{w_r}{\sum_{r'\in\mathcal{A}(x)}w_{r'}},
 \]
-}
-and the final fused output is reported as
-{\small
+where $w_r$ is the support- and confidence-based rule weight used in weighted vote. If all active-rule weights are zero, $\rho_r$ is set uniformly over active rules. The explanation-only contribution of rule $r$ is
 \[
-\begin{aligned}
-p &= [0.7756, 0.2244],\\
-m &= [0.7225, 0.1712, 0.1063].
-\end{aligned}
+  \alpha_r=\rho_r
+  \begin{cases}
+    m_r(\{\hat{y}\}), & y_r=\hat{y},\\[2pt]
+    -\tfrac{1}{2}m_r(\{y_r\}), & y_r\neq\hat{y}.
+  \end{cases}
 \]
-}
-This reduces the sample-level display from several overlapping active rules to one combined explanation summary with explicit literal weights, together with the final class probabilities and remaining uncertainty.
+This linear form avoids an unintended squaring of rule commitment under the sparse parameterization. The negative half-weight is a heuristic penalty used only for explanation scoring; it is not part of Dempster fusion. Only positive $\alpha_r$ values are propagated to literals. If rule $r$ has $L_r$ antecedent literals, each receives $\alpha_r/L_r$. Repeated literals are then merged; equality conditions retain the most-supported value, while numeric bounds retain the tightest interval implied by contributing rules.
 
-\subsubsection{Hard Cases}
-We also study a hard-case subset of the benchmark test split. A sample enters this subset when the fired rules show at least one difficult pattern on the same dataset/inducer ruleset. The implemented criteria are: rule-label disagreement; high simultaneous firing depth, defined as $n_{\mathrm{fired}}\geq\max(3,\lceil Q_{0.75}(n_{\mathrm{fired}})\rceil)$ within the same dataset/inducer test split; low weighted-vote margin, defined as top-1 minus top-2 weighted-vote probability at most $0.15$; minority support for the true class, where the true class has at least one fired rule but the strongest wrong class has at least one more fired rule; or the pattern ``one true rule versus many wrong rules,'' where exactly one fired rule supports the true class and at least two fired rules support a wrong class.
+For the inspected sample, the aggregated explanation is:
+\begin{equation*}
+\begin{gathered}
+\text{aggregated explanation}\approx \\
+.150[\text{age} > 57] \\
+{}+ .150[32 < \text{hours/week} < 40] \\
+{}+ .145[\text{marital} = \text{Married-civ-spouse}] \\
+{}+ .130[130420 < \text{fnlwgt} < 172960] \\
+{}+ .116[\text{capital gain} < 5013] + \cdots .
+\end{gathered}
+\end{equation*}
+The notation is intentionally compact: each bracketed condition is a literal or a merged literal range, and the coefficient is its positive post-hoc explanation score after active-rule contributions have been distributed across literals.
 
-This subset is not a separate benchmark. It is a diagnostic slice of the same test split. The current hard-case export contains 26,928 samples across 18 dataset/inducer subsets. Learned Dempster fusion improves over weighted rule-vote on 8/18 hard-case subsets by Accuracy and 9/18 by Macro-F1, with mean deltas of +0.0024 Accuracy and +0.0080 Macro-F1. These numbers are diagnostic, not proof of systematic hard-case superiority.
+The final fused output is:
+\[
+  p^{\mathrm{ds}}=[.776,.224],
+  \qquad
+  m^\star=[.723,.171,.106].
+\]
+The pignistic output assigns probability $.776$ to \code{<=50K} and $.224$ to \code{>50K}; the fused mass is $[.723,.171,.106]$. The prediction is therefore dominated by \code{<=50K} evidence, with limited opposing support and residual uncertainty. The explanation summarizes positively scored fired-rule conditions, but it is not a causal proof.
 
 \subsection{Limitations}
-The current results should be read as a fixed-split, multi-seed benchmark of a frozen-rule aggregation pipeline. They do not by themselves prove split-robust superiority, rule-diversity effects, or a general interpretability advantage. Stronger claims would require repeated train/test splits, ablations of rule-pool shaping, and direct analysis of rule overlap, fired-rule counts, conflict rates, and calibration under distributional variation. We also do not include an empirical reimplementation of prior DS classifiers such as Pe\~nafiel et al.; the present comparison is restricted to aggregation variants over the repository's induced rulesets plus Random Forest as an external predictive reference.
+
+The main limitation is that Dempster-Shafer aggregation does not create new rule structure. DSGD-Auto can only reweight and combine the evidence supplied by the induced rule pool. If the rule pool misses important regions of the input space, contains weak antecedents, or encodes misleading consequents, learned masses can reduce but not remove this structural limitation.
+
+The second limitation is the independence assumption implicit in Dempster-style fusion. Fired rules are often not independent: they may share literals, cover overlapping samples, or express similar decision patterns. In such cases, combining them as separate pieces of evidence can overemphasize repeated information. The learned uncertainty mass partly softens this effect, but it does not fully solve dependence between rules.
+
+A further limitation is conflict handling. Dempster's normalized rule redistributes conflict among non-empty hypotheses. This can be useful when several partially reliable rules disagree, but it can also amplify confident evidence when the active rules are strongly contradictory. Therefore, high-conflict cases require separate inspection rather than being treated as ordinary aggregated predictions.
+
+No-fire behavior is also a theoretical boundary of the model. When no rule fires, learned Dempster fusion returns a vacuous mass and therefore a uniform pignistic distribution. This is a conservative uncertainty state, not a learned extrapolation outside the covered rule regions. Thus, DSGD-Auto is naturally strongest when the induced rules provide meaningful coverage of the test space.
+
+Finally, the method should be understood as evidential aggregation over a fixed symbolic representation, not as a full theory of rule induction. The FOIL-style and RIPPER-style generators determine which symbolic evidence is available; DSGD-Auto only learns how much support and residual uncertainty to assign to that evidence. Future work should therefore study rule dependence, conflict behavior, coverage, and uncertainty calibration as theoretical properties of the combined rule-and-evidence system.
 
 \section{Conclusion}
-On the present benchmark, learned evidential aggregation on FOIL- and RIPPER-induced rules is often competitive with simpler rule aggregation on the same rulesets.
 
-The main positive result is that DSGD-Auto can match or improve some rule-based baselines while preserving an inspection-friendly decision structure through explicit rule masses and fusion. The main limitation is that these gains are uneven across datasets and do not translate into uniformly better calibration.
+This work evaluates DSGD-Auto as learned evidential aggregation over cached FOIL/RIPPER-style rule pools. The method does not change the symbolic rule structure; instead, it learns how much class support and residual uncertainty each fired rule should contribute.
 
-These results support benchmark-level competitiveness of evidential aggregation in the evaluated setting, while broader superiority claims would require stronger split-robust and calibration-focused validation.
+The main result is that learned Dempster-Shafer fusion can improve rule-based prediction while preserving inspectability of fired rules, rule masses, fused uncertainty, and post-hoc explanations. Its value is therefore not only predictive, but also structural: it connects symbolic rule evidence with uncertainty-aware aggregation.
+
+The method is not a universal replacement for strong tabular ensembles. Its behavior depends on the quality, coverage, dependence, and conflict structure of the induced rule pool. Future work should study these theoretical properties more directly, especially rule dependence, conflict normalization, no-fire uncertainty, and calibration of learned evidential masses.
 
 \begin{thebibliography}{99}
+
 \bibitem{dempster1968}
 A. P. Dempster, ``A generalization of Bayesian inference,'' \emph{Journal of the Royal Statistical Society: Series B}, vol. 30, no. 2, pp. 205--232, 1968.
 
@@ -297,20 +389,6 @@ A. Tarkhanyan and A. Harutyunyan, ``DSGD++: Performance and robustness improveme
 \bibitem{breiman2001}
 L. Breiman, ``Random forests,'' \emph{Machine Learning}, vol. 45, no. 1, pp. 5--32, 2001.
 
-\bibitem{guo2017}
-C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, ``On calibration of modern neural networks,'' in \emph{Proc. ICML}, pp. 1321--1330, 2017.
-
-\bibitem{uci2017}
-D. Dua and C. Graff, ``UCI Machine Learning Repository,'' University of California, Irvine, 2017.
-
-\bibitem{openml2013}
-J. Vanschoren, J. N. van Rijn, B. Bischl, and L. Torgo, ``OpenML: Networked science in machine learning,'' \emph{SIGKDD Explorations}, vol. 15, no. 2, pp. 49--60, 2013.
-
-\bibitem{drybean2020}
-UCI Machine Learning Repository, ``Dry Bean Dataset,'' 2020, doi: 10.24432/C50S4B.
-
-\bibitem{gasdrift2012}
-UCI Machine Learning Repository, ``Gas Sensor Array Drift Dataset,'' 2012.
 \end{thebibliography}
 
 \end{document}
